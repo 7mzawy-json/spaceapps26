@@ -84,7 +84,7 @@ Model providers call this "tool use" or "function calling". It works with Claude
 | Chat is first on the cut list | Chat is a main feature, so it moves down the cut list and needs build time earlier (not Saturday 20:30) |
 | AI at runtime is for briefs and chat only | Same, but the chat becomes a second way to drive the page, next to the manual controls |
 
-These are changes to decisions marked "do not reopen", so the team lead has to agree before any of
+These are changes to decisions marked "do not reopen", so the whole team has to agree before any of
 this goes into the lane folders.
 
 ## Risks
@@ -99,7 +99,7 @@ this goes into the lane folders.
 
 ## Open questions
 
-1. Does the team lead accept raising the chat to a main feature?
+1. Does the team agree to raising the chat to a main feature?
 2. Which model and provider (the roadmap says Claude)?
 3. Which actions make the first version, and which wait?
 4. Should every answer be undoable in one click?

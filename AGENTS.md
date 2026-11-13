@@ -16,9 +16,14 @@ The build plan lives in `ROADMAP.md` once written. Follow it phase by phase; do 
 | Sun Nov 15, 15:30 | **Project submission. Nothing lands after this.** |
 | Sun Nov 15, 16:00 | Local judging |
 
+## Team
+
+Three people, each with their own lane and folders (see "Team and lanes" in `ROADMAP.md`).
+An agent edits only the files of the lane it is working for.
+
 ## Working conditions
 
-- All work runs on a Windows 11 desktop (Ryzen 7 9700X, Radeon RX 7700 XT, 32 GB RAM) that the
+- The team lead's work runs on a Windows 11 desktop (Ryzen 7 9700X, Radeon RX 7700 XT, 32 GB RAM) that the
   human drives remotely from an old MacBook. Nobody is at the keyboard.
 - The GPU is AMD: no CUDA. Do not pick CUDA-only libraries. Heavy GPU work goes to a cloud machine.
 - Never start anything that needs a click on the desktop (GUI installers, browser logins, UAC prompts).

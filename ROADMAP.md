@@ -1,6 +1,6 @@
 # ROADMAP: Flashpoint
 
-Draft 2 of 2026-11-12. **Re-check on Fri Nov 13** when NASA publishes the Resources tab, the Project
+Draft 3 of 2026-11-13 (team grew from one person to three). **Re-check on Fri Nov 13** when NASA publishes the Resources tab, the Project
 Submission Guide and the Judging and Awards Guide. Background: `docs/challenge/flame-in-freefall.md`
 and `docs/challenge/research-notes.md`. Read both before starting any phase.
 Visual target: `docs/mockup/flashpoint.html` (its data points are placeholders, never copy them).
@@ -38,7 +38,7 @@ astronauts are about to live.
 
 | Topic | Decision |
 |---|---|
-| Team | One human plus AI agents. One agent works at a time. Phases are strictly sequential. |
+| Team | Three humans plus AI agents, split into three lanes (see "Team and lanes"). Inside a lane, one agent works at a time and phases stay in order. |
 | Stack | Next.js (App Router, TypeScript, Tailwind) on Vercel. The map is hand-written SVG, no chart library. |
 | Data prep | One-off Python scripts in `scripts/`, run with `uv run`. Output is JSON committed to `data/`. |
 | Design | Final UI follows the "Design rules" section below. The mockup shows layout and behaviour only, not the final look. |
@@ -72,6 +72,35 @@ docs/ai-usage-log.md              running log of AI use (required for submission
 `data/tests.json` row: `accession`, `test_id`, `fuel`, `fuel_phase`, `o2_pct`, `pressure_psi`,
 `pressure_from` ("test" or "investigation"), `flow_cm_s`, `gravity` ("0g" or "1g"),
 `outcome` ("burned", "self_extinguished", "suppressed", "unknown"), `source` (file name or URL).
+
+## Team and lanes
+
+Three people, three lanes. A lane owns its folders, and nobody edits another lane's files without
+asking first. That one rule is what keeps three people from spending Sunday on merge conflicts.
+The lane assignments below are a default. Swap names once skills are known, but keep the folder split.
+
+| Lane | Owner | Owns | Phases |
+|---|---|---|---|
+| Data | Team lead (drives the agents on the desktop) | `scripts/`, `data/`, `lib/` | 0, 1, 2, 3, 5 (predictor and briefs) |
+| Interface | Teammate 2 | `app/`, `components/`, styles | 4, 6, 7 (flame visual from 5) |
+| Story | Teammate 3 | `docs/`, the About page text, pitch and submission | 8, plus the checks below |
+
+- **The contract between Data and Interface** is the `data/tests.json` row shape in "File layout".
+  It is frozen. Interface builds against `data/tests.sample.json` (ten made-up rows, every one marked
+  `"source": "SAMPLE"`) until real rows land at the 12:30 gate, then deletes the sample file.
+  A sample row must never reach the deployed site.
+- **Story lane, from the first hour:** keep `docs/ai-usage-log.md`, read all of `data/enriched.json`
+  and fix errors by hand (the "human-checked" step), collect NASA images with credits, take the
+  questions to each mentor round, and click through the live site every two hours as a first-time user.
+  On Sunday: demo script, slides or video, submission text.
+- **Git:** one branch per lane (`data`, `ui`, `story`). Merge into `main` whenever a step works, at
+  least every two hours. Pull `main` before starting a step. Only `main` deploys to the public URL;
+  Vercel gives every branch its own preview link.
+- **Sync points:** 12:30 (data gate), 15:00 (after mentor round I), 17:30, 21:30 on Saturday; 09:30 and
+  12:00 (feature freeze) on Sunday. Five minutes each: what is merged, what is blocked, what gets cut.
+- The times in the phases below were written for one person working in sequence. With lanes, Phase 4
+  starts at 10:15 on Saturday alongside Phases 1 to 3 instead of waiting for them. Use the time this
+  frees for polish, never for new features. The cut order still applies.
 
 ## Which agent does what
 
@@ -120,6 +149,9 @@ NASA's rule: no work on the challenge before the hackathon. No project code and 
 - [ ] Human: create an Anthropic API key with a small credit balance. Keep it out of chat.
 - [ ] Agent: confirm Vercel access works from this machine (list teams). Confirm `uv`, `node`, `gh` run.
 - [ ] Human: test Remote Control and Chrome Remote Desktop from the venue network if possible.
+- [ ] Teammates: accept the GitHub invitation, join the team on spaceappschallenge.org, read this file
+      and `AGENTS.md`, and confirm `git` and `node` run on the laptop they will bring.
+- [ ] Team: confirm or swap the lane owners in "Team and lanes".
 
 ## Saturday Nov 14
 

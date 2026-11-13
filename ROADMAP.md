@@ -104,9 +104,22 @@ The lane assignments below are a default. Swap names once skills are known, but 
 
 ## Which agent does what
 
-- **Strong model (Claude Fable or Opus):** Phase 2 (reading data files, building `tests.json`), Phase 5
-  (predictor and brief prompts), Phase 8 (pitch). These need judgment about the science.
-- **Sonnet or Codex:** every other phase. Clear steps, clear done-check.
+Default: Sonnet 5.5 at medium effort. Switch up only for the rows marked high.
+
+| Work | Model | Effort |
+|---|---|---|
+| Data: Phase 2 (NASA files into `tests.json`) | Fable 5.2 | high |
+| Data: Phase 5 (predictor and brief prompts) | Fable 5.2 | high |
+| Data: Phases 0, 1, 3 | Sonnet 5.5 | medium |
+| Interface: design foundations, hero, the map | Opus 5.5 or Fable 5.2 | high |
+| Interface: everything else | Sonnet 5.5 | medium |
+| Story: log, credits, checking summaries | Sonnet 5.5 | medium |
+| Story: Phase 8 (pitch and submission text) | Fable 5.2 | high |
+
+- Do not use xhigh or max effort: waiting costs more than it gains in an 18-hour event. Go from
+  medium to high only after a step fails once.
+- Usage limits are shared if an account is shared. Check the usage page before a long strong-model run.
+- Haiku 5.5 is for quick questions only, never for project code. Codex can take any Sonnet row.
 - Claude Code skills to invoke where available: **`taste-skill:gpt-tasteskill` before writing any UI
   (required by the human)**, `dataviz` before the map, `claude-api` before any script or route that
   calls Claude, `code-review` before the feature freeze, `humanizer:humanizer` on submission text.

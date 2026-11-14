@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Video 1.2: Gravity and the shape of fire</title>
+<!-- Learners page video 1.2. AI-assisted animation (Claude Code). Original drawings; the look follows flat geometric
+     science explainers. Drawn as a pure function of time by engine.js. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;600&family=Geist+Mono:wght@500&display=block" rel="stylesheet">
+<link rel="stylesheet" href="scene.css">
+</head>
+<body>
+<svg id="stage" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid meet" aria-label="Animation: gravity and the shape of fire"></svg>
+<div id="cap" hidden></div>
+<div id="ctl" hidden><button type="button">Play</button><input type="range" min="0" value="0" aria-label="Time"><output>0.0 s</output></div>
+<script src="engine.js"></script>
+<script>
+E.scene('1-2', function (E, root) {
+  var C = E.C, el = E.el, set = E.set, text = E.text, at = E.at, win = E.window;
+  var B = {};
+  ['teardrop', 'gravity', 'rises', 'formula', 'remove_g', 'station', 'sphere', 'smother', 'scale', 'count', 'between']
+    .forEach(function (b) { B[b] = E.beat(b); });
+  var END = E.timing.duration;
+  var FX = 700, FY = 520;   // where the flame sits on the wick
+
+  /* ---------- gradients ---------- */
+  var defs = el('defs', {}, root);
+  function radial(id, stops, cy) {
+    var g = el('radialGradient', { id: id, cx: '50%', cy: cy || '50%', r: '60%' }, defs);
+    stops.forEach(function (s) { el('stop', { offset: s[0], 'stop-color': s[1], 'stop-opacity': s[2] === undefined ? 1 : s[2] }, g); });
+  }
+  radial('warm', [[0, C.cream], [.35, C.amber], [.8, C.red, .9], [1, C.red, 0]], '72%');
+  radial('cool', [[0, '#ff9a3c', .55], [.55, '#ff9a3c', .18], [.8, C.blue, .95], [1, C.blue, 0]]);
+  radial('haloWarm', [[0, C.amber, .5], [1, C.amber, 0]]);
+  radial('haloCool', [[0, C.blue, .45], [1, C.blue, 0]]);
+  var wax = el('linearGradient', { id: 'wax', x1: 0, x2: 1 }, defs);
+  el('stop', { offset: 0, 'stop-color': '#c9c2b4' }, wax); el('stop', { offset: .5, 'stop-color': '#f2ece0' }, wax); el('stop', { offset: 1, 'stop-color': '#b8b0a2' }, wax);
+
+  /* ---------- chapter label ---------- */
+  var chap = el('g', {}, root);
+  text('1.2', { x: 96, y: 118, 'font-family': 'Geist Mono', 'font-size': 34, fill: C.red }, chap);
+  text('Gravity and the shape of fire', { x: 178, y: 118, 'font-family': 'Geist', 'font-weight': 600, 'font-size': 40, fill: C.ink }, chap);
+
+  /* ---------- where we are ---------- */
+  var place = text('EARTH · 1 g', { x: FX, y: FY + 440, 'text-anchor': 'middle', 'font-family': 'Geist Mono', 'font-size': 30, fill: C.muted, 'letter-spacing': 4 }, root);
+
+  /* ---------- the flame ---------- */
+  var scene = el('g', {}, root);
+  var candle = el('g', {}, scene);
+  el('rect', { x: FX - 44, y: FY + 64, width: 88, height: 300, rx: 14, fill: 'url(#wax)' }, candle);
+  el('ellipse', { cx: FX, cy: FY + 64, rx: 44, ry: 12, fill: '#fbf7ef' }, candle);
+  el('path', { d: 'M' + FX + ' ' + (FY + 64) + ' Q ' + (FX + 4) + ' ' + (FY + 40) + ' ' + FX + ' ' + (FY + 22), stroke: '#2a2622', 'stroke-width': 7, fill: 'none', 'stroke-linecap': 'round' }, candle);
+  var halo = el('circle', { cx: FX, cy: FY - 40, r: 260 }, scene);
+  var flameCool = el('path', { fill: 'url(#cool)' }, scene);
+  var flame = el('path', { id: 'flame', fill: 'url(#warm)' }, scene);
+  var core = el('path', { fill: C.blue, opacity: .55 }, scene);
+
+  // 0 g: a circle centred on the wick. k = 1: a teardrop, its top stretched and narrowed by buoyancy.
+  function shape(k, R, cx, cy, wob) {
+    var d = '';
+    for (var i = 0; i <= 90; i++) {
+      var a = i / 90 * 2 * Math.PI, s = Math.sin(a), up = Math.max(0, s);
+      var x = cx + R * Math.cos(a) * (1 - .58 * k * up * up) + wob * up * up * up;
+      var y = cy - R * s * (s > 0 ? 1 + 2.5 * k * up : 1 - .35 * k);
+      d += (i ? 'L' : 'M') + x.toFixed(1) + ' ' + y.toFixed(1);
+    }
+    return d + 'Z';
+  }
+
+  /* ---------- buoyancy: hot gas rises, cool air flows in ---------- */
+  var flow = el('g', {}, scene), hot = [], cold = [], r = E.rand(12);
+  for (var i = 0; i < 16; i++) hot.push({ e: el('circle', { r: 9 + r() * 9, fill: C.amber }, flow), p: r(), x: (r() - .5) * 90 });
+  for (var j = 0; j < 12; j++) cold.push({ e: el('circle', { r: 15 + r() * 6, fill: '#4a6aa8' }, flow), p: r(), side: j % 2 ? 1 : -1, y: r() * 120 });
+  var lblHot = text('hot gas: lighter, rises', { x: FX + 150, y: FY - 330, 'font-family': 'Geist', 'font-size': 32, fill: C.amber }, scene);
+  var lblCold = text('cooler, denser air flows in', { x: FX + 120, y: FY + 250, 'font-family': 'Geist', 'font-size': 32, fill: C.blueSoft }, scene);
+  // gravity switches off from remove_g; the flow coasts to a stop
+  function gOf(t) { return 1 - at(t, B.remove_g + .4, 2.2, E.ease.inOut); }
+  function buoy(t) { return at(t, B.rises - .3, 1.2) * gOf(t); }
+
+  /* ---------- gravity arrow ---------- */
+  var arrow = el('g', {}, root), AX = FX + 380;
+  var shaft = el('line', { x1: AX, y1: FY - 220, stroke: C.ink, 'stroke-width': 10, 'stroke-linecap': 'round' }, arrow);
+  var head = el('path', { fill: C.ink }, arrow);
+  var gLbl = text('g', { x: AX + 34, y: FY - 30, 'font-family': 'Geist Mono', 'font-size': 56, fill: C.ink }, arrow);
+
+  /* ---------- formula panel ---------- */
+  var panel = el('g', {}, root), PX = 1130, PY = 300;
+  el('rect', { x: PX, y: PY, width: 700, height: 400, rx: 28, fill: C.panel, stroke: C.line, 'stroke-width': 2 }, panel);
+  text('UPWARD PUSH ON HOT GAS', { x: PX + 48, y: PY + 70, 'font-family': 'Geist Mono', 'font-size': 24, fill: C.muted, 'letter-spacing': 3 }, panel);
+  var fx = el('text', { x: PX + 48, y: PY + 180, 'font-family': 'Geist Mono', 'font-size': 54, fill: C.ink }, panel);
+  var pieces = [['F', 0], [' = (ρ', 0], ['air', 1], [' − ρ', 0], ['hot', 1], [') × ', 0], ['g', 0]].map(function (p) {
+    var ts = el('tspan', p[1] ? { 'font-size': 30, dy: 12 } : { dy: p[0] === ' − ρ' || p[0] === ') × ' ? -12 : 0 }, fx);
+    ts.textContent = p[0]; return ts;
+  });
+  pieces[0].setAttribute('dy', 0);
+  var gPiece = pieces[6];
+  var legend = el('g', {}, panel);
+  text('ρ   density of the gas', { x: PX + 48, y: PY + 260, 'font-family': 'Geist', 'font-size': 30, fill: C.muted }, legend);
+  text('g   strength of gravity', { x: PX + 48, y: PY + 305, 'font-family': 'Geist', 'font-size': 30, fill: C.muted }, legend);
+  var zero = text('g = 0   so   F = 0', { x: PX + 48, y: PY + 365, 'font-family': 'Geist Mono', 'font-size': 36, fill: C.red }, panel);
+
+  /* ---------- 0 g: oxygen drifts in, burnt gas stays ---------- */
+  var oxy = el('g', {}, scene), mols = [], r2 = E.rand(31);
+  for (var m = 0; m < 18; m++) {
+    var g = el('g', {}, oxy);
+    el('circle', { cx: -9, cy: 0, r: 11, fill: C.blue }, g); el('circle', { cx: 9, cy: 0, r: 11, fill: C.blue }, g);
+    mols.push({ e: g, a: m / 18 * 2 * Math.PI + r2() * .3, d: r2(), spin: r2() * 360 });
+  }
+  var lblOxy = text('oxygen drifts in, slowly', { x: FX + 330, y: FY - 250, 'font-family': 'Geist', 'font-size': 32, fill: C.blueSoft }, root);
+  var smoke = el('g', {}, scene), puffs = [], r3 = E.rand(53);
+  for (var q = 0; q < 34; q++) puffs.push({ e: el('circle', { r: 8 + r3() * 7, fill: C.grey }, smoke), a: r3() * 2 * Math.PI, d: 105 + r3() * 110, k: r3() });
+  var lblSmoke = text('burnt gas stays around the flame', { x: FX + 330, y: FY + 160, 'font-family': 'Geist', 'font-size': 32, fill: C.muted }, root);
+
+  /* ---------- gravity scale and the count ---------- */
+  var scaleG = el('g', {}, root), SY = 860, SX0 = 300, SX1 = 1620;
+  function gx(g) { return SX0 + (SX1 - SX0) * g; }
+  el('line', { x1: SX0, x2: SX1, y1: SY, y2: SY, stroke: C.line, 'stroke-width': 6, 'stroke-linecap': 'round' }, scaleG);
+  var stops = [
+    { g: 0, name: 'Space', sub: '0 g', body: null },
+    { g: .166, name: 'Moon', sub: '0.17 g', body: '#c9ccd6' },
+    { g: .378, name: 'Mars', sub: '0.38 g', body: '#d0623f' },
+    { g: 1, name: 'Earth', sub: '1 g', body: '#3d7bff' }
+  ];
+  stops.forEach(function (s) {
+    var x = gx(s.g);
+    s.mark = el('g', {}, scaleG);
+    if (s.body) el('circle', { cx: x, cy: SY, r: 24, fill: s.body, stroke: C.bg, 'stroke-width': 6 }, s.mark);
+    else { el('circle', { cx: x, cy: SY, r: 22, fill: 'none', stroke: C.ink, 'stroke-width': 5 }, s.mark); el('line', { x1: x - 36, x2: x + 36, y1: SY, y2: SY, stroke: C.ink, 'stroke-width': 5 }, s.mark); }
+    text(s.name, { x: x, y: SY + 72, 'text-anchor': 'middle', 'font-family': 'Geist', 'font-weight': 600, 'font-size': 34, fill: C.ink }, s.mark);
+    text(s.sub, { x: x, y: SY + 112, 'text-anchor': 'middle', 'font-family': 'Geist Mono', 'font-size': 28, fill: C.muted }, s.mark);
+    s.mini = el('g', {}, scaleG);
+    var k = Math.sqrt(s.g);
+    el('path', { d: shape(k, 34, x, SY - 120, 0), fill: 'url(#cool)', opacity: 1 - k }, s.mini);
+    el('path', { d: shape(k, 34, x, SY - 120, 0), fill: 'url(#warm)', opacity: k }, s.mini);
+    s.bar = el('rect', { x: x - 70, width: 140, rx: 10 }, scaleG);
+    s.num = text('', { x: x, 'text-anchor': 'middle', 'font-family': 'Geist Mono', 'font-size': 40 }, scaleG);
+  });
+  var counter = text('0', { x: 960, y: 250, 'text-anchor': 'middle', 'font-family': 'Geist Mono', 'font-size': 120, fill: C.ink }, root);
+  var counterSub = text('NASA microgravity fire tests in this database', { x: 960, y: 310, 'text-anchor': 'middle', 'font-family': 'Geist', 'font-size': 36, fill: C.muted }, root);
+  var bracket = el('path', { fill: 'none', stroke: C.amber, 'stroke-width': 6, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, root);
+  var between = text('a Moon Base lives somewhere in between', { x: (gx(0) + gx(1)) / 2, y: 470, 'text-anchor': 'middle', 'font-family': 'Geist', 'font-weight': 600, 'font-size': 44, fill: C.amber }, root);
+
+  return function draw(t) {
+    /* chapter label and place */
+    set(chap, { opacity: (.35 + .65 * (1 - at(t, 4.5, 1))) * (1 - at(t, END - 1, 1)) });
+    var gNow = gOf(t), toStation = at(t, B.station, 1);
+    place.textContent = toStation > .5 ? 'SPACE STATION · 0 g' : 'EARTH · 1 g';
+    // cross-fade the place name: out, swap the words at the midpoint, back in
+    set(place, { opacity: win(t, .6, B.scale) * (toStation > 0 && toStation < 1 ? Math.abs(toStation - .5) * 2 : 1) });
+
+    /* flame: teardrop until sphere, then sphere; flicker only with gravity; dims when smothered; leaves for the scale */
+    var k = 1 - at(t, B.sphere, 1.6, E.ease.inOut);
+    var wob = k * (10 * Math.sin(t * 9.1) + 6 * Math.sin(t * 15.7)) * gNow;
+    var smother = at(t, B.smother + .5, 4, E.ease.inOut);
+    var R = (74 + 12 * (1 - k)) * (1 - .14 * smother);
+    var d = shape(k, R, FX, FY, wob);
+    set(flame, { d: d, opacity: k });
+    set(flameCool, { d: d, opacity: (1 - k) * (1 - .45 * smother) });
+    set(core, { d: shape(k, R * .35, FX, FY + 6 * k, wob * .4), opacity: .55 * k });
+    set(halo, { fill: k > .5 ? 'url(#haloWarm)' : 'url(#haloCool)', opacity: (k > .5 ? k : 1 - k) * (.8 - .5 * smother), cy: FY - 120 * k });
+    var leave = at(t, B.scale, 1.2, E.ease.inOut);
+    set(scene, { opacity: (1 - leave) * at(t, 0, .8) });
+    set(candle, { opacity: 1 });
+
+    /* buoyant flow */
+    var travel = E.integ(buoy, B.rises - .3, t);
+    var flowOn = win(t, B.rises - .3, B.sphere, .8);
+    hot.forEach(function (h) {
+      var s = (travel * 120 + h.p * 330) % 330, frozen = 1 - gNow;
+      set(h.e, { cx: FX + h.x + 18 * Math.sin(s / 60 + h.p * 9), cy: FY - 150 - s, opacity: flowOn * (1 - s / 330) * (.9 - .3 * frozen) });
+    });
+    cold.forEach(function (c) {
+      var s = (travel * 110 + c.p * 380) % 380;
+      set(c.e, { cx: FX + c.side * (440 - s), cy: FY + 120 + c.y * (1 - s / 380) - 40 * (s / 380), opacity: flowOn * Math.min(1, s / 60) * (1 - s / 380) * .9 });
+    });
+    set(lblHot, { opacity: win(t, B.rises + .4, B.remove_g) });
+    set(lblCold, { opacity: win(t, B.rises + 2, B.remove_g) });
+
+    /* gravity arrow: grows on "gravity", shrinks to nothing on "remove_g" */
+    var len = 260 * at(t, B.gravity, .8, E.ease.back) * gNow;
+    set(arrow, { opacity: win(t, B.gravity, B.station + 1.5) });
+    set(shaft, { x2: AX, y2: FY - 220 + Math.max(0, len - 30) });
+    set(head, { d: 'M' + (AX - 26) + ' ' + (FY - 230 + len - 30) + ' L' + (AX + 26) + ' ' + (FY - 230 + len - 30) + ' L' + AX + ' ' + (FY - 230 + len + 10) + 'Z', opacity: len > 20 ? 1 : 0 });
+    gLbl.textContent = gNow < .05 ? 'g = 0' : 'g';
+
+    /* formula: pieces assemble one by one; g turns red when gravity is removed */
+    set(panel, { opacity: win(t, B.formula - .2, B.sphere) });
+    pieces.forEach(function (p, i) { set(p, { 'fill-opacity': at(t, B.formula + i * .32, .4) }); });
+    set(gPiece, { fill: at(t, B.remove_g, .4) > .5 ? C.red : C.ink });
+    set(legend, { opacity: at(t, B.formula + 2.4, .6) });
+    set(zero, { opacity: at(t, B.remove_g + 1.4, .6) });
+
+    /* oxygen diffusing in, from all sides */
+    var oxyOn = win(t, B.sphere + .6, B.scale, 1);
+    mols.forEach(function (m) {
+      var life = ((t - B.sphere) * .09 + m.d) % 1, rad = 430 - 300 * Math.max(0, life);
+      var a = m.a + .15 * Math.sin(t * .7 + m.d * 6);
+      set(m.e, { transform: 'translate(' + (FX + rad * Math.cos(a)).toFixed(1) + ' ' + (FY + rad * Math.sin(a)).toFixed(1) + ') rotate(' + (m.spin + t * 20).toFixed(1) + ')',
+        opacity: oxyOn * Math.min(1, (430 - rad) / 60) * (1 - Math.max(0, life - .8) * 5) * (1 - .5 * smother) });
+    });
+    set(lblOxy, { opacity: win(t, B.sphere + 1.5, B.smother) });
+
+    /* burnt gas collects */
+    puffs.forEach(function (p) {
+      var on = at(t, B.smother + p.k * 3.5, .8);
+      set(p.e, { cx: FX + p.d * Math.cos(p.a + t * .05), cy: FY + p.d * Math.sin(p.a + t * .05), opacity: .55 * on });
+    });
+    set(lblSmoke, { opacity: win(t, B.smother + 1, B.scale) });
+
+    /* gravity scale, mini flames, the count, the bracket */
+    var sc = at(t, B.scale + .6, 1);
+    set(scaleG, { opacity: sc * (1 - at(t, END - 1, 1)) });
+    var cnt = at(t, B.count, 2.6, E.ease.inOut);
+    stops.forEach(function (s, i) {
+      var x = gx(s.g), shown = at(t, B.scale + 1 + i * .5, .6, E.ease.back);
+      set(s.mark, { opacity: shown });
+      set(s.mini, { opacity: at(t, B.scale + 1.3 + i * .5, .6) * (1 - cnt) });
+      var full = s.g === 0, h = full ? 340 * cnt : 340;
+      set(s.bar, { y: SY - 40 - h, height: h, fill: full ? C.amber : 'none', stroke: full ? 'none' : C.red, 'stroke-width': 4, 'stroke-dasharray': '14 10',
+        opacity: at(t, B.count + .3 + i * .3, .5) * (full ? 1 : .8) });
+      s.num.textContent = full ? Math.round(1276 * cnt).toLocaleString('en-US') : '0';
+      set(s.num, { y: SY - 60 - (full ? h : 340) - 14, fill: full ? C.ink : C.red, opacity: at(t, B.count + .5 + i * .3, .5) });
+    });
+    counter.textContent = Math.round(1276 * cnt).toLocaleString('en-US');
+    set(counter, { opacity: win(t, B.count, B.between) });
+    set(counterSub, { opacity: win(t, B.count + .6, B.between) });
+    var br = at(t, B.between, 1.2, E.ease.inOut), bx0 = gx(0) + 70, bx1 = gx(1) - 70, by = 400 + 0;
+    var mid = bx0 + (bx1 - bx0) * br;
+    set(bracket, { d: 'M' + bx0 + ' ' + (by + 30) + ' L' + bx0 + ' ' + by + ' L' + mid.toFixed(1) + ' ' + by + (br > .99 ? ' L' + bx1 + ' ' + (by + 30) : ''),
+      opacity: br > 0 ? 1 - at(t, END - 1, 1) : 0 });
+    set(between, { opacity: at(t, B.between + 1, .8) * (1 - at(t, END - 1, 1)), y: by - 26 });
+  };
+});
+</script>
+</body>
+</html>

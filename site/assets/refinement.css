@@ -187,3 +187,34 @@ body[data-learn] .track { display:none; }
 .lesson-nav button { min-width:44px; }
 body[data-learn] .toc a.on { background:var(--brand-soft); color:var(--brand); }
 @media(max-width:540px) { body[data-learn] .hero h1 { font-size:30px; }body[data-learn] .paths { grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; }body[data-learn] .path { padding:12px 8px; text-align:center; }body[data-learn] .path h2 { font-size:12px; margin:0; }body[data-learn] .path .n,body[data-learn] .path p { display:none; }body[data-learn] .lesson { padding:20px 16px; }.lesson-nav { flex-wrap:wrap; padding:12px; }.lesson-nav label { width:100%; }.lesson-nav select { max-width:calc(100% - 108px); }body[data-learn] .hero { padding-top:24px; } }
+/* Analysis sweep, Sat Nov 14 evening (AI-assisted, Claude Code): readable small text, phone tables, disclosure markers. */
+#page-analysis th { font-size:11px; }
+#page-analysis .panel h3,#page-analysis .toolbar .lbl,#page-analysis .facet .lbl { font-size:11px; }
+#page-analysis .readout dt { font-size:11px; }
+#page-analysis .readout dd small { font-size:11px; }
+#page-analysis .rate,.brief .rate { font-size:11px; }
+#page-analysis .map-fuels .chip { font-size:12px; }
+#page-analysis .map-filter-count { font-size:11px; }
+#page-analysis .journey .eyebrow { font-size:11px; }
+#page-analysis .journey-track button { font-size:12px; }
+#page-analysis .panel .note,#page-analysis .cov p,#page-analysis .method summary { font-size:12px; }
+#page-analysis .probe-edit label { font-size:12px; }
+#page-analysis .evidence-details summary span { font-size:12px; }
+#rankTable td { vertical-align:middle; }
+#rankTable .linkbtn { min-height:32px; }
+.brief-card ol { font-size:14px; line-height:1.6; }
+#page-analysis details > summary::after { content:''; width:7px; height:7px; margin-left:auto; border-right:2px solid currentColor; border-bottom:2px solid currentColor; transform:rotate(45deg); transition:transform var(--fast); flex:none; }
+#page-analysis details[open] > summary::after { transform:rotate(-135deg); }
+#page-analysis .evidence-details summary span { margin-right:auto; }
+#page-analysis .evidence-details summary::after { margin-left:12px; }
+@media(max-width:700px) {
+  #page-analysis .evidence-details table { min-width:620px; }
+  #testTable tr.more dl { max-width:calc(100vw - 96px); position:sticky; left:0; }
+  #testTable tr.more dt,#testTable tr.more dd { white-space:normal; }
+  #testTable tr.more dl { grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr); }
+}
+@media(max-width:540px) {
+  #page-analysis .stats { grid-template-columns:1fr 1fr; gap:14px 12px; }
+  #page-analysis .stats dd { font-size:1.15rem; }
+  #page-analysis .journey-track button { font-size:10.5px; }
+}

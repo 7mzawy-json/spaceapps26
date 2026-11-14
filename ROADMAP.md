@@ -1,10 +1,15 @@
 # ROADMAP: Flashpoint
 
+> **Read this first (Sat Nov 14, afternoon).** This is the plan written before the hackathon, and the build went a
+> different way. The site is plain HTML, CSS and JavaScript in `site/` (no Next.js, no three.js view, no scroll story),
+> with two pages (Analysis and Sim) and one assistant panel. `README.md` and `site/README.md` describe what exists.
+> Where this file and the site disagree, the site wins; do not build from the "Fixed decisions", "File layout" or
+> "Design rules" sections without checking with the team. `docs/mockup/` and `data/tests.sample.json` are deleted.
+
 Draft 4 of 2026-11-14, before kickoff. All three NASA guides are now read: the Resources tab
 (`docs/challenge/resources.md`), the Project Submission Guide (`docs/challenge/submission-and-awards.md`) and the
 Judging and Awards Guide (`docs/challenge/judging.md`). Background: `docs/challenge/flame-in-freefall.md` and
 `docs/challenge/research-notes.md`. Read all five before starting any phase.
-Visual target: `docs/mockup/flashpoint.html` (its data points are placeholders, never copy them).
 
 **Live URL:** not deployed yet (Phase 0 writes it here).
 

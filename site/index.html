@@ -8,8 +8,8 @@
 <meta name="generator" content="AI-assisted: written with Claude Code for team BrayTech Pyrotechnics">
 <!--
   Flashpoint, team BrayTech Pyrotechnics, NASA Space Apps 2026 (Flame in Freefall). AI-assisted (Claude Code).
-  Assembled from temp/design-master (look, navigation, Map and SI Assist pages), temp/dashboard-draft (Resources page)
-  and alanzim/flame-lab (Sim page, in sim.html). Colours follow NASA's palette; no NASA logo or insignia is used.
+  Two pages: Analysis (the map as Simple mode, the investigations and test data as Advanced mode) and Sim (sim.html).
+  The assistant is one chat panel that opens on any page. Colours follow NASA's palette; no NASA logo or insignia is used.
 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -25,11 +25,10 @@
 <nav class="bar" id="bar" aria-label="Pages">
   <a class="mark" href="#" id="barHome" aria-label="Flashpoint, back to the dashboard"><i></i><span>Flashpoint</span></a>
   <div class="tabs">
-    <a class="tab" href="#home" data-page="home">Map</a>
-    <a class="tab" href="#si" data-page="si">SI Assist</a>
-    <a class="tab" href="#resources" data-page="resources">Resources</a>
+    <a class="tab" href="#analysis" data-page="analysis">Analysis</a>
     <a class="tab" href="#sim" data-page="sim">Sim</a>
   </div>
+  <button class="btn ghost sm" type="button" data-ask>Ask</button>
   <button class="theme" type="button"></button>
 </nav>
 <main class="wrap">
@@ -41,13 +40,17 @@
   <section class="intro">
     <h1>Fire evidence for the places <span>astronauts will live.</span></h1>
     <p>NASA's microgravity fire tests, set against the cabin atmospheres planned for the ISS, a Moon Base and rovers.</p>
+    <form class="askbar" id="homeAsk">
+      <input id="homeAskIn" autocomplete="off" placeholder="Ask, for example: is 30% oxygen at 10.2 psi tested?" aria-label="Ask Flashpoint about a cabin atmosphere">
+      <button class="btn" type="submit">Ask</button>
+    </form>
   </section>
 
   <section class="cards" aria-label="Modules">
-    <a class="card" href="#home" data-page="home">
+    <a class="card" href="#analysis" data-page="analysis">
       <span class="kind">Explore</span>
-      <h2>Map</h2>
-      <p>Every test by pressure and oxygen, and where the evidence runs out.</p>
+      <h2>Analysis</h2>
+      <p>Pick a cabin atmosphere. See which NASA fire tests sit near it, what burned in them, and what is missing.</p>
       <div class="viz">
         <svg class="c-map" viewBox="0 0 320 190" fill="none" aria-hidden="true">
           <path class="axis" d="M40 170H305M40 170V18"/>
@@ -59,38 +62,7 @@
           <g class="gap"><rect class="gapbox" x="175" y="38" width="118" height="56" stroke-width="1.2" stroke-dasharray="4 3"/><text x="206" y="70">NO DATA</text></g>
         </svg>
       </div>
-      <span class="go">Open the map <span class="arr" aria-hidden="true">&rarr;</span></span>
-    </a>
-
-    <a class="card" href="#si" data-page="si">
-      <span class="kind">Ask</span>
-      <h2>SI Assist</h2>
-      <p>A chat that answers from NASA records and moves the controls for you.</p>
-      <div class="viz">
-        <div class="c-chat" aria-hidden="true">
-          <div class="u">Set oxygen to 30%</div>
-          <div class="b">Done. Oxygen moved to 30%.</div>
-          <div class="ctl"><span>O2</span><div class="track"><div class="fill"></div><div class="knob"></div></div><span class="val"></span></div>
-        </div>
-      </div>
-      <span class="go">Start a conversation <span class="arr" aria-hidden="true">&rarr;</span></span>
-    </a>
-
-    <a class="card" href="#resources" data-page="resources">
-      <span class="kind">Read</span>
-      <h2>Resources</h2>
-      <p>The 24 NASA investigations behind every number.</p>
-      <div class="viz">
-        <div class="c-cat" aria-hidden="true">
-          <div class="scan"></div>
-          <div class="row"><span>PSI-159</span><span>ACME CFI-G</span><span>333 tests</span></div>
-          <div class="row"><span>PSI-10</span><span>ACME Flame Design</span><span>327 tests</span></div>
-          <div class="row"><span>PSI-69</span><span>FLEX</span><span>274 tests</span></div>
-          <div class="row"><span>PSI-25</span><span>BASS-II</span><span>129 tests</span></div>
-          <div class="row"><span>PSI-99</span><span>SAFFIRE-II</span><span>9 tests</span></div>
-        </div>
-      </div>
-      <span class="go">Browse the catalogue <span class="arr" aria-hidden="true">&rarr;</span></span>
+      <span class="go">Open the analysis <span class="arr" aria-hidden="true">&rarr;</span></span>
     </a>
 
     <a class="card" href="#sim" data-page="sim">
@@ -120,235 +92,202 @@
   </div>
 </footer>
 
-<!-- ================= HOME: Explore the atmosphere map ================= -->
-<section class="page" id="page-home" aria-label="Atmosphere map">
+<!-- ================= ANALYSIS: Simple mode is the map and its answer; Advanced mode is every investigation and test ================= -->
+<section class="page" id="page-analysis" aria-label="Analysis">
   <div class="band"><div class="wrap">
     <div class="kind">Explore</div>
-    <h1 tabindex="-1">Atmosphere map</h1>
-    <p>Drag the probe to any cabin atmosphere. See how much NASA evidence sits near it, and what is missing.</p>
+    <h1 tabindex="-1">Analysis</h1>
+    <p>Pick a cabin atmosphere and see what NASA's fire tests say about it, and what is missing. Simple is the map and the answer for one point. Advanced opens every investigation and every test row.</p>
     <svg class="art" viewBox="0 0 230 150" fill="none" stroke="currentColor" stroke-width="3"><path d="M10 140H220M10 140V10"/><path d="M40 12 C 60 80, 110 110, 220 122"/><circle cx="150" cy="112" r="8" fill="currentColor"/></svg>
   </div></div>
   <div class="wrap body">
-    <div class="panel s8 map" id="homeMap">
-      <div class="toolbar">
-        <span class="lbl">Go to</span>
-        <div class="seg" id="homePresets"><button data-p="14.7" data-o="21">ISS</button><button data-p="10.2" data-o="30">Moon Base</button><button data-p="4.3" data-o="100">Spacesuit</button></div>
-        <span class="lbl">Gravity</span>
-        <div class="seg" id="homeGrav"><button aria-pressed="true" data-g="0">Micro</button><button data-g="lunar">Moon</button><button data-g="mars">Mars</button><button data-g="earth">Earth</button></div>
-      </div>
-      <svg id="homeSvg" viewBox="0 0 680 420" role="img" aria-label="Map of pressure against oxygen with a draggable probe"></svg>
-      <div class="banner" id="homeBanner"></div>
-      <p class="note" id="homeDotsNote">Loading NASA tests from <b>data/tests.web.json</b>. The curve and habitat points use the values in the challenge statement.</p>
-    </div>
-
-    <div class="s4 stack fill">
-    <div class="panel">
-      <h3>Probe</h3>
-      <dl class="readout">
-        <div><dt>Oxygen</dt><dd class="num" id="hO2">30<small>%</small></dd></div>
-        <div><dt>Pressure</dt><dd class="num" id="hP">10.2<small>psi</small></dd></div>
-        <div><dt>Oxygen partial pressure</dt><dd class="num" id="hPP">3.06<small>psi</small></dd></div>
-        <div><dt>Compared with sea level</dt><dd class="num" id="hSea">1.00<small>&times;</small></dd></div>
-      </dl>
-      <h3 style="margin-top:1.25rem">Evidence near this point</h3>
-      <div class="rating" id="homeRating"><span data-r="lit">Well tested</span><span data-r="dim">Thin</span><span data-r="dark">No tests</span></div>
-      <p class="note" id="homeRateNote">Loading NASA tests.</p>
-    </div>
-    <div class="panel">
-      <h3>Evidence brief</h3>
-      <p class="note" style="margin-top:0">One page for the point on the map: what NASA's tests show, what they do not, the nearest tests, and the NASA work that would close the gap.</p>
-      <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1rem"><button class="btn" id="briefOpen" type="button">Open the brief</button><button class="btn ghost" id="briefPdf" type="button">Save as PDF</button></div>
-    </div>
-    </div>
-
-    <div class="panel s12">
-      <h3 id="homeNearH">Nearest NASA tests</h3>
-      <div class="tablewrap"><table>
-        <thead><tr><th>Accession</th><th>Investigation</th><th>Fuel</th><th>O2 %</th><th>psi</th><th>Outcome</th></tr></thead>
-        <tbody class="skel" id="homeNear">
-          <tr><td><span></span></td><td><span></span></td><td><span></span></td><td><span></span></td><td><span></span></td><td><span></span></td></tr>
-          <tr><td><span></span></td><td><span></span></td><td><span></span></td><td><span></span></td><td><span></span></td><td><span></span></td></tr>
-          <tr><td><span></span></td><td><span></span></td><td><span></span></td><td><span></span></td><td><span></span></td><td><span></span></td></tr>
-          <tr><td><span></span></td><td><span></span></td><td><span></span></td><td><span></span></td><td><span></span></td><td><span></span></td></tr>
-          <tr><td><span></span></td><td><span></span></td><td><span></span></td><td><span></span></td><td><span></span></td><td><span></span></td></tr>
-        </tbody>
-      </table></div>
-      <p class="note">Five closest rows from <b>data/tests.web.json</b>, each linking to its PSI page.</p>
-    </div>
-
-    <div class="panel s4 pillar"><span class="tag">Prevent</span><strong>Materials and ignition</strong><p class="pbody" id="pPrevent">Loading NASA tests.</p><p class="pfrom">BASS, BASS-II, SAFFIRE-I to III</p></div>
-    <div class="panel s4 pillar"><span class="tag">Detect</span><strong>Smoke and aerosols</strong><p class="pbody" id="pDetect">SAME and SAME-R measured the smoke particles that spacecraft materials give off in microgravity, to inform smoke detection. Their tables hold smoke measurements, not flame tests, so they do not appear on the map.</p><p class="pfrom">SAME, SAME-R</p></div>
-    <div class="panel s4 pillar"><span class="tag">Suppress</span><strong>Putting it out</strong><p class="pbody" id="pSuppress">Loading NASA tests.</p><p class="pfrom">FLEX: droplets in oxygen diluted with nitrogen, carbon dioxide or helium</p></div>
-  </div>
-</section>
-
-<!-- ================= SI ASSIST: Ask, and the page's controls move ================= -->
-<section class="page" id="page-si" aria-label="SI Assist">
-  <div class="band ask"><div class="wrap">
-    <div class="kind">Ask</div>
-    <h1 tabindex="-1">SI Assist</h1>
-    <p>Ask in your own words. The assistant answers, and moves the controls beside it so you can see what it means.</p>
-    <svg class="art" viewBox="0 0 230 150" fill="none" stroke="currentColor" stroke-width="3"><rect x="20" y="20" width="130" height="60"/><path d="M40 80v22l22-22"/><rect x="90" y="70" width="120" height="50"/></svg>
-  </div></div>
-  <div class="wrap body">
-    <div class="panel s8 chat">
-      <div class="chat-head">
-        <span class="avatar"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M4 5h16v11H9l-5 4z"/></svg></span>
-        <div><strong>Flashpoint Assistant</strong><small>SI not connected yet: answers come from the offline rule-based mode</small></div>
-      </div>
-      <div class="msgs" id="msgs" aria-live="polite"></div>
-      <div class="starters" id="starters">
-        <button class="chip">Take me to the Moon Base</button>
-        <button class="chip">Set oxygen to 40% at 8 psi</button>
-        <button class="chip">Switch to Mars gravity</button>
-        <button class="chip">Show only solid fuels</button>
-        <button class="chip">Undo</button>
-      </div>
-      <form class="compose" id="compose"><input id="ask" autocomplete="off" placeholder="Ask, or tell it what to change" aria-label="Message"><button class="btn" type="submit">Send</button></form>
-    </div>
-
-    <div class="s4 stack">
-      <div class="panel map">
-        <h3>Controls on this page</h3>
-        <div class="field" id="fO2"><label>Oxygen <output class="num" id="siO2o">21%</output></label><input type="range" id="siO2" min="10" max="100" step="0.5" value="21"></div>
-        <div class="field" id="fP"><label>Pressure <output class="num" id="siPo">14.7 psi</output></label><input type="range" id="siP" min="1" max="16" step="0.1" value="14.7"></div>
-        <div class="field" id="fG"><label>Gravity</label><div class="seg" id="siGrav"><button aria-pressed="true" data-g="0">Micro</button><button data-g="lunar">Moon</button><button data-g="mars">Mars</button><button data-g="earth">Earth</button></div></div>
-        <div class="field" id="fF"><label>Fuel</label><div style="display:flex;gap:.4rem;flex-wrap:wrap" id="siFuel"><button class="chip" aria-pressed="true" data-f="gas">Gas</button><button class="chip" aria-pressed="true" data-f="liquid">Liquid</button><button class="chip" aria-pressed="true" data-f="solid">Solid</button></div></div>
-        <svg id="siSvg" viewBox="0 0 680 420" role="img" aria-label="Small map showing the current probe"></svg>
-        <p class="note" id="siMapNote"></p>
-      </div>
-      <div class="panel">
-        <h3>What the assistant changed</h3>
-        <ul class="log" id="log"><li class="empty">Nothing yet.</li></ul>
-        <button class="btn ghost" id="undoBtn" style="margin-top:.8rem" disabled>Undo last change</button>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ================= RESOURCES: Read the catalogue and the test data ================= -->
-<section class="page" id="page-resources" aria-label="Resources">
-  <div class="band"><div class="wrap">
-    <div class="kind">Read</div>
-    <h1 tabindex="-1">Resources</h1>
-    <p>Every combustion investigation in NASA's Physical Science Informatics database, and every test row we use. Filter the tests, read them one by one, and graph any column against another.</p>
-    <svg class="art" viewBox="0 0 230 150" fill="none" stroke="currentColor" stroke-width="3"><rect x="40" y="10" width="110" height="130"/><rect x="70" y="25" width="110" height="130"/><path d="M90 60h70M90 80h70M90 100h50"/></svg>
-  </div></div>
-  <div class="wrap body">
     <div class="s12 toolbar" style="margin-bottom:0">
-      <span class="lbl">View</span>
-      <div class="seg" id="resView"><button aria-pressed="true" data-v="cat">Investigations</button><button data-v="data">Test data and graphs</button></div>
+      <span class="lbl">Mode</span>
+      <div class="seg" id="anMode"><button aria-pressed="true" data-m="simple">Simple</button><button data-m="advanced">Advanced</button></div>
     </div>
 
-    <!-- view 1: the catalogue of investigations -->
-    <div class="s12 sub" id="resCat">
-    <div class="panel s8">
-      <div class="toolbar">
-        <input class="search" id="catSearch" placeholder="Search name, accession, platform or fuel" aria-label="Search investigations">
-      </div>
-      <div class="toolbar">
-        <span class="lbl">Fuel</span>
-        <div style="display:flex;gap:.4rem;flex-wrap:wrap" id="catPhase">
-          <button class="chip" aria-pressed="true" data-ph="all">All</button><button class="chip" data-ph="gas">Gas</button><button class="chip" data-ph="liquid">Liquid</button><button class="chip" data-ph="solid">Solid</button><button class="chip" data-ph="aerosol">Smoke and dust</button>
+    <!-- Simple: one point on the map, and what NASA's tests say about it -->
+    <div class="s12 sub" id="anSimple">
+      <div class="panel s8 map" id="homeMap">
+        <div class="toolbar">
+          <span class="lbl">Go to</span>
+          <div class="seg" id="homePresets"><button data-p="14.7" data-o="21">ISS</button><button data-p="10.2" data-o="30">Moon Base</button><button data-p="4.3" data-o="100">Spacesuit</button></div>
         </div>
+        <svg id="homeSvg" viewBox="0 0 680 420" role="img" aria-label="Map of pressure against oxygen with a draggable probe"></svg>
+        <p class="note" id="homeDotsNote">Loading NASA tests from <b>data/tests.web.json</b>. The curve and habitat points use the values in the challenge statement.</p>
+        <p class="note">Every test here ran in microgravity. NASA's database has no Moon, Mars or Earth-gravity tests yet, so nothing on this map changes with gravity. The Sim shows what gravity does to a flame.</p>
       </div>
-      <div class="toolbar">
-        <span class="lbl">Platform</span>
-        <div style="display:flex;gap:.4rem;flex-wrap:wrap" id="catPlat">
-          <button class="chip" aria-pressed="true" data-pl="all">All</button><button class="chip" data-pl="iss">ISS</button><button class="chip" data-pl="cygnus">Cygnus spacecraft</button><button class="chip" data-pl="ground">Ground or analysis</button>
+
+      <div class="s4 stack fill">
+        <div class="panel">
+          <h3>Probe</h3>
+          <dl class="readout">
+            <div><dt>Oxygen</dt><dd class="num" id="hO2">30<small>%</small></dd></div>
+            <div><dt>Pressure</dt><dd class="num" id="hP">10.2<small>psi</small></dd></div>
+            <div><dt>Oxygen partial pressure</dt><dd class="num" id="hPP">3.06<small>psi</small></dd></div>
+            <div><dt>Compared with sea level</dt><dd class="num" id="hSea">1.00<small>&times;</small></dd></div>
+          </dl>
+          <h3 style="margin-top:1.25rem">Evidence near this point, by what burned</h3>
+          <div class="cover" id="homeCover"><p class="note" style="margin-top:0">Loading NASA tests.</p></div>
+          <p class="note" id="homeRateNote"></p>
         </div>
-        <label class="check"><input type="checkbox" id="catHas"> Only records with test rows</label>
-      </div>
-      <div class="tablewrap"><table id="catTable">
-        <thead><tr><th class="sort" tabindex="0" data-i="0">Accession</th><th class="sort" tabindex="0" data-i="1">Investigation</th><th class="sort" tabindex="0" data-i="2">Platform</th><th class="sort" tabindex="0" data-i="3">Fuel</th><th class="sort" tabindex="0" data-i="4">Tests in our data</th></tr></thead>
-        <tbody></tbody>
-      </table></div>
-      <p class="note"><span id="catCount"></span> Click a column heading to sort. List from the PSI catalogue (24 combustion records). Test counts are rows in <b>data/tests.web.json</b>; a dash means no per-test table we can use. Fuel is left blank where we have not checked it.</p>
-    </div>
-    <div class="s4 stack fill">
-      <div class="panel detail" id="catDetail">
-        <h3>Selected</h3>
-        <p class="note" style="margin-top:0">Pick an investigation to see what its tests cover, or why it has none we can use.</p>
-      </div>
-      <div class="panel">
-        <h3>Reading</h3>
-        <ul class="reading">
-          <li><a href="https://www.nasa.gov/missions/station/a-researchers-guide-to-combustion-science/" target="_blank" rel="noopener">A Researcher's Guide to Combustion Science</a><span>ISS guide, 2015. Ground tests may not be conservative.</span></li>
-          <li><a href="https://sma.nasa.gov/sma-disciplines/accllp/apollo-1" target="_blank" rel="noopener">Apollo 1</a><span>100% oxygen cabin fire, 1967.</span></li>
-          <li><a href="https://sma.nasa.gov/sma-disciplines/accllp/apollo-13" target="_blank" rel="noopener">Apollo 13</a><span>Oxygen tank explosion, 1970.</span></li>
-          <li><a href="https://www.nasa.gov/history/25-years-ago-fire-aboard-space-station-mir/" target="_blank" rel="noopener">Fire aboard Mir</a><span>Oxygen generator fire, 1997.</span></li>
-        </ul>
-      </div>
-      <div class="panel"><h3>Credits</h3>
-        <ul class="reading">
-          <li><a href="https://psi.nasa.gov/" target="_blank" rel="noopener">NASA Physical Science Informatics</a><span>Every test row on this site. NASA open data.</span></li>
-          <li><a href="https://github.com/PavelDoGreat/WebGL-Fluid-Simulation" target="_blank" rel="noopener">WebGL-Fluid-Simulation</a><span>Pavel Dobryakov, MIT licence. Reference for the flame lab's vorticity step.</span></li>
-          <li>Stable Fluids<span>Jos Stam, SIGGRAPH 1999. The method behind the flame lab.</span></li>
-          <li><a href="https://fonts.google.com/specimen/Geist" target="_blank" rel="noopener">Geist and Geist Mono</a><span>Vercel, SIL Open Font License.</span></li>
-          <li><a href="../docs/ai-usage-log.md" target="_blank" rel="noopener">AI usage log</a><span>What AI tools did on this project and what people checked.</span></li>
-        </ul></div>
-    </div>
-    </div>
-
-    <!-- view 2: every test row, with filters, a graph builder and a table -->
-    <div class="s12 sub" id="resData" hidden>
-      <div class="panel s4 filters">
-        <details id="filtBox" open>
-          <summary>Filters</summary>
-          <p class="match"><b class="num" id="fCount">0</b><span id="fOf">tests match</span></p>
-          <input class="search" id="fSearch" style="width:100%" placeholder="Search test, fuel or investigation" aria-label="Search tests">
-          <div class="facet"><span class="lbl">Investigation</span><div class="opts" id="f-inv"></div></div>
-          <div class="facet"><span class="lbl">Fuel type</span><div class="opts" id="f-phase"></div></div>
-          <div class="facet"><span class="lbl">Flame type</span><div class="opts" id="f-flame"></div></div>
-          <div class="facet"><span class="lbl">Outcome</span><div class="opts" id="f-outcome"></div></div>
-          <div class="facet"><span class="lbl">Oxygen figure is for</span><div class="opts" id="f-o2from"></div></div>
-          <div class="facet"><span class="lbl">Oxygen (%)</span><div class="range"><input type="number" id="fO2min" step="any" placeholder="from" aria-label="Oxygen from"><span>to</span><input type="number" id="fO2max" step="any" placeholder="to" aria-label="Oxygen to"></div></div>
-          <div class="facet"><span class="lbl">Total pressure (psi)</span><div class="range"><input type="number" id="fPmin" step="any" placeholder="from" aria-label="Pressure from"><span>to</span><input type="number" id="fPmax" step="any" placeholder="to" aria-label="Pressure to"></div></div>
-          <div class="facet"><label class="check"><input type="checkbox" id="fBoth"> Only tests with both oxygen and pressure</label></div>
-          <div class="facet"><button class="btn ghost sm" id="fReset">Clear all filters</button></div>
-          <p class="note">Nothing picked in a group means every value is shown. The number on each button is how many of the 1,276 tests have that value. A range leaves out tests where NASA's table does not give the value.</p>
-        </details>
-      </div>
-
-      <div class="s8 stack">
-        <div class="panel"><dl class="stats" id="stats"></dl></div>
-
-        <div class="panel chart" id="graphPanel">
-          <h3>Graph builder</h3>
-          <div class="gctl">
-            <label>Across (X)<select id="gX"></select></label>
-            <label>Up (Y)<select id="gY"></select></label>
-            <label>Colour by<select id="gC"></select></label>
+        <div class="panel">
+          <h3>Take this point further</h3>
+          <div class="acts">
+            <button class="btn" id="briefOpen" type="button">Open the evidence brief</button>
+            <button class="btn ghost" id="briefPdf" type="button">Save the brief as PDF</button>
+            <button class="btn ghost" id="homeAround" type="button">See the tests around it</button>
+            <button class="btn ghost" id="homeBurn" type="button">Burn this air in the Sim</button>
           </div>
-          <div class="toolbar" style="margin-bottom:.4rem">
-            <span class="lbl">Quick picks</span>
-            <div style="display:flex;gap:.4rem;flex-wrap:wrap" id="gPresets">
-              <button class="chip" data-x="psi" data-y="o2" data-c="outcome">Oxygen against pressure</button>
-              <button class="chip" data-x="psi" data-y="count" data-c="phase">How pressure is spread</button>
-              <button class="chip" data-x="inv" data-y="o2" data-c="phase">Oxygen in each investigation</button>
-              <button class="chip" data-x="phase" data-y="outcome" data-c="none">Outcome by fuel type</button>
-              <button class="chip" id="gSwap">Swap X and Y</button>
+          <p class="note">The brief is one printable page: the reading, the evidence by fuel, the ranked investigations, the nearest tests and what NASA has not tested here.</p>
+        </div>
+      </div>
+
+      <div class="panel s12">
+        <h3>Investigations ranked for this point</h3>
+        <div class="tablewrap"><table id="rankTable">
+          <thead><tr><th>Rank</th><th>Investigation</th><th>What it is for</th><th>Tests near this point</th><th>Closest test</th><th></th></tr></thead>
+          <tbody id="homeRank"><tr><td colspan="6">Loading NASA tests.</td></tr></tbody>
+        </table></div>
+        <p class="note">Ranked by how many of an investigation's tests sit near the point, then by how close its closest test is. Investigations whose tables give no pressure cannot be placed, so they are listed after the ranked ones with what they do record. SAME and SAME-R (smoke detection) hold smoke measurements, not flame tests, and cannot be ranked by atmosphere.</p>
+      </div>
+
+      <div class="panel s12">
+        <h3 id="homeNearH">Nearest NASA tests</h3>
+        <div class="tablewrap"><table>
+          <thead><tr><th>Accession</th><th>Investigation</th><th>Fuel</th><th>O2 %</th><th>psi</th><th>Outcome</th></tr></thead>
+          <tbody class="skel" id="homeNear">
+            <tr><td><span></span></td><td><span></span></td><td><span></span></td><td><span></span></td><td><span></span></td><td><span></span></td></tr>
+            <tr><td><span></span></td><td><span></span></td><td><span></span></td><td><span></span></td><td><span></span></td><td><span></span></td></tr>
+            <tr><td><span></span></td><td><span></span></td><td><span></span></td><td><span></span></td><td><span></span></td><td><span></span></td></tr>
+            <tr><td><span></span></td><td><span></span></td><td><span></span></td><td><span></span></td><td><span></span></td><td><span></span></td></tr>
+            <tr><td><span></span></td><td><span></span></td><td><span></span></td><td><span></span></td><td><span></span></td><td><span></span></td></tr>
+          </tbody>
+        </table></div>
+        <p class="note">Five closest rows from <b>data/tests.web.json</b>, each linking to its PSI page.</p>
+      </div>
+    </div>
+
+    <!-- Advanced: the catalogue of investigations, and every test row with filters, graphs and a table -->
+    <div class="s12 sub" id="anAdvanced" hidden>
+      <div class="s12 toolbar" style="margin-bottom:0">
+        <span class="lbl">View</span>
+        <div class="seg" id="resView"><button aria-pressed="true" data-v="cat">Investigations</button><button data-v="data">Test data and graphs</button></div>
+      </div>
+
+      <!-- view 1: the catalogue of investigations -->
+      <div class="s12 sub" id="resCat">
+      <div class="panel s8">
+        <div class="toolbar">
+          <input class="search" id="catSearch" placeholder="Search name, accession, platform or fuel" aria-label="Search investigations">
+        </div>
+        <div class="toolbar">
+          <span class="lbl">Fuel</span>
+          <div style="display:flex;gap:.4rem;flex-wrap:wrap" id="catPhase">
+            <button class="chip" aria-pressed="true" data-ph="all">All</button><button class="chip" data-ph="gas">Gas</button><button class="chip" data-ph="liquid">Liquid</button><button class="chip" data-ph="solid">Solid</button><button class="chip" data-ph="aerosol">Smoke and dust</button>
+          </div>
+        </div>
+        <div class="toolbar">
+          <span class="lbl">Platform</span>
+          <div style="display:flex;gap:.4rem;flex-wrap:wrap" id="catPlat">
+            <button class="chip" aria-pressed="true" data-pl="all">All</button><button class="chip" data-pl="iss">ISS</button><button class="chip" data-pl="cygnus">Cygnus spacecraft</button><button class="chip" data-pl="ground">Ground or analysis</button>
+          </div>
+          <label class="check"><input type="checkbox" id="catHas"> Only records with test rows</label>
+        </div>
+        <div class="tablewrap"><table id="catTable">
+          <thead><tr><th class="sort" tabindex="0" data-i="0">Accession</th><th class="sort" tabindex="0" data-i="1">Investigation</th><th class="sort" tabindex="0" data-i="2">Platform</th><th class="sort" tabindex="0" data-i="3">Fuel</th><th class="sort" tabindex="0" data-i="4">Tests in our data</th></tr></thead>
+          <tbody></tbody>
+        </table></div>
+        <p class="note"><span id="catCount"></span> Click a column heading to sort. List from the PSI catalogue (24 combustion records). Test counts are rows in <b>data/tests.web.json</b>; "none" means no per-test table we can use. Fuel is left blank where we have not checked it.</p>
+      </div>
+      <div class="s4 stack fill">
+        <div class="panel detail" id="catDetail">
+          <h3>Selected</h3>
+          <p class="note" style="margin-top:0">Pick an investigation to see what its tests cover, or why it has none we can use.</p>
+        </div>
+        <div class="panel">
+          <h3>Reading</h3>
+          <ul class="reading">
+            <li><a href="https://www.nasa.gov/missions/station/a-researchers-guide-to-combustion-science/" target="_blank" rel="noopener">A Researcher's Guide to Combustion Science</a><span>ISS guide, 2015. Ground tests may not be conservative.</span></li>
+            <li><a href="https://sma.nasa.gov/sma-disciplines/accllp/apollo-1" target="_blank" rel="noopener">Apollo 1</a><span>100% oxygen cabin fire, 1967.</span></li>
+            <li><a href="https://sma.nasa.gov/sma-disciplines/accllp/apollo-13" target="_blank" rel="noopener">Apollo 13</a><span>Oxygen tank explosion, 1970.</span></li>
+            <li><a href="https://www.nasa.gov/history/25-years-ago-fire-aboard-space-station-mir/" target="_blank" rel="noopener">Fire aboard Mir</a><span>Oxygen generator fire, 1997.</span></li>
+          </ul>
+        </div>
+        <div class="panel"><h3>Credits</h3>
+          <ul class="reading">
+            <li><a href="https://psi.nasa.gov/" target="_blank" rel="noopener">NASA Physical Science Informatics</a><span>Every test row on this site. NASA open data.</span></li>
+            <li><a href="https://github.com/PavelDoGreat/WebGL-Fluid-Simulation" target="_blank" rel="noopener">WebGL-Fluid-Simulation</a><span>Pavel Dobryakov, MIT licence. Reference for the flame lab's vorticity step.</span></li>
+            <li>Stable Fluids<span>Jos Stam, SIGGRAPH 1999. The method behind the flame lab.</span></li>
+            <li><a href="https://fonts.google.com/specimen/Geist" target="_blank" rel="noopener">Geist and Geist Mono</a><span>Vercel, SIL Open Font License.</span></li>
+            <li><a href="../docs/ai-usage-log.md" target="_blank" rel="noopener">AI usage log</a><span>What AI tools did on this project and what people checked.</span></li>
+          </ul></div>
+      </div>
+      </div>
+
+      <!-- view 2: every test row, with filters, a graph builder and a table -->
+      <div class="s12 sub" id="resData" hidden>
+        <div class="panel s4 filters">
+          <details id="filtBox" open>
+            <summary>Filters</summary>
+            <p class="match"><b class="num" id="fCount">0</b><span id="fOf">tests match</span></p>
+            <input class="search" id="fSearch" style="width:100%" placeholder="Search test, fuel or investigation" aria-label="Search tests">
+            <div class="facet"><span class="lbl">Investigation</span><div class="opts" id="f-inv"></div></div>
+            <div class="facet"><span class="lbl">Fuel type</span><div class="opts" id="f-phase"></div></div>
+            <div class="facet"><span class="lbl">Flame type</span><div class="opts" id="f-flame"></div></div>
+            <div class="facet"><span class="lbl">Outcome</span><div class="opts" id="f-outcome"></div></div>
+            <div class="facet"><span class="lbl">Oxygen figure is for</span><div class="opts" id="f-o2from"></div></div>
+            <div class="facet"><span class="lbl">Oxygen (%)</span><div class="range"><input type="number" id="fO2min" step="any" placeholder="from" aria-label="Oxygen from"><span>to</span><input type="number" id="fO2max" step="any" placeholder="to" aria-label="Oxygen to"></div></div>
+            <div class="facet"><span class="lbl">Total pressure (psi)</span><div class="range"><input type="number" id="fPmin" step="any" placeholder="from" aria-label="Pressure from"><span>to</span><input type="number" id="fPmax" step="any" placeholder="to" aria-label="Pressure to"></div></div>
+            <div class="facet"><label class="check"><input type="checkbox" id="fBoth"> Only tests with both oxygen and pressure</label></div>
+            <div class="facet"><button class="btn ghost sm" id="fReset">Clear all filters</button></div>
+            <p class="note">Nothing picked in a group means every value is shown. The number on each button is how many of the 1,276 tests have that value. A range leaves out tests where NASA's table does not give the value.</p>
+          </details>
+        </div>
+
+        <div class="s8 stack">
+          <div class="panel"><dl class="stats" id="stats"></dl></div>
+
+          <div class="panel chart" id="graphPanel">
+            <h3>Graphs</h3>
+            <div class="toolbar" style="margin-bottom:.4rem">
+              <span class="lbl">Quick picks</span>
+              <div style="display:flex;gap:.4rem;flex-wrap:wrap" id="gPresets">
+                <button class="chip" data-x="psi" data-y="o2" data-c="outcome">Oxygen against pressure</button>
+                <button class="chip" data-x="psi" data-y="count" data-c="phase">How pressure is spread</button>
+                <button class="chip" data-x="inv" data-y="o2" data-c="phase">Oxygen in each investigation</button>
+                <button class="chip" data-x="phase" data-y="outcome" data-c="none">Outcome by fuel type</button>
+                <button class="chip" id="gSwap">Swap X and Y</button>
+              </div>
             </div>
+            <details class="gown">
+              <summary>Build your own graph</summary>
+              <div class="gctl">
+                <label>Across (X)<select id="gX"></select></label>
+                <label>Up (Y)<select id="gY"></select></label>
+                <label>Colour by<select id="gC"></select></label>
+              </div>
+            </details>
+            <h4 id="gTitle"></h4>
+            <div class="legend" id="gLegend"></div>
+            <svg id="gSvg" role="img" aria-label="Graph of the filtered NASA tests"></svg>
+            <p class="note" id="gPick" hidden></p>
+            <ul class="notes" id="gNote"><li>Loading NASA tests from data/tests.web.json.</li></ul>
           </div>
-          <h4 id="gTitle"></h4>
-          <div class="legend" id="gLegend"></div>
-          <svg id="gSvg" role="img" aria-label="Graph of the filtered NASA tests"></svg>
-          <p class="note" id="gPick" hidden></p>
-          <ul class="notes" id="gNote"><li>Loading NASA tests from data/tests.web.json.</li></ul>
-        </div>
 
-        <div class="panel chart" id="relPanel">
-          <h3>Relationships</h3>
-          <p class="note" style="margin-top:0" id="relLead"></p>
-          <div class="minis" id="minis"></div>
-        </div>
+          <div class="panel chart" id="relPanel">
+            <h3>Relationships</h3>
+            <p class="note" style="margin-top:0" id="relLead"></p>
+            <div class="minis" id="minis"></div>
+          </div>
 
-        <div class="panel" id="tablePanel">
-          <h3>Tests</h3>
-          <div class="banner" id="tPick" style="margin:0 0 .75rem"></div>
-          <div class="tablewrap"><table id="testTable"><thead><tr></tr></thead><tbody></tbody></table></div>
-          <div class="pager"><span id="tInfo"></span><span><button class="btn ghost sm" id="tPrev">Previous</button> <button class="btn ghost sm" id="tNext">Next</button></span></div>
-          <p class="note">Click a column heading to sort, and a row for its source file and line in NASA's table. "Not recorded" means NASA's table does not give the value; nothing is filled in.</p>
+          <div class="panel" id="tablePanel">
+            <h3>Tests</h3>
+            <div class="banner" id="tPick" style="margin:0 0 .75rem"></div>
+            <div class="tablewrap"><table id="testTable"><thead><tr></tr></thead><tbody></tbody></table></div>
+            <div class="pager"><span id="tInfo"></span><span><button class="btn sm" id="tCsv" type="button">Download these tests (CSV)</button> <button class="btn ghost sm" id="tPrev">Previous</button> <button class="btn ghost sm" id="tNext">Next</button></span></div>
+            <p class="note">Click a column heading to sort, and a row for its source file and line in NASA's table. "Not recorded" means NASA's table does not give the value; nothing is filled in.</p>
+          </div>
         </div>
       </div>
     </div>
@@ -360,8 +299,8 @@
 <section class="page" id="page-sim" aria-label="Sim">
   <div class="band sim"><div class="wrap">
     <div class="kind">Experiment</div>
-    <h1 tabindex="-1">Flame lab: one NASA test, then your own experiment</h1>
-    <p>Pick a microgravity fire test. Its oxygen, pressure and fuel set up the flame. Then change gravity, add cabin airflow, blow on the flame, or look inside it at the oxygen, the heat and the flow.</p>
+    <h1 tabindex="-1">Flame lab: one NASA test, then add gravity</h1>
+    <p>Pick a microgravity fire test. Its oxygen, pressure and fuel set up the flame. Then add gravity to see the same air burn on the Moon, on Mars or on Earth, or look inside the flame at the oxygen.</p>
     <svg class="art" viewBox="0 0 230 150" fill="none" stroke="currentColor" stroke-width="3"><circle cx="70" cy="85" r="40"/><path d="M170 20 C 195 60, 205 80, 198 100 C 190 125, 150 125, 142 100 C 135 80, 145 60, 170 20 Z"/></svg>
   </div></div>
   <div class="wrap body">
@@ -379,6 +318,22 @@
     <article id="briefBody"></article>
   </div>
 </div>
+<!-- ================= ASSISTANT: one chat panel, opened from any page ================= -->
+<aside class="chatdock" id="chat" aria-label="Flashpoint assistant" hidden>
+  <div class="chat-head">
+    <span class="avatar"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M4 5h16v11H9l-5 4z"/></svg></span>
+    <div><strong>Flashpoint Assistant</strong><small>SI not connected yet: answers come from NASA's test data with fixed rules</small></div>
+    <button class="btn ghost sm" id="chatClose" type="button">Close</button>
+  </div>
+  <div class="msgs" id="msgs" aria-live="polite"></div>
+  <div class="starters" id="starters">
+    <button class="chip">Take me to the Moon Base</button>
+    <button class="chip">Is 30% oxygen at 10.2 psi tested?</button>
+    <button class="chip">Set oxygen to 40% at 8 psi</button>
+    <button class="chip">Undo</button>
+  </div>
+  <form class="compose" id="compose"><input id="ask" autocomplete="off" placeholder="Ask, or tell it where to move the point" aria-label="Message"><button class="btn" type="submit">Send</button></form>
+</aside>
 <script src="assets/app.js"></script>
 </body>
 </html>

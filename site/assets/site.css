@@ -13,7 +13,6 @@ a { color: var(--brand); }
   font-size: var(--t-xs); font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--muted);
 }
 .note, .hint { font-size: var(--t-sm); color: var(--muted); }
-.num, output, .readout dd, td.rows, .c-cat .row span:first-child { font-family: var(--mono); font-variant-numeric: tabular-nums; }
 
 /* ---------- Controls (every one at least 44px tall) ---------- */
 .seg { display: inline-flex; flex-wrap: wrap; border: 1px solid var(--line-strong); border-radius: var(--r); overflow: hidden; background: var(--surface); }
@@ -85,32 +84,9 @@ input[type=range] { width: 100%; min-height: 44px; accent-color: var(--brand-fil
 @keyframes pulse { 50% { transform: scale(1.6); } }
 
 /* SI Assist card */
-.c-chat { width: 100%; max-width: 340px; display: grid; gap: .55rem; font-size: var(--t-sm); }
-.c-chat .u { justify-self: end; background: var(--brand-fill); color: var(--on-fill); padding: .4rem .75rem; border-radius: 12px 12px 0 12px; }
-.c-chat .b { justify-self: start; background: var(--surface); border: 1px solid var(--line); padding: .4rem .75rem; border-radius: 12px 12px 12px 0; }
-.c-chat .ctl { margin-top: .4rem; display: grid; grid-template-columns: auto 1fr 4ch; gap: .6rem; align-items: center; font-size: var(--t-xs); font-weight: 600; color: var(--muted); font-family: var(--mono); }
-.c-chat .track { position: relative; height: 3px; background: var(--line); border-radius: 2px; }
-.c-chat .fill { position: absolute; left: 0; top: 0; bottom: 0; width: 12.2%; background: var(--brand-fill); border-radius: 2px; transition: width 900ms var(--ease); }
-.c-chat .knob { position: absolute; top: 50%; left: 12.2%; width: 13px; height: 13px; margin: -6.5px 0 0 -6.5px; background: var(--surface); border: 2px solid var(--brand); border-radius: 50%; transition: left 900ms var(--ease); }
-.c-chat .val::after { content: "21%"; }
-.card:hover .c-chat .u, .card:focus-visible .c-chat .u { animation: pop 400ms var(--ease) backwards; }
-.card:hover .c-chat .b, .card:focus-visible .c-chat .b { animation: pop 400ms var(--ease) 500ms backwards; }
-.card:hover .c-chat .fill, .card:focus-visible .c-chat .fill { width: 22.2%; transition-delay: 800ms; }
-.card:hover .c-chat .knob, .card:focus-visible .c-chat .knob { left: 22.2%; transition-delay: 800ms; }
-.card:hover .c-chat .val::after { content: "30%"; }
 @keyframes pop { from { opacity: 0; transform: translateY(8px) scale(.96); } }
 
 /* Resources card */
-.c-cat { position: relative; width: 100%; max-width: 340px; font-size: var(--t-sm); }
-.c-cat .row { display: grid; grid-template-columns: 8ch 1fr auto; gap: .5rem; padding: .42rem .25rem; border-bottom: 1px solid var(--line); }
-.c-cat .row span:first-child, .c-cat .row span:last-child { color: var(--muted); font-size: var(--t-xs); align-self: center; }
-.c-cat .scan { position: absolute; left: -4px; right: -4px; top: 0; height: 2px; background: var(--brand); opacity: 0; }
-.card:hover .c-cat .scan, .card:focus-visible .c-cat .scan { animation: scan 1.5s var(--ease) forwards; }
-.card:hover .c-cat .row { animation: lit 1.5s var(--ease) backwards; }
-.card:hover .c-cat .row:nth-child(3) { animation-delay: .18s; } .card:hover .c-cat .row:nth-child(4) { animation-delay: .36s; }
-.card:hover .c-cat .row:nth-child(5) { animation-delay: .54s; } .card:hover .c-cat .row:nth-child(6) { animation-delay: .72s; }
-@keyframes scan { 0% { transform: translateY(0); opacity: 1; } 85% { opacity: 1; } 100% { transform: translateY(165px); opacity: 0; } }
-@keyframes lit { 20% { background: var(--brand-soft); } }
 
 /* Sim card */
 .c-sim .sphere { transform-box: fill-box; transform-origin: center; animation: breathe 3s ease-in-out infinite; transition: opacity 600ms; }
@@ -188,11 +164,6 @@ body.in-page .bar { visibility: visible; opacity: 1; transition: opacity 260ms 2
 .map .tdot.u { fill: var(--d-none); }
 /* the legend marks sit in the note's text; ".map svg" above would otherwise stretch each one to the full width */
 .map svg.lg { display: inline-block; width: 12px; height: 12px; margin: 0 .3rem 0 .7rem; vertical-align: -1px; overflow: visible; }
-.map .mapmsg text { text-anchor: middle; font-family: var(--sans); paint-order: stroke; stroke: var(--well); stroke-width: 6px; stroke-linejoin: round; }
-.map .mapmsg .big { font-size: 15px; font-weight: 700; fill: var(--ink); }
-.map .mapmsg .sub { font-size: 12px; font-weight: 500; fill: var(--muted); }
-.map svg.narrow .mapmsg .big { font-size: 16px; }
-.map svg.narrow .mapmsg .sub { font-size: 15px; }
 .banner { display: none; margin-top: .75rem; padding: .7rem .9rem; background: var(--accent-soft); border-left: 3px solid var(--accent-mark); font-size: var(--t-sm); border-radius: var(--r); }
 .banner.show { display: block; }
 
@@ -381,8 +352,8 @@ th.sort[aria-sort="descending"]::after { content: " \25BC"; color: var(--accent)
 .brief .facts div { border-top: 2px solid var(--line); padding-top: .4rem; }
 .brief .facts dt { font-size: var(--t-xs); color: var(--muted); font-weight: 600; }
 .brief .facts dd { font-family: var(--mono); font-size: var(--t-lg); }
-.brief .rate { display: inline-block; padding: .15rem .6rem; border-radius: var(--r); font-weight: 600; font-size: var(--t-sm); border: 1px solid var(--ink); }
-.brief .rate.dark { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
+.rate { display: inline-block; padding: .15rem .6rem; border-radius: var(--r); font-weight: 600; font-size: var(--t-sm); border: 1px solid var(--ink); }
+.rate.dark { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
 .brief .src { margin-top: 1.4rem; font-size: var(--t-xs); color: var(--muted); }
 @media (max-width: 640px) { .brief .facts { grid-template-columns: 1fr 1fr; } .site-foot .wrap { flex-direction: column; } }
 @media print {
@@ -413,3 +384,29 @@ th.sort[aria-sort="descending"]::after { content: " \25BC"; color: var(--accent)
   *, *::before, *::after { animation: none !important; transition: none !important; }
   .page .panel { opacity: 1; transform: none; }
 }
+
+/* ---------- Analysis: coverage by fuel, ranked investigations, the actions for a point ---------- */
+.rate { white-space: nowrap; }
+.rate.lit { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+.cover { display: grid; gap: .7rem; }
+.cov { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: .2rem .6rem; align-items: center; padding-bottom: .7rem; border-bottom: 1px solid var(--line); }
+.cov:last-child { border-bottom: 0; padding-bottom: 0; }
+.cov b { font-weight: 600; }
+.cov p { grid-column: 1 / -1; font-size: var(--t-sm); color: var(--muted); }
+.acts { display: flex; gap: .5rem; flex-wrap: wrap; }
+#rankTable td:first-child { font-family: var(--mono); white-space: nowrap; }
+#rankTable tr.unplaced td { color: var(--muted); }
+#rankTable .linkbtn { min-height: 44px; white-space: nowrap; }
+.gown { margin-bottom: .6rem; }
+.gown summary { cursor: pointer; font-weight: 600; font-size: var(--t-sm); color: var(--brand); min-height: 44px; display: flex; align-items: center; }
+
+/* ---------- The assistant: one panel that opens over any page ---------- */
+.askbar { display: flex; gap: .5rem; margin-top: 1.5rem; max-width: 620px; }
+.askbar input { flex: 1; min-width: 0; min-height: 48px; border: 1px solid var(--line-strong); border-radius: var(--r); padding: 0 .9rem; background: var(--surface); }
+.chatdock { position: fixed; z-index: 240; right: 1rem; bottom: 1rem; top: calc(var(--bar-h) + 1rem); width: min(400px, calc(100vw - 2rem));
+  display: flex; flex-direction: column; overflow: hidden; background: var(--surface); border: 1px solid var(--line-strong); border-radius: var(--corner); box-shadow: var(--shadow); }
+.chatdock[hidden] { display: none; }
+body:not(.in-page) .chatdock { top: 1rem; }
+.chatdock .chat-head > div { flex: 1; min-width: 0; }
+.chatdock .msg { max-width: 92%; font-size: var(--t-sm); }
+@media (max-width: 767px) { .chatdock { left: .5rem; right: .5rem; width: auto; bottom: .5rem; top: calc(var(--bar-h) + .5rem); } }

@@ -93,7 +93,7 @@ E.scene('1-4', function (E, root) {
     /* opening: nitrogen drifts past */
     var dOn = at(t, .1, .6) * (1 - at(t, B.ratio_earth, 1));
     dn.forEach(function (n) { E.place(n.g, ((n.x + t * n.v) % 2040) - 60, n.y + 18 * Math.sin(t + n.x), n.rot + t * 20, 1, dOn * .8); });
-    set(lN, { opacity: win(t, .5, B.ratio_earth - .3) });
+    E.reveal(lN, t, .5, B.ratio_earth - .3);
 
     /* oxygen share over the video: 21% (Earth), 30% (Moon Base), 100% (suit) */
     var toMoon = at(t, B.raise + .5, 3, E.ease.inOut), toSuit = at(t, B.suit, 1.6, E.ease.inOut), back = at(t, B.same_breath, 1, E.ease.inOut);
@@ -101,7 +101,7 @@ E.scene('1-4', function (E, root) {
     var ratio = (100 - o2) / o2;
 
     /* the ratio panel */
-    set(R, { opacity: win(t, B.ratio_earth, B.diluents - .3) });
+    E.reveal(R, t, B.ratio_earth, B.diluents - .3);
     slots.forEach(function (sl, k) { var f = E.clamp(ratio - k); set(sl.rect, { width: Math.max(.01, 120 * f) }); });
     nTxt.textContent = ratio.toFixed(2);
     o2Txt.textContent = o2.toFixed(0) + '% oxygen';
@@ -127,21 +127,21 @@ E.scene('1-4', function (E, root) {
       set(waves[j], { d: 'M' + x1.toFixed(1) + ' ' + y1.toFixed(1) + ' Q' + mx.toFixed(1) + ' ' + my.toFixed(1) + ' ' + x2.toFixed(1) + ' ' + y2.toFixed(1),
         opacity: ok ? win(t, B.sponge + 1, B.raise + 1) * (.4 + .6 * (1 - ph)) * (1 - dilute) : 0 });
     });
-    set(lSponge, { opacity: win(t, B.sponge + 2, B.raise + 1) });
-    set(hot, { opacity: win(t, B.hotter, B.same_breath, .5) });
-    hotL.forEach(function (h, j) { set(h, { opacity: at(t, B.hotter + .5 + j * 1.3, .5) }); });
+    E.reveal(lSponge, t, B.sponge + 2, B.raise + 1);
+    E.reveal(hot, t, B.hotter, B.same_breath, .5);
+    hotL.forEach(function (h, j) { E.reveal(h, t, B.hotter + .5 + j * 1.3, undefined, .5); });
 
     /* same breathing, different fire risk */
-    set(S, { opacity: win(t, B.same_breath, B.diluents - .3) });
-    set(S.c0, { opacity: at(t, B.same_breath + .7, .5) }); set(S.c1, { opacity: at(t, B.same_breath + 1.9, .5) });
+    E.reveal(S, t, B.same_breath, B.diluents - .3);
+    E.reveal(S.c0, t, B.same_breath + .7, undefined, .5); E.reveal(S.c1, t, B.same_breath + 1.9, undefined, .5);
 
     /* diluents stream in */
     var dOn2 = win(t, B.diluents + .5, B.flex, .8);
     co2.forEach(function (m, j) { var life = ((t - B.diluents) * .1 + m.d) % 1, rad = 520 - 340 * life; E.place(m.g, FX + rad * Math.cos(m.a), FY - 60 + rad * Math.sin(m.a) * .8, m.a * 57 + t * 15, 1, dOn2 * Math.min(1, life * 5)); });
     he.forEach(function (h, j) { var life = ((t - B.diluents) * .14 + h.d) % 1, rad = 520 - 360 * life; set(h.g, { cx: FX + rad * Math.cos(h.a), cy: FY - 60 + rad * Math.sin(h.a) * .8, opacity: dOn2 * Math.min(1, life * 5) }); });
-    set(lDil, { opacity: win(t, B.diluents + .8, B.flex) });
-    set(dl1, { opacity: at(t, B.diluents + .8, .5) }); set(dl2, { opacity: at(t, B.diluents + 1.8, .5) }); set(dl3, { opacity: at(t, B.diluents + 3.5, .5) });
-    set(lFlex, { opacity: at(t, B.flex + 1, .6) });
+    E.reveal(lDil, t, B.diluents + .8, B.flex);
+    E.reveal(dl1, t, B.diluents + .8, undefined, .5); E.reveal(dl2, t, B.diluents + 1.8, undefined, .5); E.reveal(dl3, t, B.diluents + 3.5, undefined, .5);
+    E.reveal(lFlex, t, B.flex + 1, undefined, .6);
   };
 });
 </script>

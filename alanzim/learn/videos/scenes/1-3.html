@@ -144,45 +144,45 @@ E.scene('1-3', function (E, root) {
     pct.textContent = O.toFixed(O < 21 ? 1 : 0) + '% oxygen';
     pres.textContent = P.toFixed(1) + ' psi';
     where.textContent = drop > .5 ? 'Moon Base air' : 'sea level, or the ISS';
-    set(pct, { opacity: at(t, B.percent, .6) });
-    set(pres, { opacity: at(t, B.sea_level, .6) }); set(where, { opacity: at(t, B.sea_level + .5, .6) });
-    set(lgd, { opacity: at(t, 1, .6) });
+    E.reveal(pct, t, B.percent, undefined, .6);
+    E.reveal(pres, t, B.sea_level, undefined, .6); E.reveal(where, t, B.sea_level + .5, undefined, .6);
+    E.reveal(lgd, t, 1, undefined, .6);
 
     /* the two cards */
     var cardsOn = win(t, .8, B.multiply - .2);
     set(c1.g, { opacity: cardsOn * at(t, .8, .6) }); set(c2.g, { opacity: cardsOn * at(t, 2.2, .6) });
     set(c1.hl, { opacity: focusO }); set(c2.hl, { opacity: push });
-    set(c1.sub, { opacity: at(t, B.percent + 2, .6) }); set(c2.sub, { opacity: at(t, B.partial + 2, .6) });
+    E.reveal(c1.sub, t, B.percent + 2, undefined, .6); E.reveal(c2.sub, t, B.partial + 2, undefined, .6);
 
     /* formula, then sea level numbers */
-    set(F, { opacity: win(t, B.multiply, B.spacewalk) });
-    set(f1, { opacity: at(t, B.multiply + .2, .7) });
-    set(f2, { opacity: at(t, B.sea_level + .3, .7) }); set(f3, { opacity: at(t, B.sea_level + 3, .7) });
+    E.reveal(F, t, B.multiply, B.spacewalk);
+    E.reveal(f1, t, B.multiply + .2, undefined, .7);
+    E.reveal(f2, t, B.sea_level + .3, undefined, .7); E.reveal(f3, t, B.sea_level + 3, undefined, .7);
 
     /* dial and helmet */
-    set(G, { opacity: win(t, B.spacewalk, B.moon) });
+    E.reveal(G, t, B.spacewalk, B.moon);
     var a = ang(dialP);
     set(needle, { x2: GX + (GR - 50) * Math.cos(a), y2: GY + (GR - 50) * Math.sin(a) });
     dialTxt.textContent = dialP.toFixed(1);
-    set(helmet, { opacity: at(t, B.spacewalk + 1.2, .6) });
-    set(gTxt, { opacity: at(t, B.spacewalk + 1.6, .6) }); set(gTxt2, { opacity: at(t, B.spacewalk + 1.6, .6) });
+    E.reveal(helmet, t, B.spacewalk + 1.2, undefined, .6);
+    E.reveal(gTxt, t, B.spacewalk + 1.6, undefined, .6); E.reveal(gTxt2, t, B.spacewalk + 1.6, undefined, .6);
 
     /* ISS vs Moon Base, then their flames */
-    set(M, { opacity: win(t, B.moon, B.trade - .4) });
+    E.reveal(M, t, B.moon, B.trade - .4);
     mc.forEach(function (c, k) {
-      set(c.g, { opacity: at(t, B.moon + .3 + k * 1.2, .6) });
+      E.reveal(c.g, t, B.moon + .3 + k * 1.2, undefined, .6);
       var f = at(t, B.flammable + .3 + k * 1.2, .8, E.ease.back);
-      set(c.fl, { opacity: at(t, B.flammable + .3 + k * 1.2, .4) });
+      E.reveal(c.fl, t, B.flammable + .3 + k * 1.2, undefined, .4);
       set(c.fp, { d: E.flameShape(1, c.fs * Math.max(.05, f), c.x, 840, 7 * Math.sin(t * 9 + k)) });
     });
-    set(same, { opacity: at(t, B.flammable + 3, .6) }); set(more, { opacity: at(t, B.flammable + 3.8, .6) });
+    E.reveal(same, t, B.flammable + 3, undefined, .6); E.reveal(more, t, B.flammable + 3.8, undefined, .6);
 
     /* the map */
     set(T, { opacity: at(t, B.trade, .8) * (1 - at(t, END - .8, .8)) });
     set(curve, { 'stroke-dasharray': '12 9', 'stroke-dashoffset': 0, opacity: at(t, B.trade + .3, 1.2) });
-    pts.forEach(function (g, k) { set(g, { opacity: at(t, B.trade + 1.2 + k * .6, .5) }); });
-    set(tradeL, { opacity: at(t, B.trade + 2.6, .6) }); set(tradeR, { opacity: at(t, B.trade + 3.4, .6) });
-    set(maps, { opacity: at(t, B.trade + 4.2, .6) });
+    pts.forEach(function (g, k) { E.reveal(g, t, B.trade + 1.2 + k * .6, undefined, .5); });
+    E.reveal(tradeL, t, B.trade + 2.6, undefined, .6); E.reveal(tradeR, t, B.trade + 3.4, undefined, .6);
+    E.reveal(maps, t, B.trade + 4.2, undefined, .6);
   };
 });
 </script>

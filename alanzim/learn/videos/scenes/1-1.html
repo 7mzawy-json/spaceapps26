@@ -110,7 +110,7 @@ E.scene('1-1', function (E, root) {
     var slide = at(t, B.pillars, 1.2, E.ease.inOut);
     set(A, { opacity: aOn, transform: 'translate(' + (-430 * slide).toFixed(1) + ' 0) scale(' + (1 - .25 * slide) + ')', 'transform-origin': TX + 'px ' + TY + 'px' });
     [sFuel, sOxy, sHeat].forEach(function (s, k) { set(s, { 'stroke-dashoffset': s.len * (1 - at(t, .3 + k * .9, 1, E.ease.inOut)) }); });
-    set(lFuel, { opacity: at(t, .9, .6) }); set(lHeat, { opacity: at(t, 2.6, .6) });
+    E.reveal(lFuel, t, .9, undefined, .6); E.reveal(lHeat, t, 2.6, undefined, .6);
     var pull = at(t, B.remove + .2, .7, E.ease.inOut) * (1 - at(t, B.remove + 2.4, .7, E.ease.inOut));
     set(sOxy, { transform: 'translate(' + (240 * pull).toFixed(1) + ' ' + (-60 * pull).toFixed(1) + ')', opacity: 1 - .5 * pull });
     set(lOxy, { opacity: at(t, 1.8, .6) * (1 - .5 * pull), transform: 'translate(' + (240 * pull).toFixed(1) + ' ' + (-60 * pull).toFixed(1) + ')' });
@@ -137,10 +137,10 @@ E.scene('1-1', function (E, root) {
       E.place(o.g, DX + rad * Math.cos(a), DY + rad * Math.sin(a), o.spin + t * 25, 1, (1 - .7 * starve) * (vap > .01 ? Math.min(1, (440 - rad) / 60 + .3) : 1));
     });
     set(lOxy2, { opacity: at(t, B.diffusion + .5, .6) * (1 - shrink) });
-    set(lFuel2, { opacity: at(t, B.diffusion + .3, .6) });
-    set(lMeet, { opacity: win(t, B.meet + 2, B.equation) });
+    E.reveal(lFuel2, t, B.diffusion + .3, undefined, .6);
+    E.reveal(lMeet, t, B.meet + 2, B.equation);
     set(lSlow, { opacity: win(t, B.starve + .8, B.kinds - .6), transform: 'translate(-60 0)' });
-    set(Q, { opacity: win(t, B.equation + .6, B.kinds - .6) });
+    E.reveal(Q, t, B.equation + .6, B.kinds - .6);
     o2s.forEach(function (m, k) { set(m, { opacity: at(t, B.equation + 1 + k * .25, .4) * (k >= 2 ? 1 - .8 * starve : 1) }); });
     set(heat, { opacity: at(t, B.equation + 4.5, .6) * (1 - .6 * starve) });
 
@@ -157,7 +157,7 @@ E.scene('1-1', function (E, root) {
     });
     set(K.lastChild, { opacity: 1 });
     items.forEach(function (g, k) { var p = at(t, B.solids + 1.2 + k * .7, .6, E.ease.back); set(g, { opacity: at(t, B.solids + 1.2 + k * .7, .4), transform: 'translate(0 ' + (40 * (1 - p)).toFixed(1) + ')' }); });
-    set(lCabin, { opacity: at(t, B.solids + .6, .6) });
+    E.reveal(lCabin, t, B.solids + .6, undefined, .6);
   };
 });
 </script>

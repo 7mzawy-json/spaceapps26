@@ -104,19 +104,19 @@ E.scene('1-6', function (E, root) {
     set(halo, { opacity: size });
     puffs.forEach(function (pf, k) { var ph = at(t, B.goes_out + 1 + k * .15, 2.5); set(pf, { cx: FX + (k - 2.5) * 30, cy: FY - 40 - 160 * ph, r: 18 + 30 * ph, opacity: .45 * ph * (1 - ph) * 2 }); });
     set(bars, { opacity: 1 - at(t, B.limit, .6) });
-    set(LIM, { opacity: win(t, B.limit + .3, B.flex - .5) });
-    set(lim2, { opacity: at(t, B.limit + 4, .6) });
+    E.reveal(LIM, t, B.limit + .3, B.flex - .5);
+    E.reveal(lim2, t, B.limit + 4, undefined, .6);
 
     /* part 2: dots pop in, one per test */
     set(P2, { opacity: at(t, B.flex, .8) * (1 - at(t, B.risk - .4, .8)) });
     dotRows.forEach(function (row, k) {
       var start = k ? B.high_band + .3 : B.low_band + .3;
-      set(row.g, { opacity: at(t, start - .3, .4) });
+      E.reveal(row.g, t, start - .3, undefined, .4);
       row.dots.forEach(function (d, j) { var p = at(t, start + j * .07, .35, E.ease.back); set(d, { r: 18 * p, opacity: p > 0 ? 1 : 0 }); });
-      set(row.lbl, { opacity: at(t, start + row.dots.length * .07 + .4, .5) });
+      E.reveal(row.lbl, t, start + row.dots.length * .07 + .4, undefined, .5);
     });
-    set(lg, { opacity: at(t, B.low_band + 1, .6) });
-    set(caution, { opacity: win(t, B.caution + .2, B.risk - .4) });
+    E.reveal(lg, t, B.low_band + 1, undefined, .6);
+    E.reveal(caution, t, B.caution + .2, B.risk - .4);
     var dir = win(t, B.direction, B.risk - .4, .4);
     set(arrow, { opacity: dir }); set(arrowHead, { opacity: dir }); set(dirTxt, { opacity: dir });
 

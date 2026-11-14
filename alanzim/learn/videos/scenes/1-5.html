@@ -106,13 +106,13 @@ E.scene('1-5', function (E, root) {
       b.sparks.forEach(function (s) { var ph = (t * 1.6 + s.ph) % 1; set(s.e, { cx: s.x, cy: s.y, r: 6 + 20 * ph, opacity: at(t, B.spacing + .5, .6) * (1 - ph) }); });
       var st = Math.max(0, t - B.halve - .3), rad = 30 + 52 * Math.sqrt(b.D * st);
       set(b.dye, { r: Math.min(rad, 240), opacity: st > 0 ? .22 : 0 }); set(b.dyeEdge, { r: Math.min(rad, 240), opacity: st > 0 ? .9 : 0 });
-      set(b.sub, { opacity: at(t, B.spacing + 1 + k * 1.5, .6) });
+      E.reveal(b.sub, t, B.spacing + 1 + k * 1.5, undefined, .6);
     });
-    set(formula, { opacity: win(t, B.halve, B.earth - .4) });
-    set(fsub, { opacity: at(t, B.halve + 1.5, .6) });
+    E.reveal(formula, t, B.halve, B.earth - .4);
+    E.reveal(fsub, t, B.halve + 1.5, undefined, .6);
 
     /* flame */
-    set(FL, { opacity: win(t, B.earth, B.moon_pressure - .2) });
+    E.reveal(FL, t, B.earth, B.moon_pressure - .2);
     var orbit = at(t, B.micro, 1.6, E.ease.inOut), lowP = at(t, B.larger + .5, 3, E.ease.inOut);
     var P = E.lerp(14.7, 10.2, lowP), grow = Math.sqrt(14.7 / P), k = 1 - orbit;
     var d = E.flameShape(k, (58 + 22 * orbit) * (orbit > 0 ? grow : 1), FX, FY, 9 * Math.sin(t * 9) * k);
@@ -120,21 +120,21 @@ E.scene('1-5', function (E, root) {
     set(halo, { r: 200 * (orbit > 0 ? grow : 1), opacity: (1 - k) * (.9 - .4 * lowP) });
     ups.forEach(function (a) { var ph = (t * .8 + a.p) % 1, y0 = FY - 150 - 260 * ph; set(a.e, { d: 'M' + (FX + a.x) + ' ' + (y0 + 60).toFixed(1) + ' l0 -60', opacity: k * (1 - ph) * at(t, B.earth + .5, .6) }); });
     ins.forEach(function (m) { var ph = (t * .12 + m.p) % 1, rr = (360 - 230 * ph) * grow; E.place(m.g, FX + rr * Math.cos(m.a), FY + rr * Math.sin(m.a), t * 30, 1, (1 - k) * Math.min(1, ph * 5) * (1 - ph)); });
-    set(lEarth, { opacity: win(t, B.earth + .6, B.micro) });
-    set(lMicro, { opacity: win(t, B.micro + 1.4, B.larger) });
-    set(lLarge, { opacity: win(t, B.larger + 1.5, B.moon_pressure - .2) });
+    E.reveal(lEarth, t, B.earth + .6, B.micro);
+    E.reveal(lMicro, t, B.micro + 1.4, B.larger);
+    E.reveal(lLarge, t, B.larger + 1.5, B.moon_pressure - .2);
     pTxt.textContent = P.toFixed(1) + ' psi';
-    set(pTxt, { opacity: win(t, B.larger + .2, B.moon_pressure - .2) });
+    E.reveal(pTxt, t, B.larger + .2, B.moon_pressure - .2);
 
-    set(PB, { opacity: win(t, B.moon_pressure + .3, B.evidence - .3) });
-    pbars.forEach(function (b, j) { var g = at(t, B.moon_pressure + .6 + j * 1.6, 1, E.ease.out); set(b.bar, { width: b.w * g }); set(b.num, { opacity: g }); set(b.g, { opacity: at(t, B.moon_pressure + .6 + j * 1.6, .4) }); });
+    E.reveal(PB, t, B.moon_pressure + .3, B.evidence - .3);
+    pbars.forEach(function (b, j) { var g = at(t, B.moon_pressure + .6 + j * 1.6, 1, E.ease.out); set(b.bar, { width: b.w * g }); set(b.num, { opacity: g }); E.reveal(b.g, t, B.moon_pressure + .6 + j * 1.6, undefined, .4); });
 
     /* map: every placeable test, then the Moon Base box and its 33 */
     var mOn = at(t, B.evidence, .8) * (1 - at(t, END - 1, 1));
     set(MAP, { opacity: mOn });
     set(allPts, { opacity: 1 - .6 * at(t, B.count, .8) });
-    set(mbox, { opacity: at(t, B.evidence + 2, .8) }); set(mlab, { opacity: at(t, B.evidence + 2.5, .6) });
-    set(moonPts, { opacity: at(t, B.evidence + .2, .5) });
+    E.reveal(mbox, t, B.evidence + 2, undefined, .8); E.reveal(mlab, t, B.evidence + 2.5, undefined, .6);
+    E.reveal(moonPts, t, B.evidence + .2, undefined, .5);
     var pulse = at(t, B.count, .6) * (1 + .3 * Math.sin(t * 6));
     [].forEach.call(moonPts.childNodes, function (c) { c.setAttribute('r', (8 * (1 + .35 * pulse)).toFixed(2)); });
     var cnt = at(t, B.count + .3, 2, E.ease.inOut);
@@ -142,8 +142,8 @@ E.scene('1-5', function (E, root) {
     set(counter, { opacity: at(t, B.count, .5) * (1 - at(t, END - 1, 1)) });
     set(cSub, { opacity: at(t, B.count + .6, .5) * (1 - at(t, END - 1, 1)) });
     set(LG, { opacity: 1 - at(t, END - 1, 1) });
-    rowsL.forEach(function (g, j) { set(g, { opacity: at(t, B.droplets + .3 + j * 1.6, .5) }); });
-    set(mnote, { opacity: at(t, B.droplets + 4, .5) });
+    rowsL.forEach(function (g, j) { E.reveal(g, t, B.droplets + .3 + j * 1.6, undefined, .5); });
+    E.reveal(mnote, t, B.droplets + 4, undefined, .5);
   };
 }, { rows: true });
 </script>

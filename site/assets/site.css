@@ -41,7 +41,10 @@ input[type=range] { width: 100%; min-height: 44px; accent-color: var(--brand-fil
 /* ---------- Dashboard ---------- */
 .top { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1.25rem 0; }
 .top .mark, .bar .mark { display: inline-flex; align-items: center; gap: .6rem; min-height: 44px; font-weight: 700; font-size: var(--t-lg); letter-spacing: -.01em; color: var(--brand); text-decoration: none; }
-.top .mark i, .bar .mark i { width: 22px; height: 8px; background: var(--accent-mark); border-radius: 0 0 0 6px; }
+/* the logo takes the theme's red; its lines keep one thickness at any size */
+.logo { height: 36px; width: auto; aspect-ratio: 178 / 372; flex: none; color: var(--accent-mark); overflow: visible; }
+.bar .logo { height: 32px; }
+#fpLogo polygon { fill: none; stroke: currentColor; stroke-width: 1.5px; vector-effect: non-scaling-stroke; stroke-linejoin: round; }
 .top-right { display: flex; align-items: center; gap: 1rem; }
 .meta { font-size: var(--t-sm); color: var(--muted); text-align: right; }
 .draft { color: var(--accent); font-weight: 600; }

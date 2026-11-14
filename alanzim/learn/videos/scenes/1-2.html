@@ -160,9 +160,12 @@ E.scene('1-2', function (E, root) {
     set(flameCool, { d: d, opacity: (1 - k) * (1 - .45 * smother) });
     set(core, { d: shape(k, R * .35, FX, FY + 6 * k, wob * .4), opacity: .55 * k });
     set(halo, { fill: k > .5 ? 'url(#haloWarm)' : 'url(#haloCool)', opacity: (k > .5 ? k : 1 - k) * (.8 - .5 * smother), cy: FY - 120 * k });
-    var leave = at(t, B.scale, 1.2, E.ease.inOut);
-    set(scene, { opacity: (1 - leave) * at(t, 0, .8) });
-    set(candle, { opacity: 1 });
+    // On "scale" the flame does not vanish: it shrinks and glides onto the Space mark of the gravity scale.
+    var leave = at(t, B.scale, 1.8, E.ease.inOut), sc = 1 - .62 * leave;
+    var gxT = E.lerp(FX, gx(0), leave), gyT = E.lerp(FY, SY - 120, leave);
+    set(scene, { opacity: (1 - at(t, B.scale + 1.3, .7)) * at(t, 0, .8),
+      transform: 'translate(' + (gxT - sc * FX).toFixed(1) + ' ' + (gyT - sc * FY).toFixed(1) + ') scale(' + sc.toFixed(4) + ')' });
+    set(candle, { opacity: 1 - leave });
 
     /* buoyant flow */
     var travel = E.integ(buoy, B.rises - .3, t);
@@ -175,22 +178,22 @@ E.scene('1-2', function (E, root) {
       var s = (travel * 110 + c.p * 380) % 380;
       set(c.e, { cx: FX + c.side * (440 - s), cy: FY + 120 + c.y * (1 - s / 380) - 40 * (s / 380), opacity: flowOn * Math.min(1, s / 60) * (1 - s / 380) * .9 });
     });
-    set(lblHot, { opacity: win(t, B.rises + .4, B.remove_g) });
-    set(lblCold, { opacity: win(t, B.rises + 2, B.remove_g) });
+    E.reveal(lblHot, t, B.rises + .4, B.remove_g);
+    E.reveal(lblCold, t, B.rises + 2, B.remove_g);
 
     /* gravity arrow: grows on "gravity", shrinks to nothing on "remove_g" */
     var len = 260 * at(t, B.gravity, .8, E.ease.back) * gNow;
-    set(arrow, { opacity: win(t, B.gravity, B.station + 1.5) });
+    E.reveal(arrow, t, B.gravity, B.station + 1.5);
     set(shaft, { x2: AX, y2: FY - 220 + Math.max(0, len - 30) });
     set(head, { d: 'M' + (AX - 26) + ' ' + (FY - 230 + len - 30) + ' L' + (AX + 26) + ' ' + (FY - 230 + len - 30) + ' L' + AX + ' ' + (FY - 230 + len + 10) + 'Z', opacity: len > 20 ? 1 : 0 });
     gLbl.textContent = gNow < .05 ? 'g = 0' : 'g';
 
     /* formula: pieces assemble one by one; g turns red when gravity is removed */
-    set(panel, { opacity: win(t, B.formula - .2, B.sphere) });
+    E.reveal(panel, t, B.formula - .2, B.sphere);
     pieces.forEach(function (p, i) { set(p, { 'fill-opacity': at(t, B.formula + i * .32, .4) }); });
     set(gPiece, { fill: at(t, B.remove_g, .4) > .5 ? C.red : C.ink });
-    set(legend, { opacity: at(t, B.formula + 2.4, .6) });
-    set(zero, { opacity: at(t, B.remove_g + 1.4, .6) });
+    E.reveal(legend, t, B.formula + 2.4, undefined, .6);
+    E.reveal(zero, t, B.remove_g + 1.4, undefined, .6);
 
     /* oxygen diffusing in, from all sides */
     var oxyOn = win(t, B.sphere + .6, B.scale, 1);
@@ -200,14 +203,14 @@ E.scene('1-2', function (E, root) {
       set(m.e, { transform: 'translate(' + (FX + rad * Math.cos(a)).toFixed(1) + ' ' + (FY + rad * Math.sin(a)).toFixed(1) + ') rotate(' + (m.spin + t * 20).toFixed(1) + ')',
         opacity: oxyOn * Math.min(1, (430 - rad) / 60) * (1 - Math.max(0, life - .8) * 5) * (1 - .5 * smother) });
     });
-    set(lblOxy, { opacity: win(t, B.sphere + 1.5, B.smother) });
+    E.reveal(lblOxy, t, B.sphere + 1.5, B.smother);
 
     /* burnt gas collects */
     puffs.forEach(function (p) {
       var on = at(t, B.smother + p.k * 3.5, .8);
       set(p.e, { cx: FX + p.d * Math.cos(p.a + t * .05), cy: FY + p.d * Math.sin(p.a + t * .05), opacity: .55 * on });
     });
-    set(lblSmoke, { opacity: win(t, B.smother + 1, B.scale) });
+    E.reveal(lblSmoke, t, B.smother + 1, B.scale);
 
     /* gravity scale, mini flames, the count, the bracket */
     var sc = at(t, B.scale + .6, 1);
@@ -224,8 +227,8 @@ E.scene('1-2', function (E, root) {
       set(s.num, { y: SY - 60 - (full ? h : 340) - 14, fill: full ? C.ink : C.red, opacity: at(t, B.count + .5 + i * .3, .5) });
     });
     counter.textContent = Math.round(1276 * cnt).toLocaleString('en-US');
-    set(counter, { opacity: win(t, B.count, B.between) });
-    set(counterSub, { opacity: win(t, B.count + .6, B.between) });
+    E.reveal(counter, t, B.count, B.between);
+    E.reveal(counterSub, t, B.count + .6, B.between);
     var br = at(t, B.between, 1.2, E.ease.inOut), bx0 = gx(0) + 70, bx1 = gx(1) - 70, by = 400 + 0;
     var mid = bx0 + (bx1 - bx0) * br;
     set(bracket, { d: 'M' + bx0 + ' ' + (by + 30) + ' L' + bx0 + ' ' + by + ' L' + mid.toFixed(1) + ' ' + by + (br > .99 ? ' L' + bx1 + ' ' + (by + 30) : ''),

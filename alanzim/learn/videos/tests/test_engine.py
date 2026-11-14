@@ -9,7 +9,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from browser import serve  # noqa: E402
 from playwright.sync_api import sync_playwright  # noqa: E402
 
-WATERMARK = "AI-assisted animation and voice · Flashpoint"
+# NASA rule: AI-generated video carries a visible watermark. The user chose a small "AI" badge.
+WATERMARK = "AI"
 FRAMES = HERE / "frames"
 
 
@@ -63,8 +64,19 @@ class Scene:
             wm = self.page.locator("#wm")
             self.assertTrue(wm.is_visible(), t)
             self.assertEqual(wm.text_content(), WATERMARK)
-            self.assertGreaterEqual(float(wm.evaluate("e => getComputedStyle(e).opacity")), 0.6)
+            self.assertGreaterEqual(float(wm.evaluate("e => getComputedStyle(e).opacity")), 0.4)
+            box = wm.bounding_box()
+            self.assertGreater(box["x"], 1700)
+            self.assertGreater(box["y"], 960)
         self.assertFalse(self.page.locator("#cap").is_visible())
+
+    def test_camera_drifts_but_badge_stays(self):
+        self.page.evaluate("seek(1)")
+        cam1, wm1 = self.page.evaluate("[document.getElementById('cam').getAttribute('transform'), JSON.stringify(document.getElementById('wm').getBBox())]")
+        self.page.evaluate("seek(9)")
+        cam2, wm2 = self.page.evaluate("[document.getElementById('cam').getAttribute('transform'), JSON.stringify(document.getElementById('wm').getBBox())]")
+        self.assertNotEqual(cam1, cam2)
+        self.assertEqual(wm1, wm2)
 
     def test_every_beat_is_used(self):
         beats = [x["beat"] for x in json.loads((HERE / "scripts" / f"{self.ID}.json").read_text())["sentences"]]

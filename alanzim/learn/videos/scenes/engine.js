@@ -61,16 +61,44 @@
     });
   }
 
+  /* Background with depth: a glow, three soft drifting light clouds, and stars that drift slower than the camera. */
   function background(svg) {
     var d = E.el('defs', {}, svg);
     var g = E.el('radialGradient', { id: 'bgGlow', cx: '50%', cy: '45%', r: '70%' }, d);
     E.el('stop', { offset: '0', 'stop-color': '#0d2a66' }, g);
     E.el('stop', { offset: '1', 'stop-color': E.C.bg }, g);
+    var blur = E.el('filter', { id: 'soft', x: '-50%', y: '-50%', width: '200%', height: '200%' }, d);
+    E.el('feGaussianBlur', { stdDeviation: 90 }, blur);
     E.el('rect', { width: E.W, height: E.H, fill: 'url(#bgGlow)' }, svg);
+    var clouds = E.el('g', { filter: 'url(#soft)' }, svg);
+    var cl = [[420, 300, 300, '#1b4fb0', .35, .05], [1500, 760, 360, '#2a3f8f', .3, .04], [1100, 200, 220, '#3a2a7a', .22, .06]].map(function (c) {
+      return { e: E.el('circle', { cx: c[0], cy: c[1], r: c[2], fill: c[3], opacity: c[4] }, clouds), x: c[0], y: c[1], w: c[5] };
+    });
     var stars = E.el('g', {}, svg), r = E.rand(7), list = [];
     for (var i = 0; i < 150; i++) list.push(E.el('circle', { cx: r() * E.W, cy: r() * E.H, r: .6 + r() * 1.6, fill: '#cfe0ff', opacity: .2 + r() * .4 }, stars));
-    return function (t) { for (var i = 0; i < list.length; i += 3) list[i].setAttribute('opacity', (.25 + .2 * Math.sin(t * 1.3 + i)).toFixed(3)); };
+    return function (t) {
+      cl.forEach(function (c, k) { E.set(c.e, { cx: (c.x + 120 * Math.sin(t * c.w + k * 2)).toFixed(1), cy: (c.y + 80 * Math.cos(t * c.w * .8 + k)).toFixed(1) }); });
+      E.set(stars, { transform: 'translate(' + (-6 * Math.sin(t * .05)).toFixed(2) + ' ' + (-4 * Math.cos(t * .04)).toFixed(2) + ')' });
+      for (var i = 0; i < list.length; i += 3) list[i].setAttribute('opacity', (.25 + .2 * Math.sin(t * 1.3 + i)).toFixed(3));
+    };
   }
+
+  /* A slow, continuous camera drift over the whole scene, so nothing is ever completely still. */
+  function camera(t) {
+    var s = 1.015 + .01 * Math.sin(t * .07), dx = 10 * Math.sin(t * .11), dy = 7 * Math.cos(t * .09);
+    return 'translate(' + (960 + dx).toFixed(2) + ' ' + (540 + dy).toFixed(2) + ') scale(' + s.toFixed(4) + ') translate(-960 -540)';
+  }
+
+  /* Smooth entrances and exits. reveal: fade and rise into place, then fade and lift away. Use on nodes that
+     have no transform of their own (labels, panels, groups positioned by their children). */
+  E.ease.quint = function (k) { return 1 - Math.pow(1 - k, 5); };
+  E.ease.inCubic = function (k) { return k * k * k; };
+  E.reveal = function (node, t, a, b, fade) {
+    fade = fade || .7;
+    var pin = E.at(t, a, fade, E.ease.quint), pout = b === undefined ? 0 : E.at(t, b, fade * .8, E.ease.inCubic);
+    E.set(node, { opacity: (pin * (1 - pout)).toFixed(3), transform: 'translate(0 ' + ((1 - pin) * 26 - pout * 18).toFixed(2) + ')' });
+    return pin * (1 - pout);
+  };
 
   /* ---------- shared drawing helpers for the scenes ---------- */
   E.font = function (size, weight, mono) { return { 'font-family': mono ? 'Geist Mono' : 'Geist', 'font-size': size, 'font-weight': weight || 400 }; };
@@ -132,14 +160,22 @@
     }).then(function () { return document.fonts.ready; }).then(function () {
       var svg = document.getElementById('stage');
       var bg = background(svg);
-      var layer = E.el('g', {}, svg);
+      var cam = E.el('g', { id: 'cam' }, svg);
+      var layer = E.el('g', {}, cam);
       var draw = build(E, layer);
-      var wm = E.text('AI-assisted animation and voice · Flashpoint', { id: 'wm', x: E.W - 40, y: E.H - 34, 'text-anchor': 'end',
-        'font-family': 'Geist', 'font-size': 22, fill: '#ffffff', opacity: .72 }, svg);
-      wm.style.opacity = '.72';
+      // Vignette: darker corners for depth. Above the scene, below the badge.
+      var vg = E.el('radialGradient', { id: 'vig', cx: '50%', cy: '50%', r: '75%' }, svg.querySelector('defs'));
+      E.el('stop', { offset: '.6', 'stop-color': '#000814', 'stop-opacity': 0 }, vg);
+      E.el('stop', { offset: '1', 'stop-color': '#000814', 'stop-opacity': .55 }, vg);
+      E.el('rect', { width: E.W, height: E.H, fill: 'url(#vig)', 'pointer-events': 'none' }, svg);
+      // NASA rule: AI-generated video carries a visible watermark. Kept small: an "AI" badge in the corner.
+      var wm = E.el('g', { id: 'wm' }, svg);
+      E.el('rect', { x: E.W - 92, y: E.H - 66, width: 56, height: 32, rx: 10, fill: 'none', stroke: '#ffffff', 'stroke-width': 2 }, wm);
+      E.text('AI', { x: E.W - 64, y: E.H - 43, 'text-anchor': 'middle', 'font-family': 'Geist Mono', 'font-size': 18, fill: '#ffffff' }, wm);
+      wm.style.opacity = '.5';
       var cap = document.getElementById('cap');
       window.seek = function (t) {
-        bg(t); draw(t);
+        bg(t); cam.setAttribute('transform', camera(t)); draw(t);
         if (E.preview) {
           var s = E.timing.sentences.filter(function (x) { return t >= x.start && t <= x.end + .3; })[0];
           cap.textContent = s ? s.show : '';

@@ -23,7 +23,7 @@ from browser import ROOT, serve  # noqa: E402
 NARRATION = HERE / "narration"
 DRAFT = HERE / "narration-draft"
 OUT = HERE / "out"
-FPS = 30
+FPS = 60          # smoother motion; render time and file size roughly double
 SIZE = (1920, 1080)
 TAIL = 0.6          # seconds held after the last word
 MAX_BYTES = 8 * 1024 * 1024

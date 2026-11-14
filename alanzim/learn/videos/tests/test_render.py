@@ -68,7 +68,7 @@ class ShortRender(unittest.TestCase):
             n, secs = imageio_ffmpeg.count_frames_and_secs(str(out))
             info = subprocess.run([imageio_ffmpeg.get_ffmpeg_exe(), "-hide_banner", "-i", str(out)],
                                   capture_output=True, text=True).stderr
-        self.assertEqual(n, 60)
+        self.assertEqual(n, 120)   # 60 fps for smoother motion
         self.assertAlmostEqual(secs, 2.0, delta=0.1)
         self.assertIn("Audio:", info)
         self.assertIn("1920x1080", info)

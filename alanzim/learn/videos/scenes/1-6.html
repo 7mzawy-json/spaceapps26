@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Video 1.6: How flames go out</title>
+<!-- Learners page video 1.6. AI-assisted animation (Claude Code). Original drawings. The FLEX dots are NASA's test rows
+     (PSI-69 in data/tests.web.json), one dot per test, coloured by its recorded outcome. Drawn by engine.js. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;600&family=Geist+Mono:wght@500&display=block" rel="stylesheet">
+<link rel="stylesheet" href="scene.css">
+</head>
+<body>
+<svg id="stage" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid meet" aria-label="Animation: how flames go out"></svg>
+<div id="cap" hidden></div>
+<div id="ctl" hidden><button type="button">Play</button><input type="range" min="0" value="0" aria-label="Time"><output>0.0 s</output></div>
+<script src="engine.js"></script>
+<script>
+E.scene('1-6', function (E, root) {
+  var C = E.C, el = E.el, set = E.set, at = E.at, win = E.window, L = E.label;
+  var B = {};
+  ['balance', 'less_heat', 'goes_out', 'limit', 'flex', 'low_band', 'high_band', 'caution', 'direction', 'risk'].forEach(function (b) { B[b] = E.beat(b); });
+  var END = E.timing.duration;
+  E.flameDefs(root);
+  var chap = E.chapter(root, '1.6', 'How flames go out');
+
+  /* ---------- part 1: heat made against heat lost ---------- */
+  var P1 = el('g', {}, root), FX = 560, FY = 560;
+  var halo = el('circle', { cx: FX, cy: FY, r: 230, fill: 'url(#haloCool)' }, P1);
+  var flame = el('path', { fill: 'url(#cool)' }, P1);
+  el('circle', { cx: FX, cy: FY, r: 20, fill: '#d9c48a' }, P1);
+  var puffs = []; for (var i = 0; i < 6; i++) puffs.push(el('circle', { fill: C.grey }, P1));
+  var o2Txt = L('', FX, FY + 250, 44, C.blueSoft, { mono: true, anchor: 'middle' }, P1);
+  var bars = el('g', {}, P1), BX = 1000;
+  L('heat made', BX, 400, 38, C.amber, { weight: 600 }, bars);
+  var made = el('rect', { x: BX, y: 420, height: 60, rx: 30, fill: C.amber }, bars);
+  L('heat lost', BX, 560, 38, C.blueSoft, { weight: 600 }, bars);
+  var lost = el('rect', { x: BX, y: 580, height: 60, rx: 30, fill: '#4a6aa8' }, bars);
+  var verdict = L('', BX, 740, 44, C.teal, { weight: 600 }, bars);
+
+  /* the flammability limit, as a picture: an oxygen scale with a line on it (no number is claimed) */
+  var LIM = el('g', {}, root), AX = 1100, AY0 = 880, AY1 = 260;
+  el('line', { x1: AX, x2: AX, y1: AY0, y2: AY1, stroke: C.line, 'stroke-width': 6, 'stroke-linecap': 'round' }, LIM);
+  L('more oxygen', AX, AY1 - 24, 30, C.muted, { anchor: 'middle' }, LIM);
+  var limY = 620;
+  el('rect', { x: AX - 40, y: AY1, width: 640, height: limY - AY1, rx: 16, fill: C.amber, 'fill-opacity': .08 }, LIM);
+  el('rect', { x: AX - 40, y: limY, width: 640, height: AY0 - limY, rx: 16, fill: C.teal, 'fill-opacity': .08 }, LIM);
+  el('line', { x1: AX - 60, x2: AX + 620, y1: limY, y2: limY, stroke: C.red, 'stroke-width': 6, 'stroke-dasharray': '18 10' }, LIM);
+  L('flammability limit', AX + 40, limY - 20, 40, C.red, { weight: 600 }, LIM);
+  L('keeps burning', AX + 40, 420, 38, C.amber, {}, LIM);
+  L('goes out by itself', AX + 40, 780, 38, C.teal, {}, LIM);
+  var lim2 = L('the number to know when choosing cabin materials', AX - 40, 960, 32, C.ink, {}, LIM);
+
+  /* ---------- part 2: NASA FLEX, one dot per test ---------- */
+  var P2 = el('g', {}, root);
+  L('NASA FLEX · fuel droplets on the space station', 160, 230, 40, C.ink, { weight: 600 }, P2);
+  var flexRows = E.rows.filter(function (r) { return r.accession === 'PSI-69' && r.o2_pct != null; });
+  var ORDER = { self_extinguished: 0, burned: 1, unknown: 2 }, COL = [C.teal, C.amber, C.grey];
+  function band(lo, hi) { return flexRows.filter(function (r) { return r.o2_pct >= lo && r.o2_pct < hi; }).sort(function (a, b) { return ORDER[a.outcome] - ORDER[b.outcome]; }); }
+  var rowsDef = [[0, 15, 'below 15% oxygen', 'lowLbl', 390], [30, 50, '30 to 50% oxygen', 'highLbl', 640]];
+  var dotRows = rowsDef.map(function (d) {
+    var list = band(d[0], d[1]), g = el('g', {}, P2), dots = [];
+    L(d[2], 160, d[4], 36, C.muted, {}, g);
+    list.forEach(function (r, k) { dots.push(el('circle', { cx: 180 + k * 46, cy: d[4] + 60, r: 18, fill: COL[ORDER[r.outcome]] }, g)); });
+    var out = list.filter(function (r) { return r.outcome === 'self_extinguished'; }).length;
+    var lbl = L(out + ' of ' + list.length + ' went out by themselves', 160, d[4] + 140, 44, C.ink, { weight: 600 }, g);
+    lbl.setAttribute('id', d[3]);
+    return { g: g, dots: dots, lbl: lbl };
+  });
+  var lg = el('g', {}, P2);
+  [['went out by itself', C.teal], ['kept burning', C.amber], ['not recorded', C.grey]].forEach(function (d, k) {
+    el('circle', { cx: 1540, cy: 300 + k * 50, r: 14, fill: d[1] }, lg); L(d[0], 1570, 311 + k * 50, 30, C.ink, {}, lg);
+  });
+  var caution = el('g', {}, root);
+  el('rect', { x: 160, y: 880, width: 1600, height: 110, rx: 28, fill: C.panel, stroke: C.amber, 'stroke-width': 3 }, caution);
+  L('FLEX also changed fuel and pressure: a pattern, not a controlled test of oxygen alone', 200, 948, 36, C.amber, {}, caution);
+  var arrow = el('path', { d: 'M1540 470 C 1600 520, 1600 610, 1540 660', fill: 'none', stroke: C.red, 'stroke-width': 8, 'stroke-linecap': 'round' }, root);
+  var arrowHead = el('path', { d: 'M1520 642 L1546 676 L1572 640 Z', fill: C.red }, root);
+  var dirTxt = el('g', {}, root); L('more oxygen,', 1620, 560, 34, C.red, { weight: 600 }, dirTxt); L('fewer went out', 1620, 604, 34, C.red, { weight: 600 }, dirTxt);
+
+  /* ---------- the end: the risk side of high oxygen ---------- */
+  var END3 = el('g', {}, root);
+  var bigHalo = el('circle', { cx: 960, cy: 560, r: 330, fill: 'url(#haloWarm)' }, END3);
+  var big = el('path', { fill: 'url(#warm)' }, END3);
+  L('more oxygen: flames that are harder to stop', 960, 900, 48, C.ink, { weight: 600, anchor: 'middle' }, END3);
+  L('the fire risk side of every high oxygen habitat', 960, 960, 36, C.amber, { anchor: 'middle' }, END3);
+
+  return function draw(t) {
+    set(chap, { opacity: (.35 + .65 * (1 - at(t, 5, 1))) * (1 - at(t, END - 1, 1)) });
+
+    /* part 1 */
+    var p1 = at(t, .2, .6) * (1 - at(t, B.flex - .5, .8));
+    set(P1, { opacity: p1 });
+    var drop = at(t, B.less_heat + .2, 2.5, E.ease.inOut), outK = at(t, B.goes_out + .3, 1.6, E.ease.inOut);
+    var o2 = E.lerp(21, 15, drop) - 2 * outK;
+    o2Txt.textContent = o2.toFixed(0) + '% oxygen';
+    var m = .82 - .25 * drop - .25 * outK, l = .55;
+    set(made, { width: 640 * m }); set(lost, { width: 640 * l });
+    verdict.textContent = m > l ? 'burns: more heat made than lost' : 'goes out: losses win';
+    set(verdict, { fill: m > l ? C.teal : C.red, opacity: at(t, B.balance + 1.2, .5) });
+    var size = Math.max(.01, (1 - .35 * drop) * (1 - outK));
+    set(flame, { d: E.flameShape(0, 120 * size, FX, FY, 0), opacity: size > .02 ? 1 : 0 });
+    set(halo, { opacity: size });
+    puffs.forEach(function (pf, k) { var ph = at(t, B.goes_out + 1 + k * .15, 2.5); set(pf, { cx: FX + (k - 2.5) * 30, cy: FY - 40 - 160 * ph, r: 18 + 30 * ph, opacity: .45 * ph * (1 - ph) * 2 }); });
+    set(bars, { opacity: 1 - at(t, B.limit, .6) });
+    set(LIM, { opacity: win(t, B.limit + .3, B.flex - .5) });
+    set(lim2, { opacity: at(t, B.limit + 4, .6) });
+
+    /* part 2: dots pop in, one per test */
+    set(P2, { opacity: at(t, B.flex, .8) * (1 - at(t, B.risk - .4, .8)) });
+    dotRows.forEach(function (row, k) {
+      var start = k ? B.high_band + .3 : B.low_band + .3;
+      set(row.g, { opacity: at(t, start - .3, .4) });
+      row.dots.forEach(function (d, j) { var p = at(t, start + j * .07, .35, E.ease.back); set(d, { r: 18 * p, opacity: p > 0 ? 1 : 0 }); });
+      set(row.lbl, { opacity: at(t, start + row.dots.length * .07 + .4, .5) });
+    });
+    set(lg, { opacity: at(t, B.low_band + 1, .6) });
+    set(caution, { opacity: win(t, B.caution + .2, B.risk - .4) });
+    var dir = win(t, B.direction, B.risk - .4, .4);
+    set(arrow, { opacity: dir }); set(arrowHead, { opacity: dir }); set(dirTxt, { opacity: dir });
+
+    /* end */
+    set(END3, { opacity: at(t, B.risk, .8) * (1 - at(t, END - 1, 1)) });
+    var g = at(t, B.risk, 1.6, E.ease.back);
+    set(big, { d: E.flameShape(1, 90 * Math.max(.02, g), 960, 640, 12 * Math.sin(t * 9)) });
+    set(bigHalo, { opacity: g });
+  };
+}, { rows: true });
+</script>
+</body>
+</html>

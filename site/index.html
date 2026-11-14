@@ -192,13 +192,13 @@
 
       <details class="panel s12 evidence-details"><summary id="homeNearH">The five nearest NASA tests <span>Inspect individual rows</span></summary>
         <div class="tablewrap"><table>
-          <thead><tr><th>Accession</th><th>Investigation</th><th>Fuel</th><th>O2 %</th><th>psi</th><th>Outcome</th></tr></thead>
+          <thead><tr><th>Accession</th><th>Investigation</th><th>Fuel</th><th>O2 %</th><th>psi</th><th>Other gases</th><th>Outcome</th></tr></thead>
           <tbody class="skel" id="homeNear">
-            <tr><td><span></span></td><td><span></span></td><td><span></span></td><td><span></span></td><td><span></span></td><td><span></span></td></tr>
-            <tr><td><span></span></td><td><span></span></td><td><span></span></td><td><span></span></td><td><span></span></td><td><span></span></td></tr>
-            <tr><td><span></span></td><td><span></span></td><td><span></span></td><td><span></span></td><td><span></span></td><td><span></span></td></tr>
-            <tr><td><span></span></td><td><span></span></td><td><span></span></td><td><span></span></td><td><span></span></td><td><span></span></td></tr>
-            <tr><td><span></span></td><td><span></span></td><td><span></span></td><td><span></span></td><td><span></span></td><td><span></span></td></tr>
+            <tr><td><span></span></td><td><span></span></td><td><span></span></td><td><span></span></td><td><span></span></td><td><span></span></td><td><span></span></td></tr>
+            <tr><td><span></span></td><td><span></span></td><td><span></span></td><td><span></span></td><td><span></span></td><td><span></span></td><td><span></span></td></tr>
+            <tr><td><span></span></td><td><span></span></td><td><span></span></td><td><span></span></td><td><span></span></td><td><span></span></td><td><span></span></td></tr>
+            <tr><td><span></span></td><td><span></span></td><td><span></span></td><td><span></span></td><td><span></span></td><td><span></span></td><td><span></span></td></tr>
+            <tr><td><span></span></td><td><span></span></td><td><span></span></td><td><span></span></td><td><span></span></td><td><span></span></td><td><span></span></td></tr>
           </tbody>
         </table></div>
         <p class="note">Five closest rows in the collection, each linking to NASA PSI. A nearest test may still be far away, or outside the visible map.</p>
@@ -274,6 +274,7 @@
             <div class="facet"><span class="lbl">Flame type</span><div class="opts" id="f-flame"></div></div>
             <div class="facet"><span class="lbl">Outcome</span><div class="opts" id="f-outcome"></div></div>
             <div class="facet"><span class="lbl">Oxygen figure is for</span><div class="opts" id="f-o2from"></div></div>
+            <div class="facet"><span class="lbl">Other gases in the chamber</span><div class="opts" id="f-gas"></div></div>
             <div class="facet"><span class="lbl">Oxygen (%)</span><div class="range"><input type="number" id="fO2min" step="any" placeholder="from" aria-label="Oxygen from"><span>to</span><input type="number" id="fO2max" step="any" placeholder="to" aria-label="Oxygen to"></div></div>
             <div class="facet"><span class="lbl">Total pressure (psi)</span><div class="range"><input type="number" id="fPmin" step="any" placeholder="from" aria-label="Pressure from"><span>to</span><input type="number" id="fPmax" step="any" placeholder="to" aria-label="Pressure to"></div></div>
             <div class="facet"><label class="check"><input type="checkbox" id="fBoth"> Only tests with both oxygen and pressure</label></div>
@@ -295,6 +296,7 @@
                 <button class="chip" data-x="psi" data-y="count" data-c="phase">How pressure is spread</button>
                 <button class="chip" data-x="inv" data-y="o2" data-c="phase">Oxygen in each investigation</button>
                 <button class="chip" data-x="phase" data-y="outcome" data-c="none">Outcome by fuel type</button>
+                <button class="chip" data-x="o2" data-y="burn" data-c="gas">Burn time against oxygen</button>
                 <button class="chip" id="gSwap">Swap X and Y</button>
               </div>
             </div>

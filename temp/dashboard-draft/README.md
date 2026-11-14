@@ -3,7 +3,7 @@
 **Status: rough draft, nothing here is final.** Everything in this folder is open to change by anyone on the team:
 edit it, replace it, or delete it. It is here so we have something concrete to react to, not a decision.
 
-- `index.html`: a clickable mockup. Open it in a browser. No build step, not deployed, and it loads no data files.
+- `index.html`: a clickable mockup. No build step, not deployed. It loads `data/tests.web.json`, so open it through a local server (see "Wired to the team's failsafes" below).
 - Started by AlanziM2 from a paper sketch on Sat Nov 14, built with Claude Code (AI-assisted, see
   `docs/ai-usage-log.md`). Earlier styles (blueprint, ultra-minimal, tilted 2.5D cards) were tried and dropped.
 - `temp/` sits outside the lane folders on purpose. Nothing here goes into `app/` or `components/` until the team agrees.
@@ -30,7 +30,7 @@ Each page has its own layout and a label for what you do there.
 |---|---|---|
 | Home | Explore | Draggable map of pressure against oxygen, with presets (ISS, Moon Base, spacesuit) and a gravity switch. Probe readout (oxygen, pressure, oxygen partial pressure, compared with sea level, all computed). Empty slots for the evidence rating, the five nearest tests, the evidence brief, and prevent / detect / suppress. |
 | SI Assist | Ask | A chat window plus the controls it moves (oxygen, pressure, gravity, fuel type, a small map) and a list of what it changed, with undo. **The replies are scripted**: it understands simple requests such as "take me to the Moon Base" or "set oxygen to 40% at 8 psi". No AI is connected. |
-| Resources | Read | Searchable list of the 24 PSI combustion records with platform, fuel type and how many test rows each has in `data/tests.web.json`. A side panel for the selected record with a link to its PSI page, a reading list (Researcher's Guide, Apollo 1, Apollo 13, Mir) and a credits slot. |
+| Resources | Read | Two views. **Investigations**: the 24 PSI combustion records with search, fuel and platform filters, a "with test rows" switch and sortable columns; a side panel for the selected record with a link to its PSI page and a button that opens its tests. **Test data and graphs**: every row of `data/tests.web.json` with filters, a graph builder, a relationships panel and a table (see "Resources: test data and graphs" below). |
 | Sim | Experiment | Laid out around the team's prototype in `temp/flame-sim/`: chamber, experiment and test pickers, NASA's record for the test, gravity (Space, Moon, Mars, Earth), oxygen and pressure by hand, and the three notes on what is real physics, what is NASA data and what is illustration. The flame shown here is a simple stand-in animation, labelled as such, until the prototype is dropped in. |
 
 ## Numbers on the page
@@ -62,3 +62,35 @@ repo root (`python -m http.server 8765`, then http://localhost:8765/temp/dashboa
 - **Sim**: the stand-in canvas is replaced by the CSS backup flame (`public/flames/`), set from real test rows with the
   same rules as `temp/flame-sim/`, which it links to.
 
+## Resources: test data and graphs (Sat Nov 14, afternoon)
+
+Open Resources and switch the view to **Test data and graphs**. Everything on it is read from `data/tests.web.json`
+in the browser; there is no library and no build step.
+
+- **Filters** (left): search, investigation, fuel type, flame type, outcome, what the oxygen figure describes
+  (chamber air or the burner stream of an inverse flame), an oxygen range, a pressure range, and "only tests with both
+  oxygen and pressure". Nothing picked in a group means all values. The filters drive the graph, the relationships
+  panel and the table together.
+- **Graph builder**: pick the column for Across (X), the column for Up (Y) and a colour. The chart type follows the
+  pairing: two measured values give points (oxygen against pressure, with the sea-level oxygen curve and the habitat
+  points as reference), one measured value against "Number of tests" gives its spread, a group against "Number of
+  tests" gives bars, a group against a measured value gives strips with a median line, and two groups give a grid of
+  counts. Hover a mark for its tests; click it to list them in the table.
+- **Relationships**: the Across column against every other column as small charts. A pairing no test records (for
+  example pressure against airflow) says so instead of showing an empty chart. Click one to open it in the builder.
+- **Tests table**: sortable, 25 rows a page, and each row opens to its NASA file and line, the PSI link and every
+  field. Missing values read "not recorded".
+
+Honesty notes for this view:
+
+- Nothing is filled in. Each graph says how many matching tests it leaves out and why (no oxygen or no pressure in
+  NASA's table).
+- Two things are computed in the browser and labelled as computed: oxygen partial pressure (oxygen fraction times
+  total pressure, only where the oxygen figure is chamber air) and the Pearson correlation shown under a points graph.
+  The medians in the strip charts are also computed.
+- Inverse flames report the oxygen in the burner stream, not the air around the flame. Graphs with an oxygen axis say
+  how many of those they include, and the filter "Oxygen figure is for" can leave them out.
+- Chart colours are three hues checked for colour-blind separation (blue `#2a78d6`, orange `#eb6834`, green
+  `#1baf7a`) plus grey for "not recorded"; marks also differ by shape. Investigation is not offered as a colour
+  because nine colours cannot be told apart; use it as an axis or a filter.
+- Checked in headless Chromium at desktop and phone widths only.

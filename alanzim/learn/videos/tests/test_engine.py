@@ -86,5 +86,37 @@ class Pilot(Scene, unittest.TestCase):
         self.assertLess(abs(box["width"] - box["height"]) / box["height"], 0.10, box)
 
 
+TEN = [0, 4, 8, 12, 16, 20, 24, 28, 32, 36]
+
+
+class Scene11(Scene, unittest.TestCase):
+    ID, STARTS = "1-1", TEN
+
+
+class Scene13(Scene, unittest.TestCase):
+    ID, STARTS = "1-3", TEN
+
+
+class Scene14(Scene, unittest.TestCase):
+    ID, STARTS = "1-4", TEN
+
+
+class Scene15(Scene, unittest.TestCase):
+    ID, STARTS = "1-5", TEN
+
+    def test_moon_box_points_come_from_the_data(self):
+        self.assertEqual(self.page.evaluate("E.rows.length"), 1276)
+        self.assertEqual(self.page.evaluate("document.querySelectorAll('.moonpt').length"), 33)
+
+
+class Scene16(Scene, unittest.TestCase):
+    ID, STARTS = "1-6", TEN
+
+    def test_flex_bars_use_the_data(self):
+        self.page.evaluate("seek(30)")
+        self.assertEqual(self.page.evaluate("document.querySelector('#lowLbl').textContent"), "27 of 28 went out by themselves")
+        self.assertEqual(self.page.evaluate("document.querySelector('#highLbl').textContent"), "2 of 24 went out by themselves")
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Video 1.5: Low pressure and mixing</title>
+<!-- Learners page video 1.5. AI-assisted animation (Claude Code). Original drawings. The map's points are NASA's test rows
+     from data/tests.web.json, plotted at their recorded oxygen and pressure. Drawn as a function of time by engine.js. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;600&family=Geist+Mono:wght@500&display=block" rel="stylesheet">
+<link rel="stylesheet" href="scene.css">
+</head>
+<body>
+<svg id="stage" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid meet" aria-label="Animation: low pressure and mixing"></svg>
+<div id="cap" hidden></div>
+<div id="ctl" hidden><button type="button">Play</button><input type="range" min="0" value="0" aria-label="Time"><output>0.0 s</output></div>
+<script src="engine.js"></script>
+<script>
+E.scene('1-5', function (E, root) {
+  var C = E.C, el = E.el, set = E.set, at = E.at, win = E.window, L = E.label;
+  var B = {};
+  ['mixing', 'spacing', 'halve', 'earth', 'micro', 'larger', 'moon_pressure', 'evidence', 'count', 'droplets'].forEach(function (b) { B[b] = E.beat(b); });
+  var END = E.timing.duration;
+  E.flameDefs(root);
+  var chap = E.chapter(root, '1.5', 'Low pressure and mixing');
+
+  /* ---------- two boxes: full pressure and half pressure ---------- */
+  var BOX = el('g', {}, root), boxes = [];
+  [[200, 40, '14.7 psi', 'more collisions', 1], [1020, 20, '7.3 psi (half)', 'fewer collisions, faster spreading', 2]].forEach(function (d, k) {
+    var g = el('g', {}, BOX), x = d[0], y = 260, w = 700, h = 520, ms = [], r = E.rand(100 + k);
+    el('rect', { x: x, y: y, width: w, height: h, rx: 30, fill: 'rgba(157,188,255,.05)', stroke: C.line, 'stroke-width': 4 }, g);
+    var dye = el('circle', { cx: x + w / 2, cy: y + h / 2, fill: C.teal, opacity: .22 }, g);
+    var dyeEdge = el('circle', { cx: x + w / 2, cy: y + h / 2, fill: 'none', stroke: C.teal, 'stroke-width': 4, 'stroke-dasharray': '10 8' }, g);
+    for (var i = 0; i < d[1]; i++) ms.push({ g: E.mol(g, i % 5 ? C.grey : C.blue, 13), x: x + 50 + r() * (w - 100), y: y + 50 + r() * (h - 100), vx: (r() - .5) * 160, vy: (r() - .5) * 160, rot: r() * 360 });
+    var sparks = []; for (var s = 0; s < (k ? 3 : 8); s++) sparks.push({ e: el('circle', { r: 10, fill: 'none', stroke: '#ffffff', 'stroke-width': 3 }, g), x: x + 80 + r() * (w - 160), y: y + 80 + r() * (h - 160), ph: r() });
+    L(d[2], x + w / 2, y + h + 64, 44, C.ink, { mono: true, anchor: 'middle' }, g);
+    var sub = L(d[3], x + w / 2, y + h + 112, 32, C.muted, { anchor: 'middle' }, g);
+    boxes.push({ g: g, x: x, y: y, w: w, h: h, ms: ms, sparks: sparks, dye: dye, dyeEdge: dyeEdge, D: d[4], sub: sub });
+  });
+  var formula = el('g', {}, root);
+  L('D ∝ 1 / P', 960, 200, 60, C.blueSoft, { mono: true, anchor: 'middle' }, formula);
+  var fsub = L('half the pressure: gases spread about twice as fast', 960, 960, 36, C.ink, { anchor: 'middle' }, formula);
+
+  /* ---------- the flame: Earth, then orbit, then lower pressure ---------- */
+  var FX = 640, FY = 560, FL = el('g', {}, root);
+  var halo = el('circle', { cx: FX, cy: FY, fill: 'url(#haloCool)' }, FL);
+  var warm = el('path', { fill: 'url(#warm)' }, FL), cool = el('path', { fill: 'url(#cool)' }, FL);
+  var ups = [], r3 = E.rand(55);
+  for (var u = 0; u < 7; u++) ups.push({ e: el('path', { fill: 'none', stroke: C.amber, 'stroke-width': 6, 'stroke-linecap': 'round' }, FL), x: (u - 3) * 40, p: r3() });
+  var ins = [];
+  for (var v = 0; v < 16; v++) ins.push({ g: E.mol(FL, C.blue, 10), a: v / 16 * 6.283 + r3() * .3, p: r3() });
+  var lEarth = L('on Earth, rising hot air does the mixing', 1080, 520, 40, C.amber, {}, root);
+  var lMicro = L('in orbit, only spreading brings oxygen', 1080, 520, 40, C.blueSoft, {}, root);
+  var lLarge = L('lower pressure: larger, dimmer flame', 1080, 520, 40, C.ink, {}, root);
+  var pTxt = L('', 1080, 620, 60, C.ink, { mono: true }, root);
+
+  /* ---------- ISS and Moon Base pressure ---------- */
+  var PB = el('g', {}, root), pbars = [];
+  [['ISS', 14.7, C.blueSoft], ['Moon Base', 10.2, C.amber]].forEach(function (d, k) {
+    var g = el('g', {}, PB), y = 420 + k * 170;
+    L(d[0], 620, y + 50, 52, d[2], { weight: 600, anchor: 'end' }, g);
+    var bar = el('rect', { x: 680, y: y, width: 0, height: 70, rx: 35, fill: d[2] }, g);
+    var num = L(d[1].toFixed(1) + ' psi', 710, y + 50, 44, C.bg, { mono: true }, g);
+    pbars.push({ g: g, bar: bar, w: 760 * d[1] / 14.7, num: num });
+  });
+
+  /* ---------- NASA's tests on the pressure and oxygen map ---------- */
+  var MAP = el('g', {}, root), MX0 = 200, MX1 = 1120, MY0 = 900, MY1 = 220, OMAX = 60;
+  function mx(p) { return MX0 + (MX1 - MX0) * p / 16; }
+  function my(o) { return MY0 - (MY0 - MY1) * (o - 10) / (OMAX - 10); }
+  for (var gp = 0; gp <= 16; gp += 4) { el('line', { x1: mx(gp), x2: mx(gp), y1: MY1, y2: MY0, stroke: C.line, 'stroke-width': 1 }, MAP); L(String(gp), mx(gp), MY0 + 40, 26, C.muted, { mono: true, anchor: 'middle' }, MAP); }
+  for (var go = 10; go <= OMAX; go += 10) { el('line', { x1: MX0, x2: MX1, y1: my(go), y2: my(go), stroke: C.line, 'stroke-width': 1 }, MAP); L(String(go), MX0 - 16, my(go) + 9, 26, C.muted, { mono: true, anchor: 'end' }, MAP); }
+  L('pressure (psi)', MX1, MY0 + 84, 28, C.muted, { anchor: 'end' }, MAP);
+  L('oxygen (%)', MX0, MY1 - 24, 28, C.muted, {}, MAP);
+  var allPts = el('g', {}, MAP), moonPts = el('g', {}, MAP), moonN = 0;
+  E.rows.forEach(function (rw) {
+    if (rw.o2_pct == null || rw.pressure_psi == null || rw.oxygen_from === 'burner' || rw.pressure_psi > 16 || rw.o2_pct > OMAX) return;
+    var inBox = rw.pressure_psi >= 8 && rw.pressure_psi <= 12.5 && rw.o2_pct >= 24 && rw.o2_pct <= 40;
+    var c = el('circle', { cx: mx(rw.pressure_psi), cy: my(rw.o2_pct), r: inBox ? 8 : 6, fill: rw.fuel_phase === 'liquid' ? C.amber : C.blue, opacity: .75 }, inBox ? moonPts : allPts);
+    if (inBox) { c.setAttribute('class', 'moonpt'); moonN++; }
+  });
+  var mbox = el('rect', { x: mx(8), y: my(40), width: mx(12.5) - mx(8), height: my(24) - my(40), rx: 10, fill: C.amber, 'fill-opacity': .08, stroke: C.amber, 'stroke-width': 4, 'stroke-dasharray': '12 8' }, MAP);
+  var mlab = L('MOON BASE RANGE', mx(8), my(40) - 16, 26, C.amber, { weight: 600 }, MAP);
+  var counter = L('', 1300, 380, 140, C.ink, { mono: true }, root);
+  var cSub = L('NASA tests in the Moon Base range', 1300, 440, 34, C.muted, {}, root);
+  var LG = el('g', {}, root), rowsL = [];
+  [['fuel droplets', String(moonN), C.amber], ['gas flames', '0', C.red], ['cabin materials', '0', C.red]].forEach(function (d, k) {
+    var g = el('g', {}, LG), y = 600 + k * 90;
+    L(d[1], 1300, y, 56, d[2], { mono: true }, g); L(d[0], 1400, y, 40, C.ink, {}, g); rowsL.push(g);
+  });
+  var mnote = L('(in that atmosphere)', 1300, 880, 30, C.muted, {}, LG);
+
+  return function draw(t) {
+    set(chap, { opacity: (.35 + .65 * (1 - at(t, 5, 1))) * (1 - at(t, END - 1, 1)) });
+
+    /* boxes: jiggling molecules bouncing inside, sparks where they collide, dye spreading */
+    var bOn = at(t, .3, .7) * (1 - at(t, B.earth - .4, .8));
+    set(BOX, { opacity: bOn });
+    boxes.forEach(function (b, k) {
+      b.ms.forEach(function (m) {
+        var W = b.w - 60, H = b.h - 60, px = (m.x - b.x - 30 + m.vx * t) % (2 * W), py = (m.y - b.y - 30 + m.vy * t) % (2 * H);
+        if (px < 0) px += 2 * W; if (py < 0) py += 2 * H;
+        E.place(m.g, b.x + 30 + (px > W ? 2 * W - px : px), b.y + 30 + (py > H ? 2 * H - py : py), m.rot + t * 40, 1, 1);
+      });
+      b.sparks.forEach(function (s) { var ph = (t * 1.6 + s.ph) % 1; set(s.e, { cx: s.x, cy: s.y, r: 6 + 20 * ph, opacity: at(t, B.spacing + .5, .6) * (1 - ph) }); });
+      var st = Math.max(0, t - B.halve - .3), rad = 30 + 52 * Math.sqrt(b.D * st);
+      set(b.dye, { r: Math.min(rad, 240), opacity: st > 0 ? .22 : 0 }); set(b.dyeEdge, { r: Math.min(rad, 240), opacity: st > 0 ? .9 : 0 });
+      set(b.sub, { opacity: at(t, B.spacing + 1 + k * 1.5, .6) });
+    });
+    set(formula, { opacity: win(t, B.halve, B.earth - .4) });
+    set(fsub, { opacity: at(t, B.halve + 1.5, .6) });
+
+    /* flame */
+    set(FL, { opacity: win(t, B.earth, B.moon_pressure - .2) });
+    var orbit = at(t, B.micro, 1.6, E.ease.inOut), lowP = at(t, B.larger + .5, 3, E.ease.inOut);
+    var P = E.lerp(14.7, 10.2, lowP), grow = Math.sqrt(14.7 / P), k = 1 - orbit;
+    var d = E.flameShape(k, (58 + 22 * orbit) * (orbit > 0 ? grow : 1), FX, FY, 9 * Math.sin(t * 9) * k);
+    set(warm, { d: d, opacity: k }); set(cool, { d: d, opacity: (1 - k) * (1 - .3 * lowP) });
+    set(halo, { r: 200 * (orbit > 0 ? grow : 1), opacity: (1 - k) * (.9 - .4 * lowP) });
+    ups.forEach(function (a) { var ph = (t * .8 + a.p) % 1, y0 = FY - 150 - 260 * ph; set(a.e, { d: 'M' + (FX + a.x) + ' ' + (y0 + 60).toFixed(1) + ' l0 -60', opacity: k * (1 - ph) * at(t, B.earth + .5, .6) }); });
+    ins.forEach(function (m) { var ph = (t * .12 + m.p) % 1, rr = (360 - 230 * ph) * grow; E.place(m.g, FX + rr * Math.cos(m.a), FY + rr * Math.sin(m.a), t * 30, 1, (1 - k) * Math.min(1, ph * 5) * (1 - ph)); });
+    set(lEarth, { opacity: win(t, B.earth + .6, B.micro) });
+    set(lMicro, { opacity: win(t, B.micro + 1.4, B.larger) });
+    set(lLarge, { opacity: win(t, B.larger + 1.5, B.moon_pressure - .2) });
+    pTxt.textContent = P.toFixed(1) + ' psi';
+    set(pTxt, { opacity: win(t, B.larger + .2, B.moon_pressure - .2) });
+
+    set(PB, { opacity: win(t, B.moon_pressure + .3, B.evidence - .3) });
+    pbars.forEach(function (b, j) { var g = at(t, B.moon_pressure + .6 + j * 1.6, 1, E.ease.out); set(b.bar, { width: b.w * g }); set(b.num, { opacity: g }); set(b.g, { opacity: at(t, B.moon_pressure + .6 + j * 1.6, .4) }); });
+
+    /* map: every placeable test, then the Moon Base box and its 33 */
+    var mOn = at(t, B.evidence, .8) * (1 - at(t, END - 1, 1));
+    set(MAP, { opacity: mOn });
+    set(allPts, { opacity: 1 - .6 * at(t, B.count, .8) });
+    set(mbox, { opacity: at(t, B.evidence + 2, .8) }); set(mlab, { opacity: at(t, B.evidence + 2.5, .6) });
+    set(moonPts, { opacity: at(t, B.evidence + .2, .5) });
+    var pulse = at(t, B.count, .6) * (1 + .3 * Math.sin(t * 6));
+    [].forEach.call(moonPts.childNodes, function (c) { c.setAttribute('r', (8 * (1 + .35 * pulse)).toFixed(2)); });
+    var cnt = at(t, B.count + .3, 2, E.ease.inOut);
+    counter.textContent = String(Math.round(moonN * cnt));
+    set(counter, { opacity: at(t, B.count, .5) * (1 - at(t, END - 1, 1)) });
+    set(cSub, { opacity: at(t, B.count + .6, .5) * (1 - at(t, END - 1, 1)) });
+    set(LG, { opacity: 1 - at(t, END - 1, 1) });
+    rowsL.forEach(function (g, j) { set(g, { opacity: at(t, B.droplets + .3 + j * 1.6, .5) }); });
+    set(mnote, { opacity: at(t, B.droplets + 4, .5) });
+  };
+}, { rows: true });
+</script>
+</body>
+</html>

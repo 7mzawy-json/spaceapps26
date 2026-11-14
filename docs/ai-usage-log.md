@@ -24,6 +24,7 @@ played in planning, research and drafting the roadmap.
 | Sat Nov 14, 11:30 | team | Claude Code | Wrote offline failsafes on a side branch: `lib/evidence.ts` (nearest tests and rating, roadmap Phase 4 spec), `lib/offline-answer.ts` (rule-based answers with fixed templates and cited NASA facts when the SI chat is down), `scripts/check_offline.ts`, and CSS backup flames in `public/flames/`. No AI runs at runtime in these | (team to fill in) |
 | Sat Nov 14, 12:30 | team | Claude Code | Reworked the failsafes on the side branch to match the flame sim: CSS flame now follows the sim's gravity levels, outcome timing and oxygen and pressure rules (`public/flames/flame-fallback.js`); the sim switches to it when WebGL 2 fails (`?css` forces it); offline answers name the NASA test and gravity to show | (team to fill in) |
 | Sat Nov 14, 13:30 | team | Claude Code | Wired the dashboard draft to the failsafes: browser build of the offline engine (`public/offline/offline-answer.js`, generated from `lib/` with esbuild), Explore rating and nearest tests, offline answers in Ask, CSS backup flame with real test rows in Sim; browser checks for all three pages | (team to fill in) |
+| Sat Nov 14, 11:55 | 7mzawy-json | Claude Code (Claude Fable 5.2) | Audited `temp/dashboard-draft/` and built `temp/design-master/` from it: colour tokens with light and dark themes, Geist type scale, 44px controls, the cards-to-bar navigation, map legibility and outcome shapes. The direction (theme, navigation, typeface, which fixes) was chosen by 7mzawy-json from the audit | 7mzawy-json to review in the browser; the AI checked headless-browser screenshots and contrast ratios only |
 
 ## References (every library, image and dataset)
 
@@ -36,3 +37,4 @@ The original-work checkbox at submission confirms this list is complete. Add eac
 | Stable Fluids (Jos Stam, 1999) | method | SIGGRAPH 1999 conference proceedings | paper, credited in `temp/flame-sim/` |
 | WebGL-Fluid-Simulation (Pavel Dobryakov) | open source code, used as reference for the vorticity step | https://github.com/PavelDoGreat/WebGL-Fluid-Simulation | MIT |
 | Inter, JetBrains Mono | fonts (Google Fonts) | https://fonts.google.com/ | SIL Open Font License |
+| Geist, Geist Mono (Vercel) | fonts (Google Fonts) | https://fonts.google.com/specimen/Geist | SIL Open Font License |

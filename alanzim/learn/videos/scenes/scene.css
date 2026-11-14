@@ -1,0 +1,11 @@
+/* Shared page style for the video scenes. The stage fills the window; rendering uses a 1920 x 1080 window. */
+html, body { margin: 0; height: 100%; background: #05173a; overflow: hidden; }
+#stage { display: block; width: 100vw; height: 100vh; }
+#cap { position: fixed; left: 50%; bottom: 72px; transform: translateX(-50%); max-width: 80vw; padding: 8px 16px; border-radius: 8px;
+  background: rgba(0, 0, 0, .6); color: #fff; font: 500 20px/1.4 Geist, Arial, sans-serif; text-align: center; }
+#cap:empty { display: none; }
+#ctl { position: fixed; left: 16px; right: 16px; bottom: 16px; display: flex; gap: 12px; align-items: center; font: 14px Geist, Arial, sans-serif; color: #fff; }
+#ctl button { min-width: 72px; height: 34px; border-radius: 8px; border: 1px solid #5d7bb5; background: #0e2a63; color: #fff; font: inherit; cursor: pointer; }
+#ctl input { flex: 1; accent-color: #3d7bff; }
+#ctl output { font-family: "Geist Mono", monospace; min-width: 64px; }
+[hidden] { display: none !important; }

@@ -16,7 +16,7 @@
   Array.from(lesson.children).forEach(function(c){if(c!==header&&c!==video)rest.appendChild(c);});
   var tabs=el('div','lesson-tabs');tabs.setAttribute('role','tablist');tabs.setAttribute('aria-label','Lesson views');
   var lab=el('section','learning-lab');lab.id='lab-'+lesson.id;
-  var media=el('div','lesson-media');media.appendChild(el('p','video-summary','Watch the narrated explanation. English captions are available in the player. The original soundtrack plays quietly beneath the voice. Narration and soundtrack are AI-assisted; credits are in the site footer.'));media.appendChild(video);mediaSetup(video.querySelector('video'),i+1,media,lesson);
+  var media=el('div','lesson-media');media.appendChild(el('p','video-summary','Watch the narrated explanation. English captions are available in the player. The narration is AI-assisted; credits are in the site footer.'));media.appendChild(video);mediaSetup(video.querySelector('video'),i+1,media,lesson);
   var panels=[lab,media,rest],names=['Experiment','Watch lesson','Explanation'];
   panels.forEach(function(panel,j){panel.id=panel.id||lesson.id+'-panel-'+j;panel.setAttribute('role','tabpanel');panel.hidden=j!==0;var b=el('button');b.type='button';b.id=lesson.id+'-tab-'+j;b.setAttribute('role','tab');b.setAttribute('aria-controls',panel.id);b.setAttribute('aria-selected',j===0);b.tabIndex=j===0?0:-1;b.textContent=names[j];panel.setAttribute('aria-labelledby',b.id);tabs.appendChild(b);
    b.addEventListener('click',function(){select(j);});b.addEventListener('keydown',function(e){if(e.key==='ArrowRight'||e.key==='ArrowLeft'){e.preventDefault();var n=(j+(e.key==='ArrowRight'?1:2))%3;select(n);tabs.children[n].focus();}if(e.key==='Home'){e.preventDefault();select(0);tabs.children[0].focus();}if(e.key==='End'){e.preventDefault();select(2);tabs.children[2].focus();}});
@@ -28,7 +28,7 @@
  function bind(root,selector,event,fn){root.querySelectorAll(selector).forEach(function(e){e.addEventListener(event,fn);});}
  function note(root,text){root.appendChild(el('p','lab-limit',text));var sources=el('p','lab-limit','Sources: <a href="https://www.nasa.gov/glenn/glenn-expertise-space-exploration/physical-sciences-program/combustion-science/" target="_blank" rel="noopener">NASA combustion science</a> · <a href="https://www.nasa.gov/wp-content/uploads/2016/05/np-2015-10-034-jsc_combustion_in_reduced_gravity-iss-mini-book-011116-508.pdf" target="_blank" rel="noopener">Researcher’s Guide</a> · <a href="https://psi.nasa.gov/" target="_blank" rel="noopener">NASA PSI</a>');root.appendChild(sources);}
  function mediaSetup(video,index,root,lesson){
-  var settings=el('div','video-settings','<p>Original instrumental score mixed under the narration. Use the player for volume, captions and playback speed.</p><a class="btn ghost sm" href="videos/1-'+index+'.voice.m4a" target="_blank" rel="noopener">Narration recording</a>');root.appendChild(settings);
+  var settings=el('div','video-settings','<p>Use the player for volume, captions and playback speed.</p>');root.appendChild(settings);
   // Release hidden media requests and decoder buffers. Restore the playhead when Watch is opened again.
   var source=video.querySelector('source'),url=source.getAttribute('src'),resume=0,attached=true;
   function visibility(){

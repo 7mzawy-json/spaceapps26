@@ -1,14 +1,14 @@
 # Flashpoint site
 
-## Codex refinement
+## Current site (Sat Nov 14, evening)
 
-This clone includes interactive science lessons, original soundtrack mixes, a theme-aware gravity/ventilation study and revised plain-language copy. The Learn page opens an Experiment view by default, with separate Watch lesson and Explanation tabs. Videos release resources when hidden and restore the playhead when reopened. Clean narration recordings are linked beside each video.
+The Codex refinement was merged into the main site on Sat Nov 14, keeping the original headline and the original lesson videos (the synthesized soundtrack was left out because no human had listened to it). The site includes interactive science lessons, a theme-aware gravity/ventilation study and revised plain-language copy. The Learn page opens an Experiment view by default, with separate Watch lesson and Explanation tabs. Videos release resources when hidden and restore the playhead when reopened.
 
 The flame lab now opens with a four-step demonstration: read one NASA record, add gravity at the same atmosphere, add ventilation, then illustrate a recorded extinction. Pin a model image for comparison, inspect Oxygen or Gas flow, and copy a setup link. The NASA source card preserves original conditions and outcomes while modified settings remain explicitly illustrative. Method details and less-used controls are collapsed. Analysis neighborhood drill-down and CSV export use the same metric as the evidence count.
 
-For local review use `python scripts/preview.py` from this clone's root. The standard-library server supports the byte ranges required for reliable video seeking. Open `http://127.0.0.1:8766/site/`.
+For local review use `python scripts/preview.py` from the repo root. The standard-library server supports the byte ranges required for reliable video seeking. Open `http://127.0.0.1:8766/site/`.
 
-Validation: 99 flame-lab checks, 146 learning/media checks and 50 application checks passed in installed Chrome, plus the existing offline-engine checks. Detailed scope and limitations are in `docs/flame-lab-refinement.md` and `docs/learning-refinement.md`. Earlier project notes follow.
+Validation: 99 flame-lab checks, 140 learning/media checks and 50 application checks passed in installed Chrome, plus the existing offline-engine checks. Detailed scope and limitations are in `docs/flame-lab-refinement.md` and `docs/learning-refinement.md`. Earlier project notes follow.
 
 The website itself: plain HTML, CSS and JavaScript, no build step. Everything runs in the visitor's browser, including
 the flame simulation (WebGL 2, with a CSS backup flame). Open to change by the team like everything else in the repo.

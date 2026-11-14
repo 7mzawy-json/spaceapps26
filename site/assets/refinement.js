@@ -69,7 +69,7 @@
     count.textContent=(n===undefined?'Loading':n.toLocaleString('en-US'))+' placeable rows shown. Fuel buttons filter the map; coverage compares all fuels.';
     empty.textContent=b.dataset.fuel==='solid'?'These material tests cannot be plotted: their NASA tables omit pressure. Missing coordinates do not mean the materials cannot burn.':'No placeable tests for this fuel in the map range.';
   }); });
-  function loaded(data) { rows=data; $('missionRows').textContent=rows.length.toLocaleString('en-US'); var missing=rows.filter(function(r){return r.fuel_phase==='solid' && r.pressure_psi==null;}).length; $('materialGap').textContent=missing+' solid-material test rows have no recorded pressure.'; }
+  function loaded(data) { rows=data; $('missionRows').textContent=rows.length.toLocaleString('en-US'); var inv={}; rows.forEach(function(r){inv[r.accession]=1;}); $('missionInv').textContent=Object.keys(inv).length; var missing=rows.filter(function(r){return r.fuel_phase==='solid' && r.pressure_psi==null;}).length; $('materialGap').textContent=missing+' solid-material test rows have no recorded pressure.'; }
   document.addEventListener('fp-data',function(e){loaded(e.detail);});
   if(window.FlashpointRows)loaded(window.FlashpointRows);
   // Modal focus containment and restoration complement the original Escape handler.

@@ -8,7 +8,7 @@
     "GET https://psi.nasa.gov/geode-py/ws/studies/PSI-<n>/download?file=<file_name>&redirect=false returns a short-lived link to the CSV."
   ],
   "generated_by": "scripts/build_tests.py, written with an AI coding assistant (Claude Code). Values are copied or unit-converted from NASA's tables by code; no value was typed or estimated by AI.",
-  "built_at": "2026-11-14T07:53:21Z",
+  "built_at": "2026-11-14T19:25:27Z",
   "conversions": {
     "atm_to_psi": 14.696,
     "bar_to_psi": 14.504,
@@ -18,7 +18,11 @@
   "field_notes": {
     "pressure_from": "'test' when the table gives pressure for the test; null when no pressure is stated. No investigation text states a cabin pressure for BASS, BASS-II or SAFFIRE, so those rows have pressure_psi null and are not plotted.",
     "oxygen_from": "'chamber' is the surrounding atmosphere. 'burner' is the oxygen stream of an inverse flame (fuel fills the chamber), which is not a cabin atmosphere: keep these off the cabin map or mark them.",
-    "outcome": "CFI-G: ignited and SE gives self_extinguished, ignited and FT (flow terminated) gives burned, no ignition gives unknown with ignited=false. FLEX: Extinction gives self_extinguished, Completion gives burned, Disruption gives unknown. SAFFIRE: a burn time in seconds gives burned. All other rows: unknown (the table records no outcome).",
+    "outcome": "CFI-G: ignited and SE gives self_extinguished, ignited and FT (flow terminated) gives burned, no ignition gives unknown with ignited=false. FLEX: Extinction gives self_extinguished, Completion gives burned, Disruption gives unknown. SAFFIRE: a burn time in seconds gives burned; 'Insignificant' (NASA's word, four SAFFIRE-II silicone samples) gives self_extinguished. All other rows: unknown (the table records no outcome). outcome_note keeps NASA's own cell text.",
+    "diluent": "n2_pct, co2_pct and he_pct are the other gases in the chamber, as mole fractions times 100. Given only by FLEX (nitrogen, carbon dioxide, helium) and CFI (nitrogen, helium). The FLEX file drops subscripts, so its 'O', 'N' and 'CO' columns are read as O2, N2 and CO2. Missing means the table does not state it.",
+    "burn_time_s": "FLEX 'Burn time; s', CFI-G 'burn time (sec)', SAFFIRE 'Burn Time (s)'. Words and blanks give null.",
+    "pressure_approx": "true for CFI-G, whose column is headed 'approx p (bar)'.",
+    "gravity_comparison": "ug_burn_length and g1_burn_length copy SAFFIRE-II's microgravity and 1 g burn length cells as text. They are the only place in these tables where NASA lists both gravity levels for one sample.",
     "pressure_psi": "A pressure of 0 in a table (FLEX test C11M201 lists 0 mmHg) is read as not recorded and gives null.",
     "o2_pct": "Ranges such as '21.5 - 21.7' or '22.1 to 22.0' give null; approximate values such as '~ 21.5' are kept.",
     "gravity": "All tests ran in microgravity (ISS or the Cygnus spacecraft).",
@@ -28,7 +32,7 @@
   },
   "files": {
     "tests.json": "Full record: every row read from NASA's tables, with raw cells and provenance. Keep for checking.",
-    "tests.web.json": "Slim copy for the website: rows with exclude_reason left out, fields limited to accession, test_id, fuel, fuel_phase, o2_pct, pressure_psi, pressure_from, flow_cm_s, gravity, outcome, source, investigation, flame_type, oxygen_from, ignited, source_line. Values identical to tests.json. Investigation page: https://psi.nasa.gov/physci/repo/data/investigations/<accession>."
+    "tests.web.json": "Slim copy for the website: rows with exclude_reason left out, fields limited to accession, test_id, fuel, fuel_phase, o2_pct, pressure_psi, pressure_from, flow_cm_s, gravity, outcome, source, investigation, flame_type, oxygen_from, ignited, source_line, plus n2_pct, co2_pct, he_pct, burn_time_s, outcome_note, pressure_approx, ug_burn_length, g1_burn_length on the rows where NASA's table has a value. Values identical to tests.json. Investigation page: https://psi.nasa.gov/physci/repo/data/investigations/<accession>."
   },
   "included": {
     "PSI-159": "ACME CFI-G",

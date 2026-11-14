@@ -116,7 +116,8 @@ Deploy the repo root as static files. The root `index.html` forwards visitors to
 
 - **Vercel:** `vercel.json` sets the output folder to the repo root. Without it Vercel would serve only `public/`, because a
   folder with that name is its default. `.vercelignore` keeps drafts, plans, personal folders, build scripts and the full
-  source data off the public site. Not yet tried on a real deployment.
+  source data off the public site. Checked on the live deployment (Sat Nov 14): the site and its data load, and the
+  drafts, plans and scripts return "not found".
 - **Any other static host:** upload `index.html`, `site/`, `public/`, `data/tests.web.json`, `data/tests.meta.json` and
   `docs/ai-usage-log.md`, keeping the folders as they are.
  The SI chat expects an endpoint at

@@ -7,7 +7,7 @@ Choosing a cabin atmosphere is a trade. Lower pressure makes spacewalks easier b
 breathing, and more oxygen makes materials burn more readily. Flashpoint lets you pick an atmosphere (oxygen and
 pressure) and shows what NASA's microgravity fire tests say about it, by what burned, and what is missing.
 
-**Live site:** not deployed yet.
+**Live site:** https://flashpoint-taupe.vercel.app (Vercel, deploys on every push to `main`).
 
 ## What it does
 

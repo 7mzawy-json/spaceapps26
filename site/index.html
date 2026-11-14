@@ -1,11 +1,11 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Flashpoint: fire evidence for space habitats</title>
 <meta name="description" content="NASA's microgravity fire tests, set against the cabin atmospheres planned for the ISS, a Moon Base and rovers. NASA Space Apps 2026, Flame in Freefall.">
-<meta name="generator" content="AI-assisted: written with Claude Code for team BrayTech Pyrotechnics">
+<meta name="generator" content="AI-assisted: Claude Code and OpenAI Codex for team BrayTech Pyrotechnics">
 <!--
   Flashpoint, team BrayTech Pyrotechnics, NASA Space Apps 2026 (Flame in Freefall). AI-assisted (Claude Code).
   Two pages: Analysis (the map as Simple mode, the investigations and test data as Advanced mode) and Sim (sim.html).
@@ -17,11 +17,13 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20400%20400%22%3E%3Crect%20width%3D%22400%22%20height%3D%22400%22%20fill%3D%22%230B3D91%22%2F%3E%3Cg%20transform%3D%22translate%28100%200%29%22%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-width%3D%2216%22%20stroke-linejoin%3D%22round%22%3E%3Cpolygon%20points%3D%22100%2C178%2073%2C150%2047%2C117%2050%2C63%2087%2C115%20113%2C22%20122%2C117%20168%2C70%20134%2C122%20156%2C126%20131%2C143%20108%2C173%22%2F%3E%3Cpolygon%20points%3D%22100%2C178%20142%2C245%20150%2C264%20169%2C272%20154%2C278%20179%2C346%20122%2C277%20102%2C378%2085%2C281%2018%2C352%2072%2C285%2040%2C268%2060%2C250%22%2F%3E%3Cpolygon%20points%3D%22100.4%2C126.2%20107.8%2C141.7%2095.6%2C153.8%2088.2%2C138.3%22%2F%3E%3Cpolygon%20points%3D%22103.1%2C236.1%20114.9%2C248.6%20106.9%2C263.9%2095.1%2C251.4%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E">
 <link rel="stylesheet" href="assets/tokens.css">
 <link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/refinement.css">
 <!-- The team's offline (rule-based) answer engine, used when the SI chat is not available. -->
 <script src="../public/offline/offline-answer.js"></script>
-<script>try { if (localStorage.getItem('fp-theme') === 'dark') document.documentElement.dataset.theme = 'dark'; } catch (e) {}</script>
+<script>try { if (localStorage.getItem('fp-theme') === 'light') delete document.documentElement.dataset.theme; } catch (e) {}</script>
 </head>
 <body>
+<a class="skip" href="#mainContent">Skip to content</a>
 <!-- The Flashpoint logo (docs/brand/logo.svg: AI-generated with Claude Code, traced from the team's hand sketch). Drawn once, coloured by the theme. -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="fpLogo" viewBox="10 14 178 372"><polygon points="100,178 73,150 47,117 50,63 87,115 113,22 122,117 168,70 134,122 156,126 131,143 108,173"/><polygon points="100,178 142,245 150,264 169,272 154,278 179,346 122,277 102,378 85,281 18,352 72,285 40,268 60,250"/><polygon points="100.4,126.2 107.8,141.7 95.6,153.8 88.2,138.3"/><polygon points="103.1,236.1 114.9,248.6 106.9,263.9 95.1,251.4"/></symbol></svg>
 <nav class="bar" id="bar" aria-label="Pages">
@@ -34,25 +36,35 @@
   <button class="btn ghost sm" type="button" data-ask>Ask</button>
   <button class="theme" type="button"></button>
 </nav>
-<main class="wrap">
+<main class="wrap" id="mainContent" tabindex="-1">
   <header class="top">
-    <span class="mark"><svg class="logo" viewBox="10 14 178 372" aria-hidden="true"><use href="#fpLogo"/></svg>Flashpoint</span>
-    <span class="top-right"><span class="meta">Flame in Freefall &middot; NASA Space Apps 2026</span><button class="theme" type="button"></button></span>
+    <a class="mark" href="./" aria-label="Flashpoint home"><svg class="logo" viewBox="10 14 178 372" aria-hidden="true"><use href="#fpLogo"/></svg>Flashpoint</a>
+    <nav class="home-nav" aria-label="Main navigation"><a href="#analysis" data-go="analysis">Evidence</a><a href="#sim" data-go="sim">Flame lab</a><a href="learn.html">Learn</a></nav>
+    <button class="theme" type="button" aria-label="Change color theme"></button>
   </header>
-
-  <section class="intro">
-    <h1>Fire evidence for the places <span>astronauts will live.</span></h1>
-    <p>NASA's microgravity fire tests, set against the cabin atmospheres planned for the ISS, a Moon Base and rovers.</p>
-    <form class="askbar" id="homeAsk">
-      <input id="homeAskIn" autocomplete="off" placeholder="Ask, for example: is 30% oxygen at 10.2 psi tested?" aria-label="Ask Flashpoint about a cabin atmosphere">
-      <button class="btn" type="submit">Ask</button>
-    </form>
+  <section class="mission-hero" aria-labelledby="heroTitle">
+    <div class="hero-copy">
+      <p class="eyebrow"><i></i> FLAME IN FREEFALL / NASA SPACE APPS 2026</p>
+      <h1 id="heroTitle">Before we live there,<br><em>understand fire.</em></h1>
+      <p class="hero-lede">Fire behaves differently off Earth. Explore NASA's experiments, see what gravity changes, and find the questions we still need to answer.</p>
+      <div class="hero-actions"><button class="btn primary" id="startJourney" type="button">Follow the evidence <span aria-hidden="true">&rarr;</span></button><a class="text-action" href="#sim" data-go="sim">Enter the flame lab <span aria-hidden="true">&#8599;</span></a></div>
+      <p class="hero-source">Built on NASA's Physical Science Informatics data.<br>For exploration and learning. Every gap stays visible.</p>
+    </div>
+    <div class="hero-chamber" data-gravity="space">
+      <div class="chamber-top"><span><i></i> GRAVITY STUDY</span><span>AI ILLUSTRATION</span></div>
+      <div class="orbital"><div class="orbit o-one"></div><div class="orbit o-two"></div><div class="hero-fire"><div class="fire-halo"></div><div class="fire-shell"></div><div class="fire-core"></div><div class="fuel-source"></div></div><span class="chamber-cross cross-a">+</span><span class="chamber-cross cross-b">+</span></div>
+      <div class="chamber-caption"><strong id="heroFlameTitle">No rising hot gas. A different kind of fire.</strong><p id="heroFlameNote">Without buoyancy, oxygen diffuses toward the flame. In still air, a flame can form a blue sphere.</p></div>
+      <div class="gravity-switch" aria-label="Compare flame illustrations"><button type="button" data-hero-g="space" aria-pressed="true">Microgravity <span>0 g</span></button><button type="button" data-hero-g="earth" aria-pressed="false">Earth <span>1 g</span></button></div>
+    </div>
   </section>
-
+  <section class="evidence-ribbon" aria-label="The evidence behind Flashpoint">
+    <p><b id="missionRows">...</b><span>NASA test rows</span></p><p><b>3</b><span>kinds of fuel</span></p><p class="ribbon-finding"><span class="eyebrow">THE QUESTION THAT MATTERS</span><strong>Droplets were tested.<br>What about the materials in a cabin?</strong></p>
+  </section>
+  <div class="section-intro"><div><span class="eyebrow">THREE WAYS IN</span><h2>From a flame to a finding.</h2></div><p>Start with the story. Go as deep as you need.</p></div>
   <section class="cards" aria-label="Modules">
     <a class="card" href="#analysis" data-page="analysis">
       <span class="kind">Explore</span>
-      <h2>Analysis</h2>
+      <h2>Read the evidence</h2>
       <p>Pick a cabin atmosphere. See which NASA fire tests sit near it, what burned in them, and what is missing.</p>
       <div class="viz">
         <svg class="c-map" viewBox="0 0 320 190" fill="none" aria-hidden="true">
@@ -65,12 +77,12 @@
           <g class="gap"><rect class="gapbox" x="175" y="38" width="118" height="56" stroke-width="1.2" stroke-dasharray="4 3"/><text x="206" y="70">NO DATA</text></g>
         </svg>
       </div>
-      <span class="go">Open the analysis <span class="arr" aria-hidden="true">&rarr;</span></span>
+      <span class="go">Explore NASA tests <span class="arr" aria-hidden="true">&rarr;</span></span>
     </a>
 
     <a class="card" href="#sim" data-page="sim">
       <span class="kind">Experiment</span>
-      <h2>Sim</h2>
+      <h2>Change the gravity</h2>
       <p>Set up a flame from one NASA test, then add gravity.</p>
       <div class="viz">
         <svg class="c-sim" viewBox="0 0 320 190" fill="none" aria-hidden="true">
@@ -84,12 +96,12 @@
           <text x="20" y="30">GRAVITY</text><text class="g0" x="20" y="48">0 g</text><text class="g1" x="20" y="48">1 g</text>
         </svg>
       </div>
-      <span class="go">Run a flame <span class="arr" aria-hidden="true">&rarr;</span></span>
+      <span class="go">Open the flame lab <span class="arr" aria-hidden="true">&rarr;</span></span>
     </a>
 
     <a class="card" href="learn.html">
       <span class="kind">Learn</span>
-      <h2>Learn</h2>
+      <h2>Understand the science</h2>
       <p>Six short narrated videos and hands-on lessons: why fire behaves differently off Earth, and how to read the evidence.</p>
       <div class="viz">
         <svg class="c-learn" viewBox="0 0 320 190" fill="none" aria-hidden="true">
@@ -106,11 +118,12 @@
       <span class="go">Start learning <span class="arr" aria-hidden="true">&rarr;</span></span>
     </a>
   </section>
+  <section class="closing-question"><span class="eyebrow">ASK A BETTER QUESTION</span><h2>Same oxygen pressure.<br>A different fire question.</h2><p>A lower-pressure cabin needs a higher oxygen percentage to maintain a similar dry oxygen partial pressure. Explore the fire evidence behind that trade.</p><form class="askbar" id="homeAsk"><input id="homeAskIn" autocomplete="off" placeholder="What do we know about 30% oxygen at 10.2 psi?" aria-label="Ask about a cabin atmosphere"><button class="btn" type="submit">Ask the data</button></form><p class="helper">Answers use fixed rules and cited NASA records. No live AI service is connected.</p></section>
 </main>
 <footer class="site-foot" id="siteFoot">
   <div class="wrap">
     <span class="top"><span class="mark"><svg class="logo" viewBox="10 14 178 372" aria-hidden="true"><use href="#fpLogo"/></svg>Flashpoint</span></span>
-    <p>Team BrayTech Pyrotechnics, NASA Space Apps Challenge 2026, Flame in Freefall. Every test comes from NASA's Physical Science Informatics database; nothing is estimated. Built with AI assistance (Claude Code): <a href="../docs/ai-usage-log.md" target="_blank" rel="noopener">how</a>. Not endorsed by NASA.</p>
+    <p>Team BrayTech Pyrotechnics, NASA Space Apps Challenge 2026, Flame in Freefall. Every test comes from NASA's Physical Science Informatics database; nothing is estimated. Built with AI assistance (Claude Code and OpenAI Codex): <a href="../docs/ai-usage-log.md" target="_blank" rel="noopener">how</a>. Not endorsed by NASA.</p>
   </div>
 </footer>
 
@@ -118,64 +131,64 @@
 <section class="page" id="page-analysis" aria-label="Analysis">
   <div class="band"><div class="wrap">
     <div class="kind">Explore</div>
-    <h1 tabindex="-1">Analysis</h1>
-    <p>Pick a cabin atmosphere and see what NASA's fire tests say about it, and what is missing. Simple is the map and the answer for one point. Advanced opens every investigation and every test row.</p>
+    <h1 tabindex="-1">Where the evidence ends.</h1>
+    <p>Choose an atmosphere. Separate what NASA tested from what we still need to know.</p>
     <svg class="art" viewBox="0 0 230 150" fill="none" stroke="currentColor" stroke-width="3"><path d="M10 140H220M10 140V10"/><path d="M40 12 C 60 80, 110 110, 220 122"/><circle cx="150" cy="112" r="8" fill="currentColor"/></svg>
   </div></div>
   <div class="wrap body">
     <div class="s12 toolbar" style="margin-bottom:0">
       <span class="lbl">Mode</span>
-      <div class="seg" id="anMode"><button aria-pressed="true" data-m="simple">Simple</button><button data-m="advanced">Advanced</button></div>
+      <div class="seg" id="anMode"><button aria-pressed="true" data-m="simple">Explore</button><button data-m="advanced">Research tools</button></div>
     </div>
 
     <!-- Simple: one point on the map, and what NASA's tests say about it -->
     <div class="s12 sub" id="anSimple">
+      <section class="journey s12" aria-label="Guided evidence journey"><div class="journey-top"><span class="eyebrow" id="journeyCount">GUIDED JOURNEY / 1 OF 4</span><button class="linkbtn" id="journeyRestart" type="button">Restart</button></div><div class="journey-body"><div><h2 id="journeyTitle">Start with the air we know.</h2><p id="journeyText">The ISS uses an Earth-like atmosphere. This is a familiar starting point, but evidence still depends on what fuel was tested.</p></div><div class="journey-controls"><button class="btn ghost" id="journeyPrev" type="button" aria-label="Previous journey step">Back</button><button class="btn" id="journeyNext" type="button">Next: Moon Base <span aria-hidden="true">&rarr;</span></button></div></div><div class="journey-track" id="journeyTrack"><button type="button" data-step="0" aria-current="step">ISS</button><button type="button" data-step="1">Moon Base</button><button type="button" data-step="2">Spacesuit</button><button type="button" data-step="3">The next experiment</button></div></section>
       <div class="panel s8 map" id="homeMap">
         <div class="toolbar">
           <span class="lbl">Go to</span>
           <div class="seg" id="homePresets"><button data-p="14.7" data-o="21">ISS</button><button data-p="10.2" data-o="30">Moon Base</button><button data-p="4.3" data-o="100">Spacesuit</button></div>
         </div>
+        <div class="map-fuels" id="mapFuels" aria-label="Filter map by fuel"><button class="chip" type="button" data-fuel="" aria-pressed="true">All fuels</button><button class="chip" type="button" data-fuel="gas" aria-pressed="false">Gas</button><button class="chip" type="button" data-fuel="liquid" aria-pressed="false">Droplets</button><button class="chip" type="button" data-fuel="solid" aria-pressed="false">Cabin materials</button></div><p class="map-empty" id="mapEmpty" hidden></p>
         <svg id="homeSvg" viewBox="0 0 680 420" role="img" aria-label="Map of pressure against oxygen with a draggable probe"></svg>
         <p class="note" id="homeDotsNote">Loading NASA tests from <b>data/tests.web.json</b>. The curve and habitat points use the values in the challenge statement.</p>
-        <p class="note">Every test here ran in microgravity. NASA's database has no Moon, Mars or Earth-gravity tests yet, so nothing on this map changes with gravity. The Sim shows what gravity does to a flame.</p>
+        <p class="note">Every test in this collection ran in microgravity. Moon and Mars gravity remain an evidence gap. Dots can overlap at repeated conditions.</p>
       </div>
 
       <div class="s4 stack fill">
         <div class="panel">
-          <h3>Probe</h3>
+          <h3>Your atmosphere</h3><div class="probe-edit"><label>Oxygen %<input id="probeO" type="number" min="10" max="100" step="0.5" value="21"></label><label>Pressure psi<input id="probeP" type="number" min="1" max="16" step="0.1" value="14.7"></label></div>
           <dl class="readout">
             <div><dt>Oxygen</dt><dd class="num" id="hO2">30<small>%</small></dd></div>
             <div><dt>Pressure</dt><dd class="num" id="hP">10.2<small>psi</small></dd></div>
             <div><dt>Oxygen partial pressure</dt><dd class="num" id="hPP">3.06<small>psi</small></dd></div>
             <div><dt>Compared with sea level</dt><dd class="num" id="hSea">1.00<small>&times;</small></dd></div>
           </dl>
-          <h3 style="margin-top:1.25rem">Evidence near this point, by what burned</h3>
+          <h3 style="margin-top:1.25rem">Nearby evidence, by fuel</h3>
           <div class="cover" id="homeCover"><p class="note" style="margin-top:0">Loading NASA tests.</p></div>
-          <p class="note" id="homeRateNote"></p>
+          <details class="method"><summary>How proximity is counted</summary><p class="note" id="homeRateNote"></p><p class="note">Counts describe coverage, not a probability of fire or a safety rating. Repeated tests at one condition count separately.</p></details>
         </div>
         <div class="panel">
           <h3>Take this point further</h3>
           <div class="acts">
-            <button class="btn" id="briefOpen" type="button">Open the evidence brief</button>
-            <button class="btn ghost" id="briefPdf" type="button">Save the brief as PDF</button>
+            <button class="btn" id="briefOpen" type="button">Read the evidence brief</button>
+            <button class="btn ghost" id="briefPdf" type="button">Print / PDF</button>
             <button class="btn ghost" id="homeAround" type="button">See the tests around it</button>
-            <button class="btn ghost" id="homeBurn" type="button">Burn this air in the Sim</button>
+            <button class="btn ghost" id="homeBurn" type="button">Try this air in the flame lab</button>
           </div>
           <p class="note">The brief is one printable page: the reading, the evidence by fuel, the ranked investigations, the nearest tests and what NASA has not tested here.</p>
         </div>
       </div>
 
-      <div class="panel s12">
-        <h3>Investigations ranked for this point</h3>
+      <details class="panel s12 evidence-details"><summary>Investigations ranked for this atmosphere <span>See the sources</span></summary>
         <div class="tablewrap"><table id="rankTable">
           <thead><tr><th>Rank</th><th>Investigation</th><th>What it is for</th><th>Tests near this point</th><th>Closest test</th><th></th></tr></thead>
           <tbody id="homeRank"><tr><td colspan="6">Loading NASA tests.</td></tr></tbody>
         </table></div>
         <p class="note">Ranked by how many of an investigation's tests sit near the point, then by how close its closest test is. Investigations whose tables give no pressure cannot be placed, so they are listed after the ranked ones with what they do record. SAME and SAME-R (smoke detection) hold smoke measurements, not flame tests, and cannot be ranked by atmosphere.</p>
-      </div>
+      </details>
 
-      <div class="panel s12">
-        <h3 id="homeNearH">Nearest NASA tests</h3>
+      <details class="panel s12 evidence-details"><summary id="homeNearH">The five nearest NASA tests <span>Inspect individual rows</span></summary>
         <div class="tablewrap"><table>
           <thead><tr><th>Accession</th><th>Investigation</th><th>Fuel</th><th>O2 %</th><th>psi</th><th>Outcome</th></tr></thead>
           <tbody class="skel" id="homeNear">
@@ -186,8 +199,8 @@
             <tr><td><span></span></td><td><span></span></td><td><span></span></td><td><span></span></td><td><span></span></td><td><span></span></td></tr>
           </tbody>
         </table></div>
-        <p class="note">Five closest rows from <b>data/tests.web.json</b>, each linking to its PSI page.</p>
-      </div>
+        <p class="note">Five closest rows in the collection, each linking to NASA PSI. A nearest test may still be far away, or outside the visible map.</p>
+      </details>
     </div>
 
     <!-- Advanced: the catalogue of investigations, and every test row with filters, graphs and a table -->
@@ -321,13 +334,13 @@
 <section class="page" id="page-sim" aria-label="Sim">
   <div class="band sim"><div class="wrap">
     <div class="kind">Experiment</div>
-    <h1 tabindex="-1">Flame lab: one NASA test, then add gravity</h1>
-    <p>Pick a microgravity fire test. Its oxygen, pressure and fuel set up the flame. Then add gravity to see the same air burn on the Moon, on Mars or on Earth, or look inside the flame at the oxygen.</p>
+    <h1 tabindex="-1">One flame. Four worlds.</h1>
+    <p>Start with a recorded atmosphere. Change gravity and explore how buoyancy changes a flame.</p>
     <svg class="art" viewBox="0 0 230 150" fill="none" stroke="currentColor" stroke-width="3"><circle cx="70" cy="85" r="40"/><path d="M170 20 C 195 60, 205 80, 198 100 C 190 125, 150 125, 142 100 C 135 80, 145 60, 170 20 Z"/></svg>
   </div></div>
   <div class="wrap body">
     <div class="simwrap">
-      <iframe class="simframe" id="simFrame" title="Flame lab simulation" loading="lazy"></iframe>
+      <iframe class="simframe" id="simFrame" title="Illustrative flame lab" loading="lazy"></iframe>
       <p class="note">The simulation runs in your browser on the graphics card (WebGL 2). If it cannot, a simpler backup flame takes its place. <a href="sim.html" target="_blank" rel="noopener">Open the flame lab on its own page</a>.</p>
     </div>
   </div>
@@ -344,7 +357,7 @@
 <aside class="chatdock" id="chat" aria-label="Flashpoint assistant" hidden>
   <div class="chat-head">
     <span class="avatar"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M4 5h16v11H9l-5 4z"/></svg></span>
-    <div><strong>Flashpoint Assistant</strong><small>SI not connected yet: answers come from NASA's test data with fixed rules</small></div>
+    <div><strong>Ask the evidence</strong><small>Cited NASA records, answered with fixed rules</small></div>
     <button class="btn ghost sm" id="chatClose" type="button">Close</button>
   </div>
   <div class="msgs" id="msgs" aria-live="polite"></div>
@@ -357,5 +370,6 @@
   <form class="compose" id="compose"><input id="ask" autocomplete="off" placeholder="Ask, or tell it where to move the point" aria-label="Message"><button class="btn" type="submit">Send</button></form>
 </aside>
 <script src="assets/app.js"></script>
+<script src="assets/refinement.js"></script>
 </body>
 </html>

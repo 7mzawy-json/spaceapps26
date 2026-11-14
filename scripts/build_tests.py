@@ -146,7 +146,7 @@ WEB_FIELDS = ["accession", "test_id", "fuel", "fuel_phase", "o2_pct", "pressure_
               "gravity", "outcome", "source", "investigation", "flame_type", "oxygen_from", "ignited", "source_line"]
 # Extra columns NASA's tables give for some investigations only. In tests.web.json they appear on a row only when
 # the table has a value, so the file stays small. A missing key means "not in NASA's table", the same as null.
-EXTRA_FIELDS = ["n2_pct", "co2_pct", "he_pct", "burn_time_s", "outcome_note", "pressure_approx",
+EXTRA_FIELDS = ["n2_pct", "co2_pct", "he_pct", "burn_time_s", "burn_time_approx", "outcome_note", "pressure_approx",
                 "ug_burn_length", "g1_burn_length"]
 
 
@@ -157,14 +157,19 @@ def pct(s):
 
 
 def seconds(s):
-    """A burn time such as '420', '145 s' or '4.3'. Words ('Insignificant') and blanks give None."""
-    m = re.fullmatch(r"(\d*\.?\d+)\s*s?", (s or "").strip())
+    """A burn time such as '420', '145 s', '4.3' or '~6'. Words ('Insignificant') and blanks give None."""
+    m = re.fullmatch(r"~?\s*(\d*\.?\d+)\s*s?", (s or "").strip())
     return float(m.group(1)) if m else None
+
+
+def approx(s):
+    """True where NASA marks a number as approximate with '~', else None."""
+    return True if (s or "").strip().startswith("~") and seconds(s) is not None else None
 
 
 def emit(acc, name, line, cells, used, *, test_id, fuel, fuel_phase, o2_pct, oxygen_from, pressure_psi,
          flow_cm_s, outcome, flame_type, ignited=None, exclude_reason=None, n2_pct=None, co2_pct=None, he_pct=None,
-         burn_time_s=None, outcome_note=None, pressure_approx=None, ug_burn_length=None, g1_burn_length=None):
+         burn_time_s=None, burn_time_approx=None, outcome_note=None, pressure_approx=None, ug_burn_length=None, g1_burn_length=None):
     if pressure_psi is not None and pressure_psi <= 0:
         pressure_psi = None  # a burning test cannot run in vacuum: a 0 in the table means not recorded
     # A row identical in every cell to an earlier row of the same file is a repeat, not a second test.
@@ -196,6 +201,7 @@ def emit(acc, name, line, cells, used, *, test_id, fuel, fuel_phase, o2_pct, oxy
         "co2_pct": r2(co2_pct),
         "he_pct": r2(he_pct),
         "burn_time_s": burn_time_s,
+        "burn_time_approx": burn_time_approx,
         "outcome_note": outcome_note or None,
         "pressure_approx": pressure_approx,
         "ug_burn_length": ug_burn_length or None,
@@ -221,7 +227,7 @@ def cfi_g():
                        "burned" if ignited and end == "FT" else "unknown")
             frac, p = number(c[o2c]), number(c[pc])
             emit("PSI-159", name, line, c, ["Test", "Fuel", o2c, pc, ign, btc, endc, col(h, "Comments")],
-                 burn_time_s=seconds(c[btc]), pressure_approx=True if p is not None else None,
+                 burn_time_s=seconds(c[btc]), burn_time_approx=approx(c[btc]), pressure_approx=True if p is not None else None,
                  outcome_note=f"Hot ignition: {c[ign] or 'blank'}; self-extinguished or flow terminated: {c[endc] or 'blank'}",
                  test_id=c["Test"], fuel=c["Fuel"], fuel_phase="gas",
                  o2_pct=None if frac is None else frac * 100,
@@ -255,7 +261,7 @@ def flex():
     for line, c in rows:
         frac, p = number(c[o2c]), number(c[pc])
         emit("PSI-69", name, line, c, ["FLEX Test #", "FLEX Identifier", "Fuel", o2c, n2c, co2c, hec, pc, btc, "Test end"],
-             n2_pct=pct(c[n2c]), co2_pct=pct(c[co2c]), he_pct=pct(c[hec]), burn_time_s=seconds(c[btc]),
+             n2_pct=pct(c[n2c]), co2_pct=pct(c[co2c]), he_pct=pct(c[hec]), burn_time_s=seconds(c[btc]), burn_time_approx=approx(c[btc]),
              outcome_note=f"Test end: {c['Test end']}" if c["Test end"] else None,
              test_id=c["FLEX Identifier"], fuel=c["Fuel"], fuel_phase="liquid",
              o2_pct=None if frac is None else frac * 100, oxygen_from="chamber",
@@ -321,7 +327,7 @@ def saffire():
                  o2_pct=number(c[o2c]) if o2c else None, oxygen_from="chamber", pressure_psi=None,
                  flow_cm_s=number(c[flowc]),
                  outcome="burned" if burned else "self_extinguished" if faded else "unknown",
-                 flame_type="solid sample", burn_time_s=seconds(burn),
+                 flame_type="solid sample", burn_time_s=seconds(burn), burn_time_approx=approx(burn),
                  outcome_note=f"Burn time: {burn}" if burn else None,
                  ug_burn_length=c.get(ugc) if ugc else None, g1_burn_length=c.get(g1c) if g1c else None)
 
@@ -368,7 +374,8 @@ def main():
             "diluent": "n2_pct, co2_pct and he_pct are the other gases in the chamber, as mole fractions times 100. Given only by "
                        "FLEX (nitrogen, carbon dioxide, helium) and CFI (nitrogen, helium). The FLEX file drops subscripts, so its "
                        "'O', 'N' and 'CO' columns are read as O2, N2 and CO2. Missing means the table does not state it.",
-            "burn_time_s": "FLEX 'Burn time; s', CFI-G 'burn time (sec)', SAFFIRE 'Burn Time (s)'. Words and blanks give null.",
+            "burn_time_s": "FLEX 'Burn time; s', CFI-G 'burn time (sec)', SAFFIRE 'Burn Time (s)'. Words and blanks give null. "
+                           "burn_time_approx is true where NASA wrote the time with '~' (two FLEX rows).",
             "pressure_approx": "true for CFI-G, whose column is headed 'approx p (bar)'.",
             "gravity_comparison": "ug_burn_length and g1_burn_length copy SAFFIRE-II's microgravity and 1 g burn length cells as "
                                   "text. They are the only place in these tables where NASA lists both gravity levels for one sample.",

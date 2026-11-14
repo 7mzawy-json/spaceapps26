@@ -60,7 +60,16 @@
     </div>
   </section>
   <section class="evidence-ribbon" aria-label="The evidence behind Flashpoint">
-    <p><b id="missionRows">...</b><span>NASA test rows</span></p><p><b id="missionInv">...</b><span>NASA investigations with test tables</span></p><p class="ribbon-finding"><span class="eyebrow">READING THE MAP</span><strong id="materialGap">Some material tests have no recorded pressure.</strong><small>These records stay in Analysis, but cannot be placed on the pressure map.</small></p>
+    <p><b id="missionRows">...</b><span>NASA test rows</span></p><p><b id="missionInv">...</b><span>NASA investigations with test tables</span></p><p class="ribbon-finding"><span class="eyebrow">WHERE THE NUMBERS COME FROM</span><strong>Every test value comes from NASA's Physical Science Informatics tables.</strong><small>A script copies each value or converts it to psi. Every row keeps its NASA file and line, so any figure here can be checked against the source.</small></p>
+  </section>
+  <section class="findings" aria-labelledby="findingsTitle">
+    <div class="section-intro"><div><span class="eyebrow">WHAT NASA'S TESTS SAY</span><h2 id="findingsTitle">Four gaps in the fire evidence.</h2></div><p>Counted in your browser from NASA's test tables. Open Analysis to check each one.</p></div>
+    <div class="finding-grid">
+      <article><span class="kind">Moon Base air</span><p id="findMoon">Loading NASA tests.</p></article>
+      <article><span class="kind">Cabin materials</span><p id="materialGap">Loading NASA tests.</p></article>
+      <article><span class="kind">Gravity</span><p id="findGravity">Loading NASA tests.</p></article>
+      <article><span class="kind">Spacesuit oxygen</span><p id="findSuit">Loading NASA tests.</p></article>
+    </div>
   </section>
   <div class="section-intro"><div><span class="eyebrow">EXPLORE FLASHPOINT</span><h2>Choose what you want to do.</h2></div><p>Compare the records, try a model, or learn the science.</p></div>
   <section class="cards" aria-label="Modules">
@@ -119,6 +128,14 @@
       </div>
       <span class="go">Start learning <span class="arr" aria-hidden="true">&rarr;</span></span>
     </a>
+  </section>
+  <section class="asked" aria-labelledby="askedTitle">
+    <div class="section-intro"><div><span class="eyebrow">THE CHALLENGE</span><h2 id="askedTitle">What NASA asked for, and where to find it.</h2></div><p>Written for the readers the challenge names: professors, students, aerospace researchers and engineers.</p></div>
+    <div class="asked-grid">
+      <article><blockquote>"Identify investigations most relevant to the fire safety needs of habitable crew environments"</blockquote><p>Pick any oxygen and pressure. Analysis ranks the nine investigations by how many of their tests ran near it, and lists the ones that cannot be placed, with the reason.</p><a class="go" href="#analysis" data-go="analysis" data-mode="simple">Rank the investigations <span aria-hidden="true">&rarr;</span></a></article>
+      <article><blockquote>"Extract data that supports predictive modeling of flammability and fire scenarios"</blockquote><p>Research tools filters and graphs every test by fuel, oxygen, pressure, the other gases in the chamber, burn time and outcome. The CSV download keeps each row's NASA file and line.</p><a class="go" href="#analysis" data-go="analysis" data-mode="advanced">Open the test data <span aria-hidden="true">&rarr;</span></a></article>
+      <article><blockquote>"Highlight research that informs the development of next-generation fire safety controls and equipment"</blockquote><p>The evidence brief for a point says what is untested there and names the NASA experiments planned to close the gap, such as FM2 on the Moon.</p><button class="go" id="moonBrief" type="button">Read the Moon Base brief <span aria-hidden="true">&rarr;</span></button></article>
+    </div>
   </section>
   <section class="closing-question"><span class="eyebrow">ASK FLASHPOINT</span><h2>Ask about the test records.</h2><p>For example, ask which tests used 30% oxygen at 10.2 psi, or what the records say about solid materials. Answers include their sources and identify missing data.</p><form class="askbar" id="homeAsk"><input id="homeAskIn" autocomplete="off" placeholder="What do we know about 30% oxygen at 10.2 psi?" aria-label="Ask about a cabin atmosphere"><button class="btn" type="submit">Ask the data</button></form><p class="helper">Answers use fixed rules and cited NASA records. No live AI service is connected.</p></section>
 </main>
@@ -326,6 +343,7 @@
             <div class="banner" id="tPick" style="margin:0 0 .75rem"></div>
             <div class="tablewrap"><table id="testTable"><thead><tr></tr></thead><tbody></tbody></table></div>
             <div class="pager"><span id="tInfo"></span><span><button class="btn sm" id="tCsv" type="button">Download these tests (CSV)</button> <button class="btn ghost sm" id="tPrev">Previous</button> <button class="btn ghost sm" id="tNext">Next</button></span></div>
+            <p class="note">"Kept burning" means the flame did not go out by itself: it burned until the fuel was used up, until NASA stopped the fuel flow, or for the burn time listed. Open a row to read NASA's own words.</p>
             <p class="note">Click a column heading to sort, and a row for its source file and line in NASA's table. "Not recorded" means NASA's table does not give the value; nothing is filled in.</p>
           </div>
         </div>

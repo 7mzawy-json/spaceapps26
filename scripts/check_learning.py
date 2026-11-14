@@ -91,7 +91,11 @@ with sync_playwright() as p:
  verify('Selected record matches source test id',first['test_id'] in page.locator('#outcomeRecord').inner_text())
  page.locator('#revealOutcome').click()
  outcome='Went out by itself' if first['outcome']=='self_extinguished' else 'Kept burning' if first['outcome']=='burned' else 'Not recorded'
- verify('Revealed outcome matches NASA row',page.locator('#recordOutcome').inner_text()==outcome)
+ shown=page.locator('#recordOutcome').inner_text()
+ expected=outcome if first.get('burn_time_s') is None else outcome+', burn time '+('about ' if first.get('burn_time_approx') else '')+('%g' % first['burn_time_s'])+' s'
+ verify('Revealed outcome and burn time match NASA row',shown==expected)
+ gases=', '.join('%d%% %s' % (round(first[k]),n) for k,n in (('n2_pct','nitrogen'),('co2_pct','carbon dioxide'),('he_pct','helium')) if (first.get(k) or 0)>0)
+ verify('Record shows the rest of the gas mixture from the NASA row',gases in page.locator('#outcomeRecord').inner_text())
  verify('Source filename and line retained',first['source'] in page.locator('#outcomeRecord').inner_text() and str(first['source_line']) in page.locator('#outcomeRecord').inner_text())
  for pressure in ['low','cabin','high']:
     page.locator('#outcomePressure').select_option(pressure)

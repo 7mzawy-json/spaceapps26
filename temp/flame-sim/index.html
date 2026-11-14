@@ -6,7 +6,7 @@
 <meta name="generator" content="AI-assisted: written with Claude Code for team BrayTech Pyrotechnics">
 <!--
   Draft prototype, AI-assisted (Claude Code). Not deployed. See README.md in this folder.
-  Each flame is set up from one row of data/tests.json (NASA PSI). Gravity is the only real-physics control.
+  Each flame is set up from one row of data/tests.web.json (NASA PSI, rows that are not separate tests left out). Gravity is the only real-physics control.
 -->
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap">
 <style>
@@ -364,7 +364,7 @@ function readout() {
   }
   if (r) {
     const dt = document.createElement('dt'), dd = document.createElement('dd'), a = document.createElement('a');
-    dt.textContent = 'Source'; a.href = r.source_url; a.target = '_blank'; a.rel = 'noopener';
+    dt.textContent = 'Source'; a.href = 'https://psi.nasa.gov/physci/repo/data/investigations/' + r.accession; a.target = '_blank'; a.rel = 'noopener';
     a.textContent = r.accession + ', table line ' + r.source_line;
     dd.append(a); dl.append(dt, dd);
   }
@@ -389,10 +389,10 @@ function pickInv() {
 }
 
 async function loadTests() {
-  for (const url of ['tests.json', '../../data/tests.json']) {
+  for (const url of ['tests.web.json', '../../data/tests.web.json']) {
     try { const r = await fetch(url); if (r.ok) return await r.json(); } catch (e) { /* try the next place */ }
   }
-  throw new Error('tests.json not found');
+  throw new Error('tests.web.json not found');
 }
 
 async function main() {
@@ -400,7 +400,7 @@ async function main() {
   build();
   let all;
   try { all = await loadTests(); }
-  catch (e) { $('status').textContent = 'Could not load tests.json. Open this page through a local web server started in the repo root (see README.md).'; return; }
+  catch (e) { $('status').textContent = 'Could not load tests.web.json. Open this page through a local web server started in the repo root (see README.md).'; return; }
 
   const usable = all.filter(r => r.o2_pct != null && r.pressure_psi != null)
     .sort((a, b) => a.o2_pct - b.o2_pct || a.pressure_psi - b.pressure_psi);

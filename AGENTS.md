@@ -1,8 +1,8 @@
 # BrayTech Pyrotechnics: NASA Space Apps 2026
 
 Challenge: **Flame in Freefall: SI-Powered Fire Safety Insights from Microgravity Combustion Data**.
-Challenge spec and resources live in `docs/challenge/` once provided. Read them before proposing anything.
-The build plan lives in `ROADMAP.md` once written. Follow it phase by phase; do not skip ahead.
+Challenge spec, resources, submission rules and judging criteria live in `docs/challenge/`. Read them before
+proposing anything. The build plan lives in `ROADMAP.md`. Follow it phase by phase; do not skip ahead.
 
 ## Hard deadlines (local time)
 
@@ -18,12 +18,13 @@ The build plan lives in `ROADMAP.md` once written. Follow it phase by phase; do 
 
 ## Team
 
-Three people, each with their own lane and folders (see "Team and lanes" in `ROADMAP.md`).
-An agent edits only the files of the lane it is working for.
+Three people with equal responsibility and no team lead. Decisions are made by the whole team.
+Each lane owns its folders (see "Team and lanes" in `ROADMAP.md`).
+An agent edits only the files of the lane it is working for. Personal folders such as `alanzim/` are drafts, never deployed.
 
 ## Working conditions
 
-- The team lead's work runs on a Windows 11 desktop (Ryzen 7 9700X, Radeon RX 7700 XT, 32 GB RAM) that the
+- One teammate's agents run on a Windows 11 desktop (Ryzen 7 9700X, Radeon RX 7700 XT, 32 GB RAM) that the
   human drives remotely from an old MacBook. Nobody is at the keyboard.
 - The GPU is AMD: no CUDA. Do not pick CUDA-only libraries. Heavy GPU work goes to a cloud machine.
 - Never start anything that needs a click on the desktop (GUI installers, browser logins, UAC prompts).
@@ -32,9 +33,12 @@ An agent edits only the files of the lane it is working for.
 
 ## Rules for agents
 
-- Commands for the human to run: Windows PowerShell 5.1 syntax (no `&&`, no `||`).
+- Commands for the human on the Windows desktop: PowerShell 5.1 syntax (no `&&`, no `||`). Other teammates use their
+  own laptops (at least one is macOS); there, use that laptop's shell.
 - Never write the em dash character, or an en dash or double hyphen standing in for one.
 - Smallest thing that works. No new dependency when the standard library or an installed one does it.
 - Commit after every working step with a plain message, so any step can be rolled back.
 - If a step fails twice, stop and report what you tried. Do not improvise a different design.
-- Never commit secrets. Keys go in `.env`, which is gitignored.
+- Never commit secrets. Keys go in `.env.local`, which is gitignored. `.env.example` lists the names with no values.
+- AI-generated code and data say so in text and metadata (submission rule, see `docs/challenge/submission-and-awards.md`).
+- Every phase adds a line to `docs/ai-usage-log.md`, and every new library, image or dataset goes in its References list.

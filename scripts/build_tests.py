@@ -8,7 +8,9 @@ Usage (standard library only):
     python scripts/build_tests.py              # build from tables already in data/raw/psi/
 
 Output:
-    data/tests.json       list of rows in the shape frozen in ROADMAP.md, plus provenance fields
+    data/tests.json       every row, in the shape frozen in ROADMAP.md, plus provenance fields (the full record)
+    data/tests.web.json   slim copy for the website: same values, rows with an exclude_reason left out,
+                          bulky provenance fields (raw, source_url) dropped
     data/tests.meta.json  where the data came from, how it was converted, what was left out and why
 """
 import argparse
@@ -25,6 +27,7 @@ import urllib.request
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RAW = os.path.join(ROOT, "data", "raw", "psi")
 OUT = os.path.join(ROOT, "data", "tests.json")
+WEB = os.path.join(ROOT, "data", "tests.web.json")
 META = os.path.join(ROOT, "data", "tests.meta.json")
 
 API = "https://psi.nasa.gov/geode-py/ws"
@@ -136,12 +139,23 @@ def r2(x):
 
 
 rows_out = []
+seen_rows = {}  # (file, all cells of a row) -> first line, to spot rows NASA's file repeats word for word
+
+# Fields kept in tests.web.json: the frozen contract plus what the map needs. Values are copied, never changed.
+WEB_FIELDS = ["accession", "test_id", "fuel", "fuel_phase", "o2_pct", "pressure_psi", "pressure_from", "flow_cm_s",
+              "gravity", "outcome", "source", "investigation", "flame_type", "oxygen_from", "ignited", "source_line"]
 
 
 def emit(acc, name, line, cells, used, *, test_id, fuel, fuel_phase, o2_pct, oxygen_from, pressure_psi,
-         flow_cm_s, outcome, flame_type, ignited=None):
+         flow_cm_s, outcome, flame_type, ignited=None, exclude_reason=None):
     if pressure_psi is not None and pressure_psi <= 0:
         pressure_psi = None  # a burning test cannot run in vacuum: a 0 in the table means not recorded
+    # A row identical in every cell to an earlier row of the same file is a repeat, not a second test.
+    # It stays in tests.json (nothing is deleted) and is only flagged, so it is not counted twice.
+    key = (name, tuple(sorted(cells.items())))
+    if exclude_reason is None and key in seen_rows:
+        exclude_reason = f"exact repeat of line {seen_rows[key]} of the same NASA file (every cell identical)"
+    seen_rows.setdefault(key, line)
     rows_out.append({
         # Shape frozen in ROADMAP.md ("File layout")
         "accession": acc,
@@ -163,6 +177,7 @@ def emit(acc, name, line, cells, used, *, test_id, fuel, fuel_phase, o2_pct, oxy
         "source_url": PAGE.format(acc=acc),
         "source_line": line,
         "raw": {c: cells.get(c, "") for c in used},
+        "exclude_reason": exclude_reason,
     })
 
 
@@ -242,10 +257,13 @@ def bass_ii():
 def bass():
     name, h, rows = read_table(r"PSI-26_Experimental table_BASS\.csv")
     for line, c in rows:
+        # A log line with no test numbers is a maintenance entry (for example "SOOT Cleaning"), not a burn test.
+        no_test = not c["As Run Test #"] and not c["Test #"]
         emit("PSI-26", name, line, c, ["As Run Test #", "Test #", "Fuel Sample Material"],
              test_id=c["As Run Test #"], fuel=c["Fuel Sample Material"], fuel_phase="solid",
              o2_pct=None, oxygen_from=None, pressure_psi=None, flow_cm_s=None, outcome="unknown",
-             flame_type="solid sample")
+             flame_type="solid sample",
+             exclude_reason=f"not a burn test: no test number, entry reads '{c['Fuel Sample Material']}'" if no_test else None)
 
 
 def saffire():
@@ -278,6 +296,8 @@ def main():
         build()
 
     plottable = [r for r in rows_out if r["o2_pct"] is not None and r["pressure_psi"] is not None]
+    web_rows = [{k: r[k] for k in WEB_FIELDS} for r in rows_out if r["exclude_reason"] is None]
+    web_plottable = [r for r in web_rows if r["o2_pct"] is not None and r["pressure_psi"] is not None]
     meta = {
         "what": "Per-test rows from NASA Physical Science Informatics (PSI) combustion investigations, one row per test.",
         "source": "NASA Physical Science Informatics, https://psi.nasa.gov/ (NASA open data). Each row names its file "
@@ -307,6 +327,17 @@ def main():
             "o2_pct": "Ranges such as '21.5 - 21.7' or '22.1 to 22.0' give null; approximate values such as '~ 21.5' are kept.",
             "gravity": "All tests ran in microgravity (ISS or the Cygnus spacecraft).",
             "flow_cm_s": "Given only by SAFFIRE. BASS-II records a fan display setting, not a speed, so flow is null.",
+            "exclude_reason": "null for a normal test. Set only for rows that are not separate tests: a row NASA's file "
+                              "repeats word for word (CFI lists 8 tests twice), and a BASS log entry with no test "
+                              "number ('SOOT Cleaning'). These rows stay in tests.json and are left out of tests.web.json. "
+                              "Rows that share a test_id but differ in any cell (re-runs in FLEX and BASS) are kept as separate tests.",
+            "test_id": "Not unique: re-runs can repeat an ID. Use source plus source_line to identify a row.",
+        },
+        "files": {
+            "tests.json": "Full record: every row read from NASA's tables, with raw cells and provenance. Keep for checking.",
+            "tests.web.json": "Slim copy for the website: rows with exclude_reason left out, fields limited to "
+                              + ", ".join(WEB_FIELDS) + ". Values identical to tests.json. Investigation page: "
+                              "https://psi.nasa.gov/physci/repo/data/investigations/<accession>.",
         },
         "included": INCLUDED,
         "excluded": EXCLUDED,
@@ -314,11 +345,18 @@ def main():
             "rows": len(rows_out),
             "plottable_rows": len(plottable),
             "plottable_chamber_oxygen_rows": sum(1 for r in plottable if r["oxygen_from"] == "chamber"),
+            "flagged_rows": sum(1 for r in rows_out if r["exclude_reason"]),
+            "web_rows": len(web_rows),
+            "web_plottable_rows": len(web_plottable),
+            "web_plottable_chamber_oxygen_rows": sum(1 for r in web_plottable if r["oxygen_from"] == "chamber"),
             "by_investigation": {v: sum(1 for r in rows_out if r["investigation"] == v) for v in INCLUDED.values()},
         },
     }
     with open(OUT, "w", encoding="utf-8") as f:
         json.dump(rows_out, f, ensure_ascii=False, indent=1)
+        f.write("\n")
+    with open(WEB, "w", encoding="utf-8") as f:
+        json.dump(web_rows, f, ensure_ascii=False, separators=(",", ":"))
         f.write("\n")
     with open(META, "w", encoding="utf-8") as f:
         json.dump(meta, f, ensure_ascii=False, indent=2)

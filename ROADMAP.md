@@ -82,7 +82,8 @@ lib/predict.ts                    applies data/model.json
 data/tests.sample.json            ten made-up rows for the Interface lane, deleted at the 12:30 gate
 data/investigations.json          raw PSI snapshot (combustion only)
 data/enriched.json                AI-extracted fields + summaries, human-checked
-data/tests.json                   test-level rows (the flames on the map)
+data/tests.json                   test-level rows, full record with NASA provenance (keep for checking)
+data/tests.web.json               slim copy the website loads: same values, flagged rows left out
 data/briefs.json                  precomputed briefs for the four presets
 data/model.json                   fitted coefficients
 scripts/fetch_psi.py  scripts/enrich.py  scripts/fit_model.py

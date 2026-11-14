@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Render test scene</title><link rel="stylesheet" href="../../scenes/scene.css"></head>
+<body>
+<!-- A 2-second scene for test_render.py: one red circle crossing the frame. -->
+<svg id="stage" viewBox="0 0 1920 1080"></svg>
+<div id="cap" hidden></div>
+<div id="ctl" hidden><button type="button">Play</button><input type="range"><output></output></div>
+<script src="../../scenes/engine.js"></script>
+<script>
+E.scene('short', function (E, root) {
+  var c = E.el('circle', { cx: 400, cy: 540, r: 120, fill: E.C.red }, root);
+  E.beat('a');
+  return function (t) { E.set(c, { cx: 400 + 560 * t }); };
+});
+</script>
+</body>
+</html>

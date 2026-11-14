@@ -72,10 +72,62 @@
     return function (t) { for (var i = 0; i < list.length; i += 3) list[i].setAttribute('opacity', (.25 + .2 * Math.sin(t * 1.3 + i)).toFixed(3)); };
   }
 
-  /* Register a scene. build(E, svg) creates its shapes and returns draw(t). */
-  E.scene = function (id, build) {
+  /* ---------- shared drawing helpers for the scenes ---------- */
+  E.font = function (size, weight, mono) { return { 'font-family': mono ? 'Geist Mono' : 'Geist', 'font-size': size, 'font-weight': weight || 400 }; };
+  E.label = function (str, x, y, size, fill, extra, parent) {
+    var a = E.font(size, extra && extra.weight, extra && extra.mono); a.x = x; a.y = y; a.fill = fill || E.C.ink;
+    if (extra && extra.anchor) a['text-anchor'] = extra.anchor;
+    return E.text(str, a, parent);
+  };
+  /* Lesson number and title, top left. Returns the group; scenes fade it to 35% after the opening. */
+  E.chapter = function (parent, num, title) {
+    var g = E.el('g', {}, parent);
+    E.label(num, 96, 118, 34, E.C.red, { mono: true }, g);
+    E.label(title, 178, 118, 40, E.C.ink, { weight: 600 }, g);
+    return g;
+  };
+  /* Flame gradients: warm (with gravity) and cool (0 g, blue shell). Call once per scene. */
+  E.flameDefs = function (parent) {
+    var defs = E.el('defs', {}, parent), C = E.C;
+    function radial(id, stops, cy) {
+      var g = E.el('radialGradient', { id: id, cx: '50%', cy: cy || '50%', r: '60%' }, defs);
+      stops.forEach(function (s) { E.el('stop', { offset: s[0], 'stop-color': s[1], 'stop-opacity': s[2] === undefined ? 1 : s[2] }, g); });
+    }
+    radial('warm', [[0, C.cream], [.35, C.amber], [.8, C.red, .9], [1, C.red, 0]], '72%');
+    radial('cool', [[0, '#ff9a3c', .55], [.55, '#ff9a3c', .18], [.8, C.blue, .95], [1, C.blue, 0]]);
+    radial('haloWarm', [[0, C.amber, .5], [1, C.amber, 0]]);
+    radial('haloCool', [[0, C.blue, .45], [1, C.blue, 0]]);
+    return defs;
+  };
+  /* Flame outline: k = 0 a circle (0 g), k = 1 a teardrop stretched upward by buoyancy. wob bends the tip. */
+  E.flameShape = function (k, R, cx, cy, wob) {
+    var d = '';
+    for (var i = 0; i <= 90; i++) {
+      var a = i / 90 * 2 * Math.PI, s = Math.sin(a), up = Math.max(0, s);
+      var x = cx + R * Math.cos(a) * (1 - .58 * k * up * up) + (wob || 0) * up * up * up;
+      var y = cy - R * s * (s > 0 ? 1 + 2.5 * k * up : 1 - .35 * k);
+      d += (i ? 'L' : 'M') + x.toFixed(1) + ' ' + y.toFixed(1);
+    }
+    return d + 'Z';
+  };
+  /* A two-atom molecule (O2, N2) as two touching circles. Move it with E.place. */
+  E.mol = function (parent, fill, r) {
+    r = r || 11; var g = E.el('g', {}, parent);
+    E.el('circle', { cx: -r * .82, cy: 0, r: r, fill: fill }, g); E.el('circle', { cx: r * .82, cy: 0, r: r, fill: fill }, g);
+    return g;
+  };
+  E.place = function (g, x, y, rot, scale, opacity) {
+    E.set(g, { transform: 'translate(' + x.toFixed(1) + ' ' + y.toFixed(1) + ') rotate(' + (rot || 0).toFixed(1) + ') scale(' + (scale === undefined ? 1 : scale) + ')',
+      opacity: opacity === undefined ? 1 : opacity });
+  };
+
+  /* Register a scene. build(E, svg) creates its shapes and returns draw(t).
+     opts.rows: also load NASA's test rows (data/tests.web.json) into E.rows before building. */
+  E.scene = function (id, build, opts) {
     window.ready = loadTiming(id).then(function (timing) {
       E.timing = timing;
+      if (opts && opts.rows) return fetch('../../../../data/tests.web.json').then(function (r) { return r.json(); }).then(function (rows) { E.rows = rows; });
+    }).then(function () {
       return Promise.all([document.fonts.load('400 40px Geist'), document.fonts.load('600 40px Geist'), document.fonts.load('500 40px "Geist Mono"')]);
     }).then(function () { return document.fonts.ready; }).then(function () {
       var svg = document.getElementById('stage');

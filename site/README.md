@@ -3,6 +3,30 @@
 The website itself: plain HTML, CSS and JavaScript, no build step. Everything runs in the visitor's browser, including
 the flame simulation (WebGL 2, with a CSS backup flame). Open to change by the team like everything else in the repo.
 
+## What the site is now (Sat Nov 14, afternoon)
+
+Two pages and one assistant, after a redundancy pass agreed with 7mzawy-json (their notes, then an audit):
+
+- **Analysis** replaces Map and Resources. **Simple** mode is the map and its answer for one point. **Advanced** mode is
+  the catalogue of investigations and every test row (filters, graphs, table).
+- **Sim** is unchanged in what it simulates, with its extras switched off (below).
+- **The assistant** is one chat panel, opened with "Ask" from any page or from the box on the dashboard. It moves the
+  point on the map. The SI Assist page, with its own sliders, gravity and fuel buttons and small map, is gone.
+
+What changed, and why:
+
+| Change | Why |
+|---|---|
+| Evidence is rated for gas flames, fuel droplets and solid materials separately | The single rating called the Moon Base point "Well tested". All 68 nearby tests are fuel droplets; no gas flame and no solid material was tested there |
+| "Investigations ranked for this point" replaces the Prevent, Detect and Suppress boxes | The challenge asks for ranking. The boxes repeated the solid-material and FLEX facts the new rows carry, and the Detect box never changed with the point |
+| Gravity buttons removed from the map | Every test ran in microgravity, so three of four options only said "No tests". One sentence under the map says it once |
+| "Download these tests (CSV)" in Advanced | The challenge asks for data extraction; there was no export. Each row keeps its source file, line and PSI page |
+| "See the tests around it" and "Burn this air in the Sim" | The point is now carried between the map, the test data and the Sim instead of being set again on each page |
+| Free graph builder folded behind "Build your own graph" | The four named graphs answer real questions; the 440 free combinations mostly do not |
+| Sim extras hidden: airflow, live measurements, heat and flow views, Ignite, Clear, the 0 to 2 g slider | None of NASA's placeable tests records airflow, and numbers from an illustrative model read as measurements. They carry the class `cut` in `sim.html`; remove the class to bring one back |
+
+Old links still work: `#home` opens Analysis, `#resources` opens Advanced mode, `#si` opens the assistant.
+
 ## Where each part came from
 
 | Part | Source | What changed when it moved here |
@@ -88,8 +112,14 @@ then http://localhost:8765/site/
 
 ## Deploy
 
-Deploy the repo root as static files. The root `index.html` forwards visitors to `site/`. This works on Vercel, Azure
-Static Web Apps or the GoDaddy/Porkbun hosting from the Space Apps global offers. The SI chat expects an endpoint at
+Deploy the repo root as static files. The root `index.html` forwards visitors to `site/`.
+
+- **Vercel:** `vercel.json` sets the output folder to the repo root. Without it Vercel would serve only `public/`, because a
+  folder with that name is its default. `.vercelignore` keeps drafts, plans, personal folders, build scripts and the full
+  source data off the public site. Not yet tried on a real deployment.
+- **Any other static host:** upload `index.html`, `site/`, `public/`, `data/tests.web.json`, `data/tests.meta.json` and
+  `docs/ai-usage-log.md`, keeping the folders as they are.
+ The SI chat expects an endpoint at
 `/api/chat`; until one exists, every question is answered by the offline rule-based mode, and the browser console shows
 a failed request to `/api/chat` (expected).
 

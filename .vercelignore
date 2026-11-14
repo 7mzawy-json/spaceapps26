@@ -1,0 +1,15 @@
+# Only the site and the files it reads go online: index.html, site/, public/, data/tests.web.json,
+# data/tests.meta.json and docs/ai-usage-log.md (linked from the footer).
+# Drafts, plans, personal folders, the full source data and the build scripts stay in the repo only.
+/temp
+/alanzim
+/scripts
+/lib
+/docs/challenge
+/docs/data-inventory.md
+/data/tests.json
+/ROADMAP.md
+/AGENTS.md
+/CLAUDE.md
+/README.md
+/.env.example

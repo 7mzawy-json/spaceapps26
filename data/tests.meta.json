@@ -8,7 +8,7 @@
     "GET https://psi.nasa.gov/geode-py/ws/studies/PSI-<n>/download?file=<file_name>&redirect=false returns a short-lived link to the CSV."
   ],
   "generated_by": "scripts/build_tests.py, written with an AI coding assistant (Claude Code). Values are copied or unit-converted from NASA's tables by code; no value was typed or estimated by AI.",
-  "built_at": "2026-11-14T07:40:35Z",
+  "built_at": "2026-11-14T07:53:21Z",
   "conversions": {
     "atm_to_psi": 14.696,
     "bar_to_psi": 14.504,
@@ -22,7 +22,13 @@
     "pressure_psi": "A pressure of 0 in a table (FLEX test C11M201 lists 0 mmHg) is read as not recorded and gives null.",
     "o2_pct": "Ranges such as '21.5 - 21.7' or '22.1 to 22.0' give null; approximate values such as '~ 21.5' are kept.",
     "gravity": "All tests ran in microgravity (ISS or the Cygnus spacecraft).",
-    "flow_cm_s": "Given only by SAFFIRE. BASS-II records a fan display setting, not a speed, so flow is null."
+    "flow_cm_s": "Given only by SAFFIRE. BASS-II records a fan display setting, not a speed, so flow is null.",
+    "exclude_reason": "null for a normal test. Set only for rows that are not separate tests: a row NASA's file repeats word for word (CFI lists 8 tests twice), and a BASS log entry with no test number ('SOOT Cleaning'). These rows stay in tests.json and are left out of tests.web.json. Rows that share a test_id but differ in any cell (re-runs in FLEX and BASS) are kept as separate tests.",
+    "test_id": "Not unique: re-runs can repeat an ID. Use source plus source_line to identify a row."
+  },
+  "files": {
+    "tests.json": "Full record: every row read from NASA's tables, with raw cells and provenance. Keep for checking.",
+    "tests.web.json": "Slim copy for the website: rows with exclude_reason left out, fields limited to accession, test_id, fuel, fuel_phase, o2_pct, pressure_psi, pressure_from, flow_cm_s, gravity, outcome, source, investigation, flame_type, oxygen_from, ignited, source_line. Values identical to tests.json. Investigation page: https://psi.nasa.gov/physci/repo/data/investigations/<accession>."
   },
   "included": {
     "PSI-159": "ACME CFI-G",
@@ -53,6 +59,10 @@
     "rows": 1285,
     "plottable_rows": 989,
     "plottable_chamber_oxygen_rows": 726,
+    "flagged_rows": 9,
+    "web_rows": 1276,
+    "web_plottable_rows": 981,
+    "web_plottable_chamber_oxygen_rows": 718,
     "by_investigation": {
       "ACME CFI-G": 333,
       "ACME Flame Design": 327,

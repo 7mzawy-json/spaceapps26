@@ -1,7 +1,8 @@
 # Judging and Awards Guide (read 2026-11-14)
 
 Source: https://www.spaceappschallenge.org/resources/judging-awards-guide/ (dated Nov 13, 2026).
-Summarized in our own words; open the page for the exact text.
+Summarized in our own words, then checked against the guide itself (PDF saved by the team on Nov 14): the summary
+matches it. The exact wording of what we sign and what a top score asks for is quoted under "Exact text" at the end.
 
 ## How scoring works
 
@@ -41,7 +42,8 @@ Summarized in our own words; open the page for the exact text.
 | After the hackathon | Local judges pick Global Nominees. Local awards are separate from global ones. |
 | Dec 3, 2026 | Global Nominees announced |
 | Dec 17, 2026 | Global Finalists and Honorable Mentions announced |
-| Jan 26, 2027 | Global Winners announced (ten awards, listed in `submission-and-awards.md`) |
+| Dec 17, 2026 (also) | Honorable Mentions are ranked highly but do not go on to Executive Judging and cannot win an award |
+| Jan 26, 2027 | Global Winners announced (ten awards, listed under "Exact text"), then a virtual Winner's Celebration in early 2027 |
 
 ## What this changes for us
 
@@ -50,3 +52,50 @@ Summarized in our own words; open the page for the exact text.
 - Validity rewards usability, not only correctness. The Story lane's two-hourly "first-time visitor" click-through
   matters for the score.
 - Presentation is scored on the demo and the whole project, so the About page and the site's own text count too.
+- Only officially submitted Global Nominees reach Global Judging, whatever the local results.
+
+## Exact text (quoted from the guide)
+
+### The two checkboxes we sign at submission
+
+> "I have read and understand the project submission requirements as contained in the NASA Space Apps Project
+> Submission Guide, and I agree to the Participant Terms and Conditions and Privacy Policy."
+
+> "I confirm that the submitted project represents my team's original work and that all external resources including
+> code, text and images (even if they are open source or freely available) used in the project are listed in the
+> References field of the project submission form. In creating our solution, my team has not used any copyrighted
+> materials (i.e., music, images, text, etc.) that we don't have permission to use."
+
+### What a score of 5 asks for
+
+Every criterion is scored 1 to 5 "at every level of judging, from Local and Universal Events to Executive Judging".
+
+| Criterion | Score of 5, verbatim |
+|---|---|
+| Impact | "Outstanding Impact: This project demonstrates exceptional impact, addressing a significant problem with proposed solutions. Its reach is extensive, inspiring, benefits a large audience, or could change the world. The quality and effectiveness of the project far exceeds expectations, setting a high standard for others." |
+| Creativity | "Highly Creative and Innovative: This project showcases remarkable creativity, introducing a groundbreaking approach that has never been attempted before. It challenges conventional methods, presenting an original and inventive proposed solution that stands out in its field. The uniqueness of the idea makes it a true innovation." |
+| Validity | "Highly Valid and Feasible: This proposed solution is scientifically sound and technically feasible, demonstrating strong alignment with established principles. It is fully developed and ready for real-world implementation, effectively achieving its intended purpose. The project is highly usable and user-friendly, making it accessible and practical for widespread application." |
+| Relevance | "Highly Relevant and Strong NASA Data Integration: This project thoroughly engages with the challenge, delivering a proposed solution that is deeply connected to the intended goals. NASA data is integral to the project's success, providing meaningful insights that drive the innovation forward. The use of data is well-executed, enhancing both the credibility and impact of the solution." |
+| Presentation | "Exceptional Communication and Storytelling: The team delivered a well-structured and compelling presentation, clearly articulating the challenge, proposed solution, and importance of the project. Their storytelling was engaging, allowing the audience to fully grasp the significance and potential impact of the work. The delivery was polished, structured, and highly effective in communicating their ideas." |
+
+Two lines from the definitions worth keeping in mind: Validity says "the completeness of the proposed solution
+varies: it may be fully developed or still require significant refinement", and Presentation says "Judges evaluate
+the demo and full project to compute this score."
+
+### The ten Global Awards (official names)
+
+| Award | Wording in the guide |
+|---|---|
+| Best Use of Science | "The project that makes the best and most valid use of the scientific method." |
+| Best Use of Data | "The project that best makes space data accessible or leverages it to a unique application." |
+| Best Use of Technology | "The project that exemplifies the most innovative use of technology." |
+| Galactic Impact | "The project with the most potential to improve life on Earth or the universe." |
+| Best Mission Concept | "The project with the most plausible concept and design." |
+| Most Inspirational | "The project that captures our hearts." |
+| Best Storytelling Award | "The project that most creatively communicates the potential of open data through the art of storytelling." |
+| Global Connection Award | "The project that best connects people around the world through technology." |
+| Art & Technology Award | "The project that most effectively combines technical and creative skills." |
+| Local Impact Award | "The project that demonstrates the greatest potential for making a difference in their local community." |
+
+Global Finalists are judged by an executive committee from NASA and the 2026 Space Agency Partners, and each
+executive judge evaluates every finalist.

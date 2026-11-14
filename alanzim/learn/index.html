@@ -1,0 +1,950 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Learn Flashpoint</title>
+<meta name="generator" content="AI-assisted: written with Claude Code for team BrayTech Pyrotechnics">
+<!--
+  DRAFT (alanzim/learn): a learners page for Flashpoint. Not deployed (alanzim/ is in .vercelignore).
+  Two tracks: why flames behave the way they do (six lessons) and how to use the site (five guides), then a formula
+  sheet and a glossary. Every number marked "from NASA's data" is computed in the browser from data/tests.web.json.
+  The evidence formula is the site's own (lib/evidence.ts, through public/offline/offline-answer.js).
+  AI-assisted (Claude Code); see docs/ai-usage-log.md.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../site/assets/tokens.css">
+<script src="../../public/offline/offline-answer.js"></script>
+<script>try { if (localStorage.getItem('fp-theme') === 'dark') document.documentElement.dataset.theme = 'dark'; } catch (e) {}</script>
+<style>
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { animation: none !important; transition: none !important; } }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 400 var(--t-md)/1.6 var(--sans); }
+a { color: var(--brand); }
+h1, h2, h3 { line-height: 1.15; margin: 0; letter-spacing: -.01em; }
+p { margin: 0 0 .8em; }
+.mono, code, output { font-family: var(--mono); }
+button { font: inherit; }
+
+/* top bar */
+.bar { position: sticky; top: 0; z-index: 10; height: var(--bar-h); display: flex; align-items: center; gap: 16px; padding: 0 20px;
+  background: color-mix(in srgb, var(--surface) 88%, transparent); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+.bar .mark { display: flex; align-items: center; gap: 8px; font-weight: 600; color: var(--ink); text-decoration: none; }
+.bar .logo { width: 14px; height: 28px; fill: none; stroke: var(--brand); stroke-width: 16; stroke-linejoin: round; }
+.bar .here { color: var(--muted); font-size: var(--t-sm); }
+.bar .sp { flex: 1; }
+.btn { display: inline-flex; align-items: center; justify-content: center; min-height: 40px; padding: 0 16px; border-radius: var(--r);
+  border: 1px solid var(--brand-fill); background: var(--brand-fill); color: var(--on-fill); font-weight: 500; cursor: pointer; text-decoration: none;
+  transition: transform var(--fast) var(--ease), background var(--mid); }
+.btn:hover { transform: translateY(-1px); }
+.btn.ghost { background: transparent; color: var(--brand); border-color: var(--line-strong); }
+.btn.sm { min-height: 34px; padding: 0 12px; font-size: var(--t-sm); }
+.btn[aria-pressed="true"] { background: var(--brand-fill); color: var(--on-fill); border-color: var(--brand-fill); }
+
+/* layout */
+.wrap { max-width: 1180px; margin: 0 auto; padding: 0 20px; }
+.hero { padding: 56px 0 28px; }
+.hero .kicker { color: var(--accent); font-weight: 600; font-size: var(--t-sm); letter-spacing: .04em; }
+.hero h1 { font-size: var(--t-3xl); max-width: 18ch; margin: 8px 0 14px; }
+.hero h1 span { color: var(--brand); }
+.hero p.lede { font-size: var(--t-lg); color: var(--muted); max-width: 62ch; }
+.paths { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 28px; }
+.path { background: var(--surface); border: 1px solid var(--line); border-radius: var(--corner); padding: 20px 22px; text-decoration: none; color: var(--ink);
+  transition: transform var(--mid) var(--ease), box-shadow var(--mid); }
+.path:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+.path .n { font: 500 var(--t-xs) var(--mono); color: var(--muted); }
+.path h2 { font-size: var(--t-xl); margin: 6px 0 6px; }
+.path p { color: var(--muted); font-size: var(--t-sm); margin: 0; }
+.how { margin-top: 18px; color: var(--muted); font-size: var(--t-sm); }
+.how b { color: var(--ink); }
+
+.layout { display: grid; grid-template-columns: 230px minmax(0, 1fr); gap: 36px; padding: 20px 0 80px; }
+.toc { position: sticky; top: calc(var(--bar-h) + 20px); align-self: start; font-size: var(--t-sm); }
+.toc h3 { font-size: var(--t-xs); color: var(--muted); letter-spacing: .06em; margin: 18px 0 6px; }
+.toc a { display: flex; gap: 8px; align-items: baseline; padding: 4px 8px; border-radius: 6px; color: var(--muted); text-decoration: none; }
+.toc a:hover { background: var(--well); color: var(--ink); }
+.toc a.on { background: var(--brand-soft); color: var(--brand); font-weight: 500; }
+.toc a .k { font-family: var(--mono); font-size: var(--t-xs); min-width: 2.2em; }
+.toc a.seen .k::after { content: " \2713"; }
+
+/* a track heading */
+.track { margin: 8px 0 18px; padding-top: 12px; }
+.track .kicker { color: var(--accent); font-weight: 600; font-size: var(--t-sm); }
+.track h2 { font-size: var(--t-2xl); margin-top: 4px; }
+.track p { color: var(--muted); max-width: 70ch; margin-top: 8px; }
+
+/* a lesson */
+.lesson { background: var(--surface); border: 1px solid var(--line); border-radius: var(--corner); padding: 26px 28px; margin-bottom: 24px; scroll-margin-top: calc(var(--bar-h) + 16px); }
+.lesson > header { display: flex; gap: 14px; align-items: baseline; margin-bottom: 14px; }
+.lesson > header .k { font: 500 var(--t-sm) var(--mono); color: var(--accent); }
+.lesson > header h3 { font-size: var(--t-xl); }
+.lesson > header .time { margin-left: auto; color: var(--muted); font-size: var(--t-xs); white-space: nowrap; }
+.cols { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 24px; align-items: start; }
+.lesson h4 { font-size: var(--t-xs); letter-spacing: .06em; color: var(--muted); margin: 16px 0 6px; font-weight: 600; }
+.lesson h4:first-child { margin-top: 0; }
+.lesson ul { margin: 0 0 .8em; padding-left: 1.2em; }
+.lesson li { margin-bottom: .3em; }
+
+.stage { background: var(--well); border: 1px solid var(--line); border-radius: 12px; padding: 14px; }
+.stage.dark { background: var(--chamber); border-color: transparent; color: var(--on-chamber); }
+.stage svg { display: block; width: 100%; height: auto; }
+.stage .ctl { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 10px; }
+.stage label { font-size: var(--t-sm); display: flex; gap: 10px; align-items: center; width: 100%; }
+.stage input[type=range] { flex: 1; accent-color: var(--brand-fill); }
+.stage .cap { font-size: var(--t-xs); color: var(--muted); margin: 8px 0 0; }
+.stage.dark .cap { color: #9db0d6; }
+.stage.dark .btn.ghost { color: #e9eef8; border-color: #5d7bb5; }
+.stage.dark .btn[aria-pressed="true"] { background: #2a62d6; border-color: #2a62d6; color: #fff; }
+
+.formula { border-left: 3px solid var(--brand-fill); background: var(--brand-soft); padding: 12px 14px; border-radius: 0 var(--r) var(--r) 0; margin: 6px 0 12px; }
+.formula .eq { font: 500 1.05rem/1.7 var(--mono); color: var(--ink); overflow-wrap: anywhere; }
+#work .formula .eq { font-size: .9rem; }
+.play { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+@media (max-width: 860px) { .play { grid-template-columns: minmax(0, 1fr); } }
+.formula .eq sub, .formula .eq sup { font-size: .7em; }
+.formula .where { font-size: var(--t-sm); color: var(--muted); margin: 6px 0 0; }
+.formula .src { font-size: var(--t-xs); color: var(--muted); margin-top: 6px; }
+.data { border-left: 3px solid var(--d-out); background: var(--well); padding: 12px 14px; border-radius: 0 var(--r) var(--r) 0; margin: 6px 0 12px; font-size: var(--t-sm); }
+.data b.num { font-family: var(--mono); color: var(--ink); }
+.why { border-left: 3px solid var(--accent-mark); background: var(--accent-soft); padding: 12px 14px; border-radius: 0 var(--r) var(--r) 0; margin: 6px 0 12px; font-size: var(--t-sm); }
+.try { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 14px; padding-top: 14px; border-top: 1px dashed var(--line); font-size: var(--t-sm); color: var(--muted); }
+
+.readout { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; margin-top: 10px; }
+.readout div { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 8px 10px; }
+.stage.dark .readout div { background: #0b2150; border-color: #1d3a72; }
+.readout b { display: block; font: 500 var(--t-lg) var(--mono); }
+.readout span { font-size: var(--t-xs); color: var(--muted); }
+.stage.dark .readout span { color: #9db0d6; }
+
+/* quick check */
+.check { margin-top: 14px; background: var(--well); border-radius: var(--r); padding: 12px 14px; }
+.check p { font-weight: 500; margin-bottom: 8px; }
+.check .opts { display: flex; flex-wrap: wrap; gap: 8px; }
+.check button { min-height: 36px; padding: 0 12px; border-radius: var(--r); border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink); cursor: pointer; font-size: var(--t-sm); }
+.check button.right { border-color: var(--d-out); background: color-mix(in srgb, var(--d-out) 16%, var(--surface)); }
+.check button.wrong { border-color: var(--accent); background: var(--accent-soft); }
+.check .fb { margin: 10px 0 0; font-size: var(--t-sm); color: var(--muted); }
+
+/* maps and charts */
+svg text { font-family: var(--sans); font-size: 11px; fill: var(--muted); }
+.mapbg { fill: var(--surface); }
+.gridl { stroke: var(--line); stroke-width: 1; }
+.axis { stroke: var(--line-strong); fill: none; }
+.curve { stroke: var(--brand); stroke-width: 2; fill: none; stroke-dasharray: 6 4; }
+.dot { opacity: .75; }
+.dot.gas { fill: var(--brand); } .dot.liquid { fill: var(--d-burn); }
+.near { fill: var(--accent-mark); fill-opacity: .08; stroke: var(--accent-mark); stroke-width: 1.5; stroke-dasharray: 4 3; }
+.probe { fill: var(--accent-mark); stroke: var(--surface); stroke-width: 2; }
+.hab { fill: none; stroke: var(--ink); stroke-width: 1.5; }
+.hab-t { fill: var(--ink); font-weight: 600; font-size: 10.5px; }
+.link { stroke: var(--accent-mark); stroke-width: 1.5; }
+.legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: var(--t-xs); color: var(--muted); margin-top: 8px; }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 5px; vertical-align: -1px; }
+.rate { display: inline-block; font-size: var(--t-xs); font-weight: 600; padding: 2px 8px; border-radius: 99px; }
+.rate.lit { background: color-mix(in srgb, var(--d-out) 18%, transparent); color: var(--d-out); }
+.rate.dim { background: color-mix(in srgb, var(--d-burn) 18%, transparent); color: var(--d-burn); }
+.rate.dark { background: var(--accent-soft); color: var(--accent); }
+table.t { width: 100%; border-collapse: collapse; font-size: var(--t-sm); }
+table.t th, table.t td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+table.t th { font-size: var(--t-xs); color: var(--muted); font-weight: 600; }
+table.t td.num { font-family: var(--mono); white-space: nowrap; }
+.scroll { overflow-x: auto; }
+.bars .row { display: grid; grid-template-columns: 78px 1fr 46px; gap: 10px; align-items: center; font-size: var(--t-xs); margin-bottom: 6px; }
+.bars .track2 { display: flex; height: 16px; border-radius: 4px; overflow: hidden; background: var(--line); }
+.bars .track2 span { display: block; height: 100%; }
+.b-out { background: var(--d-out); } .b-burn { background: var(--d-burn); } .b-none { background: var(--d-none); }
+
+/* molecules (lesson 4) */
+.mol { display: flex; flex-wrap: wrap; gap: 5px; min-height: 64px; align-content: flex-start; }
+.mol i { width: 14px; height: 14px; border-radius: 50%; display: block; transition: transform var(--mid) var(--ease); }
+.mol i.o { background: var(--brand-fill); } .mol i.n { background: var(--line-strong); opacity: .55; }
+
+/* the 0 g / 1 g flame (lesson 2) */
+#flame .glow { transition: d var(--slow) var(--ease); }
+@keyframes flick { 0%, 100% { transform: scaleX(1) skewX(0); } 30% { transform: scaleX(.94) skewX(2deg); } 60% { transform: scaleX(1.04) skewX(-2deg); } }
+#flameBody { transform-origin: 160px 150px; transform-box: view-box; }
+#flameBody.flick { animation: flick .55s ease-in-out infinite; }
+
+.sheet td:first-child { font-weight: 500; }
+.sheet td.eq { font-family: var(--mono); font-size: var(--t-sm); white-space: nowrap; }
+dl.gl { display: grid; grid-template-columns: 200px 1fr; gap: 10px 20px; margin: 0; font-size: var(--t-sm); }
+dl.gl dt { font-weight: 600; } dl.gl dd { margin: 0; color: var(--muted); }
+
+footer { border-top: 1px solid var(--line); padding: 24px 0 40px; color: var(--muted); font-size: var(--t-sm); }
+
+@media (max-width: 980px) {
+  .layout { grid-template-columns: minmax(0, 1fr); }
+  .toc { display: none; }
+  .cols { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 720px) {
+  .paths { grid-template-columns: 1fr; }
+  .lesson { padding: 20px 16px; }
+  .wrap { padding: 0 16px; }
+  dl.gl { grid-template-columns: 1fr; gap: 2px 0; } dl.gl dd { margin-bottom: 10px; }
+  .bar .here { display: none; }
+  .bar { gap: 8px; padding: 0 12px; }
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="fpLogo" viewBox="10 14 178 372"><polygon points="100,178 73,150 47,117 50,63 87,115 113,22 122,117 168,70 134,122 156,126 131,143 108,173"/><polygon points="100,178 142,245 150,264 169,272 154,278 179,346 122,277 102,378 85,281 18,352 72,285 40,268 60,250"/><polygon points="100.4,126.2 107.8,141.7 95.6,153.8 88.2,138.3"/><polygon points="103.1,236.1 114.9,248.6 106.9,263.9 95.1,251.4"/></symbol></svg>
+
+<nav class="bar" aria-label="Pages">
+  <a class="mark" href="../../site/"><svg class="logo" viewBox="10 14 178 372" aria-hidden="true"><use href="#fpLogo"/></svg>Flashpoint</a>
+  <span class="here">/ Learn</span>
+  <span class="sp"></span>
+  <a class="btn ghost sm" href="../../site/#analysis">Analysis</a>
+  <a class="btn ghost sm" href="../../site/#sim">Sim</a>
+  <button class="btn ghost sm" type="button" id="theme">Dark</button>
+</nav>
+
+<main class="wrap">
+  <section class="hero">
+    <div class="kicker">LEARN</div>
+    <h1>Why fire behaves differently <span>off Earth</span>, and how to read the evidence.</h1>
+    <p class="lede">Short lessons for students and anyone new to combustion. Each one explains one idea, shows the formula behind it,
+      checks it against NASA's own test data, and ends with where to try it in Flashpoint.</p>
+    <div class="paths">
+      <a class="path" href="#track-science"><span class="n">TRACK 1 &middot; 6 LESSONS</span><h2>Flame science</h2><p>Fuel and oxygen, gravity, oxygen pressure, nitrogen, low pressure, and how flames go out.</p></a>
+      <a class="path" href="#track-site"><span class="n">TRACK 2 &middot; 5 GUIDES</span><h2>Using Flashpoint</h2><p>Read the map, understand the evidence rating, rank investigations, dig into the data, run the Sim.</p></a>
+      <a class="path" href="#sheet"><span class="n">REFERENCE</span><h2>Formula sheet</h2><p>Every calculation the site does, in one table, with the file it lives in. Plus a glossary.</p></a>
+    </div>
+    <p class="how">Every lesson has the same parts: <b>The idea</b>, <b>The formula</b>, <b>In NASA's data</b> (counted live from the
+      <span id="nRows">1,276</span> test rows), <b>Why it matters</b>, a quick check, and a link into the site.</p>
+  </section>
+
+  <div class="layout">
+    <aside class="toc" aria-label="Contents">
+      <h3>FLAME SCIENCE</h3>
+      <a href="#l1"><span class="k">1.1</span>What a flame needs</a>
+      <a href="#l2"><span class="k">1.2</span>Gravity and the shape of fire</a>
+      <a href="#l3"><span class="k">1.3</span>Oxygen percent vs oxygen pressure</a>
+      <a href="#l4"><span class="k">1.4</span>Why more oxygen burns hotter</a>
+      <a href="#l5"><span class="k">1.5</span>Low pressure and mixing</a>
+      <a href="#l6"><span class="k">1.6</span>How flames go out</a>
+      <h3>USING FLASHPOINT</h3>
+      <a href="#g1"><span class="k">2.1</span>Reading the map</a>
+      <a href="#g2"><span class="k">2.2</span>The evidence rating</a>
+      <a href="#g3"><span class="k">2.3</span>Ranking investigations</a>
+      <a href="#g4"><span class="k">2.4</span>Advanced mode and the raw data</a>
+      <a href="#g5"><span class="k">2.5</span>The Sim: real and illustrated</a>
+      <h3>REFERENCE</h3>
+      <a href="#sheet"><span class="k">R</span>Formula sheet</a>
+      <a href="#glossary"><span class="k">G</span>Glossary</a>
+    </aside>
+
+    <div>
+      <!-- ===================== TRACK 1 ===================== -->
+      <div class="track" id="track-science">
+        <div class="kicker">TRACK 1</div>
+        <h2>Flame science</h2>
+        <p>Six ideas that explain everything the map and the Sim show. Start here if you have never studied combustion.</p>
+      </div>
+
+      <article class="lesson" id="l1">
+        <header><span class="k">1.1</span><h3>What a flame needs</h3><span class="time">3 min</span></header>
+        <div class="cols">
+          <div>
+            <h4>THE IDEA</h4>
+            <p>A flame needs three things at once: <b>fuel</b>, <b>oxygen</b> and enough <b>heat</b> to keep the reaction going.
+              Take any one away and it goes out. Fire safety is built on this: <b>prevent</b> (keep heat sources and fuel apart,
+              pick materials that resist burning), <b>detect</b> (notice smoke early) and <b>suppress</b> (remove oxygen or heat).</p>
+            <p>Most fires in a cabin are <b>diffusion flames</b>: fuel and oxygen start apart and only burn where they meet, in a thin
+              glowing zone. A candle, a burning droplet and a smouldering fabric all work this way.</p>
+            <h4>THE FORMULA</h4>
+            <div class="formula">
+              <div class="eq">C<sub>3</sub>H<sub>8</sub> + 5 O<sub>2</sub> &rarr; 3 CO<sub>2</sub> + 4 H<sub>2</sub>O + heat</div>
+              <p class="where">Propane, one of NASA's test fuels. Every fuel uses up a fixed amount of oxygen as it burns. If the
+                oxygen near the flame runs low, burning slows.</p>
+            </div>
+          </div>
+          <div>
+            <div class="stage">
+              <svg viewBox="0 0 320 210" role="img" aria-label="The fire triangle: fuel, oxygen and heat">
+                <polygon points="160,20 290,190 30,190" fill="none" stroke="var(--accent-mark)" stroke-width="3" stroke-linejoin="round"/>
+                <text x="160" y="14" text-anchor="middle" style="fill:var(--ink);font-weight:600;font-size:13px">HEAT</text>
+                <text x="18" y="205" style="fill:var(--ink);font-weight:600;font-size:13px">FUEL</text>
+                <text x="250" y="205" style="fill:var(--ink);font-weight:600;font-size:13px">OXYGEN</text>
+                <text x="160" y="128" text-anchor="middle" style="font-size:12px">remove one side</text>
+                <text x="160" y="144" text-anchor="middle" style="font-size:12px">and the fire goes out</text>
+              </svg>
+            </div>
+            <h4>IN NASA'S DATA</h4>
+            <div class="data" id="d1">Counting the tests...</div>
+          </div>
+        </div>
+        <div class="why"><b>Why it matters.</b> NASA tests three kinds of fuel because they burn differently: gases (a leak),
+          liquid droplets (a spray or a spill) and solids (fabric, plastic, wiring). A cabin is full of solids, so they matter most for safety.</div>
+        <div class="check" data-answer="1">
+          <p>Quick check: a fire extinguisher that floods the area with carbon dioxide works by removing which side of the triangle?</p>
+          <div class="opts"><button type="button">Fuel</button><button type="button">Oxygen</button><button type="button">Heat</button></div>
+          <p class="fb" hidden>Oxygen. CO<sub>2</sub> pushes the oxygen out and dilutes what is left. NASA's FLEX experiment tested exactly this
+            with carbon dioxide and helium (lesson 1.6).</p>
+        </div>
+        <div class="try">Try it: <a class="btn ghost sm" href="../../site/#resources">See every fuel NASA tested (Advanced mode)</a></div>
+      </article>
+
+      <article class="lesson" id="l2">
+        <header><span class="k">1.2</span><h3>Gravity and the shape of fire</h3><span class="time">4 min</span></header>
+        <div class="cols">
+          <div>
+            <h4>THE IDEA</h4>
+            <p>On Earth, gas heated by a flame is lighter than the air around it, so it <b>rises</b>. Fresh air rushes in underneath
+              to replace it. That flow stretches the flame into a teardrop, feeds it oxygen quickly and makes it flicker.</p>
+            <p>In microgravity (free fall), nothing is "lighter" any more, so hot gas does not rise. Oxygen only reaches the flame by
+              slowly <b>diffusing</b> in. The flame becomes a small, steady, dim blue <b>sphere</b>.</p>
+            <h4>THE FORMULA</h4>
+            <div class="formula">
+              <div class="eq">F<sub>b</sub> = (&rho;<sub>air</sub> &minus; &rho;<sub>hot</sub>) &times; g</div>
+              <p class="where">F<sub>b</sub> is the upward push on each cubic metre of hot gas (N/m&sup3;). &rho; is density, g is
+                gravity. Hot gas is lighter because at the same pressure density falls as temperature rises:
+                &rho;<sub>hot</sub> = &rho;<sub>air</sub> &times; T<sub>air</sub> / T<sub>hot</sub>.</p>
+              <p class="where"><b>Set g = 0 and the push is zero.</b> That one term is the only thing gravity changes in the Sim.</p>
+              <p class="src">Textbook values used here: &rho;<sub>air</sub> = 1.18 kg/m&sup3; at 300 K, T<sub>hot</sub> = 1800 K. Rounded, not from NASA's tables.</p>
+            </div>
+          </div>
+          <div>
+            <div class="stage dark">
+              <svg id="flame" viewBox="0 0 320 220" role="img" aria-label="A flame that changes shape with gravity">
+                <defs>
+                  <radialGradient id="gSph" cx="50%" cy="50%" r="50%"><stop offset=".45" stop-color="#ff9a3c" stop-opacity=".35"/><stop offset=".78" stop-color="#3d7bff" stop-opacity=".85"/><stop offset="1" stop-color="#3d7bff" stop-opacity="0"/></radialGradient>
+                  <radialGradient id="gTear" cx="50%" cy="75%" r="70%"><stop offset="0" stop-color="#fff2c4"/><stop offset=".4" stop-color="#ffb23e"/><stop offset=".8" stop-color="#FC3D21" stop-opacity=".8"/><stop offset="1" stop-color="#FC3D21" stop-opacity="0"/></radialGradient>
+                </defs>
+                <g id="flameBody">
+                  <path id="flamePath" class="glow" fill="url(#gSph)" d=""/>
+                </g>
+                <circle cx="160" cy="150" r="6" fill="#cfd8ea"/>
+                <g id="arrows" stroke="#9db0d6" stroke-width="1.5" fill="none" opacity="0"></g>
+                <text id="gLabel" x="14" y="24" style="fill:#fff;font-size:14px;font-weight:600">0 g</text>
+              </svg>
+              <div class="ctl">
+                <button class="btn ghost sm" type="button" data-g="0" aria-pressed="true">Space 0 g</button>
+                <button class="btn ghost sm" type="button" data-g="0.166">Moon</button>
+                <button class="btn ghost sm" type="button" data-g="0.378">Mars</button>
+                <button class="btn ghost sm" type="button" data-g="1">Earth</button>
+              </div>
+              <div class="readout">
+                <div><b id="rG">0.00</b><span>gravity, in g</span></div>
+                <div><b id="rF">0.0</b><span>upward push, N/m&sup3;</span></div>
+              </div>
+              <p class="cap">Illustration: the shape follows the formula's direction, not a measured flame.</p>
+            </div>
+            <h4>IN NASA'S DATA</h4>
+            <div class="data" id="d2">Counting the tests...</div>
+          </div>
+        </div>
+        <div class="why"><b>Why it matters.</b> A Moon Base sits at 1/6 of Earth's gravity, Mars at about 3/8. NASA's PSI database has no
+          partial-gravity fire tests yet, so for those places the honest answer is "somewhere between the 0 g and 1 g results".
+          Flashpoint says that out loud instead of guessing.</div>
+        <div class="check" data-answer="2">
+          <p>Quick check: on the ISS, why can a flame go out without anyone touching it?</p>
+          <div class="opts"><button type="button">It is too cold in orbit</button><button type="button">There is less oxygen on the ISS</button><button type="button">Without rising hot gas, fresh oxygen arrives too slowly</button></div>
+          <p class="fb" hidden>Right. With no buoyancy, burnt gas stays around the flame and fresh oxygen has to diffuse in. A flame that cannot get
+            oxygen fast enough can smother itself. Fans on a spacecraft change this, which is why airflow matters so much in orbit.</p>
+        </div>
+        <div class="try">Try it: <a class="btn ghost sm" href="../../site/#sim">Open the Sim and press the gravity buttons</a></div>
+      </article>
+
+      <article class="lesson" id="l3">
+        <header><span class="k">1.3</span><h3>Oxygen percent vs oxygen pressure</h3><span class="time">5 min</span></header>
+        <div class="cols">
+          <div>
+            <h4>THE IDEA</h4>
+            <p>Two numbers describe the oxygen in a cabin, and they mean different things:</p>
+            <ul>
+              <li><b>Oxygen percent</b>: what share of the gas molecules are oxygen. This drives how easily things <b>burn</b>.</li>
+              <li><b>Oxygen partial pressure</b>: how hard the oxygen alone pushes. This is what your lungs care about: it decides
+                whether you can <b>breathe</b>.</li>
+            </ul>
+            <p>A habitat at lower total pressure (good for spacesuit use, see the glossary) must raise the oxygen percent to keep the
+              same partial pressure. Same breathing, more flammable air. That trade is the whole reason Flashpoint exists.</p>
+            <h4>THE FORMULA</h4>
+            <div class="formula">
+              <div class="eq">p<sub>O2</sub> = (O<sub>2</sub>% / 100) &times; P<sub>total</sub></div>
+              <p class="where">Sea-level air: 0.209 &times; 14.696 psi = <b>3.07 psi</b>. Every atmosphere with p<sub>O2</sub> = 3.07 psi
+                breathes like sea level. On the map this is the dashed curve: O<sub>2</sub>% = 307 / P<sub>total</sub>.</p>
+              <p class="src">Used in: site/assets/app.js (SEA_PPO2 = 3.07), site/sim.html (Oxygen pressure row).</p>
+            </div>
+          </div>
+          <div>
+            <div class="stage">
+              <label>Oxygen <input type="range" id="ppO" min="10" max="100" step="0.5" value="30"><output id="ppOo" class="mono">30%</output></label>
+              <label>Pressure <input type="range" id="ppP" min="2" max="16" step="0.1" value="10.2"><output id="ppPo" class="mono">10.2 psi</output></label>
+              <div class="ctl">
+                <button class="btn ghost sm" type="button" data-pp="21,14.7">ISS / Earth</button>
+                <button class="btn ghost sm" type="button" data-pp="30,10.2">Moon Base</button>
+                <button class="btn ghost sm" type="button" data-pp="100,4.3">Spacesuit</button>
+              </div>
+              <div class="readout">
+                <div><b id="ppV">3.06</b><span>oxygen pressure, psi</span></div>
+                <div><b id="ppR">100%</b><span>of sea-level breathing</span></div>
+              </div>
+              <p class="cap" id="ppNote"></p>
+            </div>
+            <div class="scroll" style="margin-top:12px">
+              <table class="t">
+                <thead><tr><th>Place</th><th>Oxygen</th><th>Pressure</th><th>p<sub>O2</sub></th></tr></thead>
+                <tbody>
+                  <tr><td>Earth, sea level / ISS</td><td class="num">21%</td><td class="num">14.7 psi</td><td class="num">3.09 psi</td></tr>
+                  <tr><td>Planned Moon Base, rover</td><td class="num">30%</td><td class="num">10.2 psi</td><td class="num">3.06 psi</td></tr>
+                  <tr><td>Spacesuit</td><td class="num">100%</td><td class="num">4.3 psi</td><td class="num">4.30 psi</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="why"><b>Why it matters.</b> The ISS and the planned Moon Base breathe almost the same, but the Moon Base air is 30% oxygen
+          instead of 21%: more than 40% more oxygen per molecule of air. Materials that are safe on the ISS can burn there. The figures
+          for the three places come from NASA's challenge statement.</div>
+        <div class="check" data-answer="0">
+          <p>Quick check: an atmosphere of 40% oxygen at 7.7 psi. Compared with sea level, is it easier to breathe, the same, or harder?</p>
+          <div class="opts"><button type="button">About the same</button><button type="button">Much easier</button><button type="button">Much harder</button></div>
+          <p class="fb" hidden>About the same: 0.40 &times; 7.7 = 3.08 psi, right on the sea-level curve. But at 40% oxygen it is far more flammable.</p>
+        </div>
+        <div class="try">Try it: <a class="btn ghost sm" href="../../site/#analysis">On the map, follow the dashed curve from ISS to Moon Base</a></div>
+      </article>
+
+      <article class="lesson" id="l4">
+        <header><span class="k">1.4</span><h3>Why more oxygen burns hotter</h3><span class="time">3 min</span></header>
+        <div class="cols">
+          <div>
+            <h4>THE IDEA</h4>
+            <p>Nitrogen does not burn, but it is still there, soaking up heat. In Earth's air every oxygen molecule comes with almost
+              four nitrogen molecules that the flame must warm up too. Fewer nitrogen molecules per oxygen means the flame's heat is
+              shared among less gas, so the flame runs <b>hotter</b>, spreads <b>faster</b>, and is <b>harder to put out</b>.</p>
+            <h4>THE FORMULA</h4>
+            <div class="formula">
+              <div class="eq">N<sub>2</sub> per O<sub>2</sub> = (100 &minus; O<sub>2</sub>%) / O<sub>2</sub>%</div>
+              <p class="where">Earth air: 79 / 21 = 3.76. Moon Base: 70 / 30 = 2.33. Spacesuit: 0.</p>
+              <p class="src">The Sim turns this into a flame-heat factor: heat &prop; 16 / (1 + 3.15 / x), where x is the oxygen share.
+                It equals 1 in Earth air and is capped at 1.5. The direction is real; the size is tuned by hand (site/sim.html, flameParams).</p>
+            </div>
+          </div>
+          <div>
+            <div class="stage">
+              <div class="ctl" style="margin-top:0;margin-bottom:10px">
+                <button class="btn ghost sm" type="button" data-mol="21" aria-pressed="true">Earth 21%</button>
+                <button class="btn ghost sm" type="button" data-mol="30">Moon Base 30%</button>
+                <button class="btn ghost sm" type="button" data-mol="50">50%</button>
+                <button class="btn ghost sm" type="button" data-mol="100">Suit 100%</button>
+              </div>
+              <div class="mol" id="mol" aria-hidden="true"></div>
+              <div class="legend"><span><i style="background:var(--brand-fill)"></i>oxygen</span><span><i style="background:var(--line-strong);opacity:.55"></i>nitrogen (soaks up heat)</span></div>
+              <div class="readout">
+                <div><b id="molR">3.76</b><span>nitrogen per oxygen</span></div>
+                <div><b id="molH">1.00</b><span>Sim heat factor (illustrative)</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="why"><b>Why it matters.</b> This is why "same breathing" (lesson 1.3) does not mean "same fire risk". Apollo 1's cabin was pure
+          oxygen during a ground test, and a small fire spread through it in seconds.</div>
+        <div class="check" data-answer="1">
+          <p>Quick check: adding helium to a chamber (as NASA's FLEX tests did) helps put a flame out mainly because helium...</p>
+          <div class="opts"><button type="button">reacts with the fuel</button><button type="button">dilutes the oxygen and carries heat away</button><button type="button">makes the gas heavier</button></div>
+          <p class="fb" hidden>Right. Like nitrogen, helium does not burn. It lowers the oxygen share and takes heat from the flame.</p>
+        </div>
+      </article>
+
+      <article class="lesson" id="l5">
+        <header><span class="k">1.5</span><h3>Low pressure and mixing</h3><span class="time">3 min</span></header>
+        <div class="cols">
+          <div>
+            <h4>THE IDEA</h4>
+            <p>At lower pressure, gas molecules are further apart and bump into each other less, so they <b>spread out faster</b>.
+              In microgravity, where spreading (diffusion) is the only way oxygen reaches a flame, this matters a lot: at low pressure
+              the flame gets its oxygen from further away, grows larger and dimmer.</p>
+            <h4>THE FORMULA</h4>
+            <div class="formula">
+              <div class="eq">D &prop; 1 / P &nbsp;&rArr;&nbsp; D / D<sub>sea</sub> = 14.696 / P</div>
+              <p class="where">D is how fast a gas spreads (the diffusion coefficient), at a fixed temperature. Halve the pressure and gases spread about twice as fast.</p>
+              <p class="src">Used in the Sim: mixing = 0.2 / atm, with atm = psi / 14.696 (site/sim.html, flameParams).</p>
+            </div>
+          </div>
+          <div>
+            <div class="stage">
+              <label>Pressure <input type="range" id="dP" min="4" max="16" step="0.1" value="10.2"><output id="dPo" class="mono">10.2 psi</output></label>
+              <svg viewBox="0 0 320 120" aria-hidden="true">
+                <circle cx="160" cy="60" r="8" fill="var(--d-burn)"/>
+                <circle id="dRing" cx="160" cy="60" r="40" fill="var(--brand-fill)" fill-opacity=".12" stroke="var(--brand)" stroke-dasharray="4 3"/>
+                <circle cx="160" cy="60" r="33.3" fill="none" stroke="var(--line-strong)" stroke-width="1"/>
+                <text x="8" y="112">grey ring: how far gas spreads in a set time at sea level</text>
+              </svg>
+              <div class="readout">
+                <div><b id="dV">1.44&times;</b><span>faster spreading than sea level</span></div>
+                <div><b id="dS">1.20&times;</b><span>further in the same time (&radic;)</span></div>
+              </div>
+              <p class="cap">Spread distance grows with the square root of D &times; time.</p>
+            </div>
+            <h4>IN NASA'S DATA</h4>
+            <div class="data" id="d5">Counting the tests...</div>
+          </div>
+        </div>
+        <div class="why"><b>Why it matters.</b> A Moon Base runs at about 10.2 psi, lower than the ISS. Its fires would mix differently, which is
+          why tests at the right pressure, not just the right oxygen percent, are the evidence that counts.</div>
+      </article>
+
+      <article class="lesson" id="l6">
+        <header><span class="k">1.6</span><h3>How flames go out</h3><span class="time">4 min</span></header>
+        <div class="cols">
+          <div>
+            <h4>THE IDEA</h4>
+            <p>A flame survives only while it makes heat faster than it loses it. Lower the oxygen and the flame makes less heat; at
+              some point losses win and it <b>goes out by itself</b> (self-extinguishes). The oxygen level where this happens is a
+              material's <b>flammability limit</b>, the single most useful number for choosing cabin materials.</p>
+            <h4>THE FORMULA</h4>
+            <div class="formula">
+              <div class="eq">burns while &nbsp;Q<sub>made</sub> &gt; Q<sub>lost</sub></div>
+              <p class="where">Q<sub>made</sub> rises with oxygen (lessons 1.3 and 1.4). Q<sub>lost</sub> includes radiation, which in
+                microgravity's slow, weak flames is a large share. This is a rule, not a calculation the site performs.</p>
+            </div>
+            <div class="why" style="margin-top:12px"><b>Read the chart with care.</b> FLEX also changed the fuel, the pressure and the
+              diluent gas between tests, so oxygen is not the only thing that differs between the bars. It is a pattern in real data,
+              not a controlled experiment on oxygen alone.</div>
+          </div>
+          <div>
+            <h4>IN NASA'S DATA: FLEX DROPLETS, BY OXYGEN</h4>
+            <div class="stage">
+              <div class="bars" id="flexBars"></div>
+              <div class="legend"><span><i class="b-out"></i>went out by itself</span><span><i class="b-burn"></i>kept burning</span><span><i class="b-none"></i>not recorded</span></div>
+              <p class="cap" id="flexCap"></p>
+            </div>
+          </div>
+        </div>
+        <div class="check" data-answer="2">
+          <p>Quick check: in the chart, what happens to the share of droplets that went out by themselves as oxygen rises?</p>
+          <div class="opts"><button type="button">It rises</button><button type="button">It stays the same</button><button type="button">It falls</button></div>
+          <p class="fb" hidden>It falls. In low oxygen almost every flame went out on its own; at Moon Base oxygen levels very few did. That is the
+            fire-risk side of the Moon Base trade, in NASA's own numbers.</p>
+        </div>
+        <div class="try">Try it: <a class="btn ghost sm" href="../../site/#sim">In the Sim, pick FLEX and step through the tests</a></div>
+      </article>
+
+      <!-- ===================== TRACK 2 ===================== -->
+      <div class="track" id="track-site">
+        <div class="kicker">TRACK 2</div>
+        <h2>Using Flashpoint</h2>
+        <p>How each part of the site works, with the exact calculation behind it. The small map below is live: it runs the same
+          code as the real site.</p>
+      </div>
+
+      <article class="lesson" id="g1">
+        <header><span class="k">2.1</span><h3>Reading the map</h3><span class="time">3 min</span></header>
+        <div class="cols">
+          <div>
+            <h4>WHAT YOU SEE</h4>
+            <ul>
+              <li><b>Across:</b> total pressure, 0 to 16 psi. Left is thinner air.</li>
+              <li><b>Up:</b> oxygen percent, 10 to 100%.</li>
+              <li><b>Each dot</b> is one NASA microgravity test, placed at the oxygen and pressure it ran at. Blue: gas flames. Amber: fuel droplets.</li>
+              <li><b>The dashed curve</b> is sea-level breathing, p<sub>O2</sub> = 3.07 psi (lesson 1.3). Atmospheres for people sit near it.</li>
+              <li><b>Squares</b> mark ISS, Moon Base and spacesuit.</li>
+              <li><b>The red dot</b> is your probe: the atmosphere you are asking about. Click anywhere on the map below to move it.</li>
+            </ul>
+            <h4>WHAT YOU DO NOT SEE</h4>
+            <p><b>Solid materials.</b> NASA's tables for BASS, BASS-II and SAFFIRE give no pressure for each test, so those tests
+              cannot be placed. The site lists them but never guesses a position. Empty areas of the map are the finding: places
+              people may live that nobody has tested.</p>
+          </div>
+        </div>
+        <h4 style="margin-top:18px">TRY IT HERE: CLICK THE MAP TO MOVE YOUR PROBE</h4>
+        <div class="play">
+          <div class="stage">
+            <svg id="lmap" viewBox="0 0 440 340" role="img" aria-label="Map of NASA tests by pressure and oxygen. Click to move the probe."></svg>
+            <div class="legend"><span><i style="background:var(--brand)"></i>gas flame test</span><span><i style="background:var(--d-burn)"></i>fuel droplet test</span><span><i style="background:var(--accent-mark)"></i>your probe</span><span>dashed oval: "near" (lesson 2.2)</span></div>
+          </div>
+          <div class="stage" id="work"></div>
+        </div>
+        <div class="try">Try it: <a class="btn ghost sm" href="../../site/#analysis">Open the full map in Analysis</a></div>
+      </article>
+
+      <article class="lesson" id="g2">
+        <header><span class="k">2.2</span><h3>The evidence rating</h3><span class="time">5 min</span></header>
+        <div class="cols">
+          <div>
+            <h4>THE IDEA</h4>
+            <p>For any point, Flashpoint asks: how many NASA tests ran <b>near</b> these conditions? It never asks an AI. It measures
+              distance on the map and counts.</p>
+            <h4>THE FORMULA</h4>
+            <div class="formula">
+              <div class="eq">d = &radic;( (&Delta;O<sub>2</sub> / 10)&sup2; + (&Delta;P / 2)&sup2; )</div>
+              <p class="where">&Delta;O<sub>2</sub> is the oxygen difference in percentage points, &Delta;P the pressure difference in psi.
+                Dividing by 10 and 2 makes 10 points of oxygen count the same as 2 psi. A test is <b>near</b> when d &le; 1, which draws
+                the dashed oval around your probe.</p>
+              <p class="src">Used in: lib/evidence.ts (O2_SCALE = 10, P_SCALE = 2, NEAR_DISTANCE = 1, LIT_MIN_TESTS = 10).</p>
+            </div>
+          </div>
+          <div>
+            <h4>FROM COUNT TO RATING</h4>
+            <table class="t">
+              <thead><tr><th>Tests near the point</th><th>Rating</th></tr></thead>
+              <tbody>
+                <tr><td class="num">10 or more</td><td><span class="rate lit">Well tested</span></td></tr>
+                <tr><td class="num">1 to 9</td><td><span class="rate dim">Thin</span></td></tr>
+                <tr><td class="num">0</td><td><span class="rate dark">No tests</span></td></tr>
+              </tbody>
+            </table>
+            <h4>WHY RATE EACH FUEL ON ITS OWN</h4>
+            <p>A point can be well tested with droplets and completely untested with gas flames or cabin materials. One rating would
+              hide that, so the site rates gas flames, droplets and solids separately. Click the Moon Base on the map in 2.1 to see
+              exactly this: many droplet tests, no gas flames, no solids.</p>
+          </div>
+        </div>
+        <div class="check" data-answer="1">
+          <p>Quick check: a test at 30% oxygen and 12.2 psi, probe at 30% and 10.2 psi. Is it near?</p>
+          <div class="opts"><button type="button">No, d = 2</button><button type="button">Yes, d = 1 exactly</button><button type="button">Yes, d = 0.2</button></div>
+          <p class="fb" hidden>&Delta;O<sub>2</sub> = 0, &Delta;P = 2 psi, so d = &radic;(0 + (2/2)&sup2;) = 1. Near counts d &le; 1, so yes, just.</p>
+        </div>
+      </article>
+
+      <article class="lesson" id="g3">
+        <header><span class="k">2.3</span><h3>Ranking investigations</h3><span class="time">2 min</span></header>
+        <div class="cols">
+          <div>
+            <h4>THE IDEA</h4>
+            <p>NASA's tests come grouped into <b>investigations</b> (FLEX, ACME CFI-G, BASS...). For your point, Flashpoint ranks them so
+              you know which to read first.</p>
+            <div class="formula">
+              <div class="eq">sort by: tests near &darr;, then closest d &uarr;</div>
+              <p class="where">Most tests within d &le; 1 first. A tie goes to the one with the single closest test. Investigations
+                with no pressure in their table cannot be placed and are listed last, with the reason.</p>
+              <p class="src">Used in: site/assets/app.js, rankAt().</p>
+            </div>
+          </div>
+          <div>
+            <h4>FOR YOUR PROBE</h4>
+            <div class="scroll"><table class="t" id="rankT"><thead><tr><th>#</th><th>Investigation</th><th>Near</th><th>Closest d</th></tr></thead><tbody></tbody></table></div>
+          </div>
+        </div>
+      </article>
+
+      <article class="lesson" id="g4">
+        <header><span class="k">2.4</span><h3>Advanced mode and the raw data</h3><span class="time">3 min</span></header>
+        <div class="cols">
+          <div>
+            <h4>WHAT IT IS FOR</h4>
+            <p>Advanced mode is for checking and reusing the evidence: every investigation, every test row, filters, graphs and a CSV
+              download of exactly what you filtered. Every row keeps the NASA file and line it came from, so you can always go back to the source.</p>
+            <h4>HOW THE NUMBERS WERE MADE</h4>
+            <p>A script downloaded NASA's per-test tables and copied the values. Where NASA used other units, it converted them to psi:</p>
+            <div class="formula">
+              <div class="eq">psi = atm &times; 14.696 &nbsp;|&nbsp; bar &times; 14.504 &nbsp;|&nbsp; mmHg &times; 0.019337</div>
+              <p class="where">Oxygen given as a fraction is multiplied by 100. Anything not stated is left empty, never estimated.</p>
+              <p class="src">Used in: scripts/build_tests.py; listed in data/tests.meta.json.</p>
+            </div>
+          </div>
+          <div>
+            <h4>GOOD QUESTIONS TO ASK IT</h4>
+            <ul>
+              <li>Which fuels were tested above 30% oxygen? (filter oxygen, group by fuel)</li>
+              <li>Does a lower pressure change how often a flame went out? (graph pressure against outcome)</li>
+              <li>What are the exact conditions of the tests near the Moon Base? (map, then "See the tests around it")</li>
+            </ul>
+            <div class="why"><b>For a report or a model:</b> download the CSV and cite the PSI accession and source line for each row you use.</div>
+          </div>
+        </div>
+        <div class="try">Try it: <a class="btn ghost sm" href="../../site/#resources">Open Advanced mode</a></div>
+      </article>
+
+      <article class="lesson" id="g5">
+        <header><span class="k">2.5</span><h3>The Sim: what is real and what is illustration</h3><span class="time">3 min</span></header>
+        <div class="cols">
+          <div>
+            <h4>REAL, FROM NASA'S TEST</h4>
+            <ul>
+              <li>The oxygen, pressure and fuel of the test you pick.</li>
+              <li>Whether NASA's flame lit and whether it went out. At 0 g the Sim follows NASA's record.</li>
+            </ul>
+            <h4>REAL PHYSICS, IN THE EQUATIONS</h4>
+            <ul>
+              <li>Fuel burns only where it meets oxygen (lesson 1.1).</li>
+              <li>Gravity only adds buoyancy, F<sub>b</sub> &prop; g (lesson 1.2).</li>
+              <li>Less oxygen, more nitrogen to heat, cooler flame (lesson 1.4).</li>
+              <li>Lower pressure, faster mixing (lesson 1.5).</li>
+            </ul>
+          </div>
+          <div>
+            <h4>ILLUSTRATION</h4>
+            <ul>
+              <li>The model's constants were tuned by hand, not fitted to NASA measurements.</li>
+              <li>The colours of the 0 g flame are painted after NASA photographs.</li>
+              <li>Moon, Mars and Earth gravity: NASA ran every test at 0 g, so these show the same air with gravity added, not a measured result.</li>
+            </ul>
+            <div class="why"><b>How to use it:</b> to build intuition about why a flame looks and behaves the way it does. Not to read off numbers for a design.</div>
+          </div>
+        </div>
+        <div class="try">Try it: <a class="btn ghost sm" href="../../site/#sim">Open the Sim</a></div>
+      </article>
+
+      <!-- ===================== REFERENCE ===================== -->
+      <article class="lesson" id="sheet">
+        <header><span class="k">R</span><h3>Formula sheet</h3></header>
+        <div class="scroll">
+          <table class="t sheet">
+            <thead><tr><th>What</th><th>Formula</th><th>Where on the site</th><th>Source file</th></tr></thead>
+            <tbody>
+              <tr><td>Oxygen partial pressure</td><td class="eq">p<sub>O2</sub> = O<sub>2</sub>%/100 &times; P</td><td>Map curve, Sim record table</td><td>app.js, sim.html</td></tr>
+              <tr><td>Sea-level breathing curve</td><td class="eq">O<sub>2</sub>% = 307 / P</td><td>Dashed curve on the map</td><td>app.js (SEA_PPO2)</td></tr>
+              <tr><td>Distance to a test</td><td class="eq">d = &radic;((&Delta;O<sub>2</sub>/10)&sup2; + (&Delta;P/2)&sup2;)</td><td>Evidence rating, nearest tests</td><td>lib/evidence.ts</td></tr>
+              <tr><td>Near</td><td class="eq">d &le; 1</td><td>Counts on the map panel</td><td>lib/evidence.ts</td></tr>
+              <tr><td>Rating</td><td class="eq">&ge;10 Well tested, 1 to 9 Thin, 0 No tests</td><td>Rating per fuel kind</td><td>lib/evidence.ts</td></tr>
+              <tr><td>Ranking</td><td class="eq">near &darr;, then closest d &uarr;</td><td>Investigations ranked for this point</td><td>app.js (rankAt)</td></tr>
+              <tr><td>Unit conversion</td><td class="eq">atm&times;14.696, bar&times;14.504, mmHg&times;0.019337</td><td>Every pressure</td><td>build_tests.py</td></tr>
+              <tr><td>Buoyancy</td><td class="eq">F<sub>b</sub> = (&rho;<sub>air</sub> &minus; &rho;<sub>hot</sub>) g</td><td>Sim gravity</td><td>sim.html (grav)</td></tr>
+              <tr><td>Nitrogen per oxygen</td><td class="eq">(100 &minus; O<sub>2</sub>%) / O<sub>2</sub>%</td><td>Sim flame heat</td><td>sim.html (heat)</td></tr>
+              <tr><td>Mixing vs pressure</td><td class="eq">D &prop; 1/P</td><td>Sim mixing</td><td>sim.html (dx, diff)</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </article>
+
+      <article class="lesson" id="glossary">
+        <header><span class="k">G</span><h3>Glossary</h3></header>
+        <dl class="gl">
+          <dt>Microgravity (0 g)</dt><dd>Free fall, as on the ISS. Objects float and hot gas does not rise.</dd>
+          <dt>Partial gravity</dt><dd>Between 0 g and 1 g: the Moon (0.166 g), Mars (0.378 g). No fire data in PSI yet.</dd>
+          <dt>Diffusion flame</dt><dd>A flame where fuel and oxygen start apart and burn where they meet.</dd>
+          <dt>Inverse flame</dt><dd>Oxygen flows out of the burner into a fuel-filled chamber, the reverse of usual. Its oxygen comes from the burner, so the map leaves it out by default.</dd>
+          <dt>Oxygen partial pressure</dt><dd>The pressure of the oxygen alone. Decides breathing.</dd>
+          <dt>psi</dt><dd>Pounds per square inch. Sea-level air is 14.7 psi.</dd>
+          <dt>Pre-breathing</dt><dd>Breathing pure oxygen before a spacewalk to clear nitrogen from the body and avoid the bends. Lower cabin pressure shortens it.</dd>
+          <dt>Self-extinguish</dt><dd>A flame going out on its own because it loses heat faster than it makes it.</dd>
+          <dt>Flammability limit</dt><dd>The lowest oxygen at which a material keeps burning.</dd>
+          <dt>PSI accession</dt><dd>NASA Physical Science Informatics record number, for example PSI-69 for FLEX. Every test row cites one.</dd>
+          <dt>Investigation</dt><dd>One NASA experiment campaign, such as FLEX or BASS-II, made up of many tests.</dd>
+        </dl>
+      </article>
+    </div>
+  </div>
+</main>
+<footer><div class="wrap">Draft learners page, team BrayTech Pyrotechnics, NASA Space Apps 2026. Test data from NASA's Physical Science
+  Informatics database, counted in your browser. Written with AI assistance (Claude Code). Not endorsed by NASA.</div></footer>
+
+<script>
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  var OFF = window.FlashpointOffline;
+  var NS = 'http://www.w3.org/2000/svg';
+  function el(tag, a, p) { var e = document.createElementNS(NS, tag); for (var k in a) e.setAttribute(k, a[k]); if (p) p.appendChild(e); return e; }
+  function fmt(n) { return n.toLocaleString('en-US'); }
+  var ROWS = [];
+
+  /* theme */
+  var th = $('theme');
+  function syncTheme() { th.textContent = document.documentElement.dataset.theme === 'dark' ? 'Light' : 'Dark'; }
+  th.addEventListener('click', function () {
+    var d = document.documentElement.dataset.theme === 'dark' ? '' : 'dark';
+    if (d) document.documentElement.dataset.theme = d; else delete document.documentElement.dataset.theme;
+    try { localStorage.setItem('fp-theme', d || 'light'); } catch (e) {}
+    syncTheme();
+  });
+  syncTheme();
+
+  /* quick checks */
+  document.querySelectorAll('.check').forEach(function (c) {
+    var right = +c.dataset.answer, bs = c.querySelectorAll('button'), fb = c.querySelector('.fb');
+    bs.forEach(function (b, i) {
+      b.addEventListener('click', function () {
+        b.classList.add(i === right ? 'right' : 'wrong');
+        if (i === right) { bs[right].classList.add('right'); fb.hidden = false; }
+      });
+    });
+  });
+
+  /* contents: highlight the section in view, tick the ones seen */
+  var links = {}; document.querySelectorAll('.toc a').forEach(function (a) { links[a.getAttribute('href').slice(1)] = a; });
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) {
+        var a = links[e.target.id]; if (!a || !e.isIntersecting) return;
+        document.querySelectorAll('.toc a.on').forEach(function (x) { x.classList.remove('on'); });
+        a.classList.add('on'); a.classList.add('seen');
+      });
+    }, { rootMargin: '-30% 0px -60% 0px' });
+    document.querySelectorAll('.lesson').forEach(function (s) { io.observe(s); });
+  }
+
+  /* 1.2 gravity flame */
+  var G_RHO_AIR = 1.18, T_AIR = 300, T_HOT = 1800, G0 = 9.81;
+  function flameShape(g) {
+    // 0 g: a circle centred on the fuel. With gravity the top half stretches upward and narrows into a teardrop.
+    var k = Math.min(1, Math.sqrt(g)), cx = 160, cy = 150, R = 42 - 10 * k, d = '';
+    for (var i = 0; i <= 72; i++) {
+      var t = i / 72 * 2 * Math.PI, s = Math.sin(t), up = Math.max(0, s);
+      var x = cx + R * Math.cos(t) * (1 - .55 * k * up * up);
+      var y = cy - R * s * (s > 0 ? 1 + 2.4 * k * up : 1 - .4 * k);
+      d += (i ? 'L' : 'M') + x.toFixed(1) + ' ' + y.toFixed(1);
+    }
+    return d + 'Z';
+  }
+  function setG(g) {
+    $('flamePath').setAttribute('d', flameShape(g));
+    $('flamePath').setAttribute('fill', g > 0.05 ? 'url(#gTear)' : 'url(#gSph)');
+    $('flameBody').classList.toggle('flick', g > 0.05);
+    var rhoHot = G_RHO_AIR * T_AIR / T_HOT, F = (G_RHO_AIR - rhoHot) * g * G0;
+    $('rG').textContent = g.toFixed(2); $('rF').textContent = F.toFixed(1);
+    $('gLabel').textContent = g === 0 ? '0 g: a sphere, oxygen diffuses in' : g + ' g: hot gas rises, air rushes in below';
+    var ar = $('arrows'); ar.textContent = '';
+    if (g > 0) { ar.setAttribute('opacity', Math.min(1, .3 + g)); [[110, 200, 140, 168], [210, 200, 180, 168]].forEach(function (p) { el('path', { d: 'M' + p[0] + ' ' + p[1] + ' L' + p[2] + ' ' + p[3], 'marker-end': '' }, ar); }); el('path', { d: 'M160 40 L160 14' }, ar); }
+    document.querySelectorAll('[data-g]').forEach(function (b) { b.setAttribute('aria-pressed', String(+b.dataset.g === g)); });
+  }
+  document.querySelectorAll('[data-g]').forEach(function (b) { b.addEventListener('click', function () { setG(+b.dataset.g); }); });
+  setG(0);
+
+  /* 1.3 partial pressure */
+  function pp() {
+    var o = +$('ppO').value, p = +$('ppP').value, v = o / 100 * p, r = v / 3.07;
+    $('ppOo').textContent = o + '%'; $('ppPo').textContent = p.toFixed(1) + ' psi';
+    $('ppV').textContent = v.toFixed(2); $('ppR').textContent = Math.round(r * 100) + '%';
+    $('ppNote').textContent = r < 0.85 ? 'Below sea-level breathing: crew would need time to adapt, or extra oxygen.' :
+      r > 1.25 ? 'Above sea-level breathing. Fine for short spells (spacesuits run here), but the air is very flammable.' :
+      'Close to sea-level breathing. The question is now how flammable ' + o + '% oxygen is.';
+  }
+  ['ppO', 'ppP'].forEach(function (id) { $(id).addEventListener('input', pp); });
+  document.querySelectorAll('[data-pp]').forEach(function (b) { b.addEventListener('click', function () { var v = b.dataset.pp.split(','); $('ppO').value = v[0]; $('ppP').value = v[1]; pp(); }); });
+  pp();
+
+  /* 1.4 molecules */
+  function mol(o) {
+    var box = $('mol'); box.textContent = '';
+    var nO = 6, nN = Math.round(nO * (100 - o) / o);
+    for (var i = 0; i < nO; i++) { var a = document.createElement('i'); a.className = 'o'; box.appendChild(a); }
+    for (var j = 0; j < nN; j++) { var b = document.createElement('i'); b.className = 'n'; box.appendChild(b); }
+    var x = o / 100;
+    $('molR').textContent = ((100 - o) / o).toFixed(2);
+    $('molH').textContent = Math.min(1.5, 16 / (1 + 3.15 / x)).toFixed(2);
+    document.querySelectorAll('[data-mol]').forEach(function (b) { b.setAttribute('aria-pressed', String(+b.dataset.mol === o)); });
+  }
+  document.querySelectorAll('[data-mol]').forEach(function (b) { b.addEventListener('click', function () { mol(+b.dataset.mol); }); });
+  mol(21);
+
+  /* 1.5 diffusion */
+  function dif() {
+    var p = +$('dP').value, D = 14.696 / p, s = Math.sqrt(D);
+    $('dPo').textContent = p.toFixed(1) + ' psi'; $('dV').innerHTML = D.toFixed(2) + '&times;'; $('dS').innerHTML = s.toFixed(2) + '&times;';
+    $('dRing').setAttribute('r', (33.3 * s).toFixed(1));
+  }
+  $('dP').addEventListener('input', dif); dif();
+
+  /* data-driven parts */
+  fetch('../../data/tests.web.json').then(function (r) { return r.json(); }).then(function (rows) {
+    ROWS = rows; $('nRows').textContent = fmt(rows.length);
+    var by = function (f) { var o = {}; rows.forEach(function (r) { var k = f(r); o[k] = (o[k] || 0) + 1; }); return o; };
+    var ph = by(function (r) { return r.fuel_phase; });
+    var fuels = Object.keys(by(function (r) { return r.fuel; })).length;
+    $('d1').innerHTML = 'Of <b class="num">' + fmt(rows.length) + '</b> test rows: <b class="num">' + fmt(ph.gas || 0) + '</b> gas flames, <b class="num">' +
+      fmt(ph.liquid || 0) + '</b> fuel droplets, <b class="num">' + fmt(ph.solid || 0) + '</b> solid materials, across <b class="num">' + fuels +
+      '</b> fuel names as NASA wrote them.';
+    var g = by(function (r) { return r.gravity; });
+    $('d2').innerHTML = 'Every one of the <b class="num">' + fmt(rows.length) + '</b> test rows ran at <b class="num">' + (Object.keys(g).join(', ').replace(/g\b/g, ' g')) +
+      '</b>. There is no Moon or Mars gravity test to compare with yet. NASA\'s challenge statement names two planned ones: LUCI and FM2.';
+    var m = rows.filter(function (r) { return r.o2_pct != null && r.pressure_psi != null; });
+    var low = m.filter(function (r) { return r.pressure_psi < 12; }), moon = m.filter(function (r) { return r.pressure_psi >= 8 && r.pressure_psi <= 12.5 && r.o2_pct >= 24 && r.o2_pct <= 40 && r.oxygen_from !== 'burner'; });
+    var mi = Math.min.apply(null, m.map(function (r) { return r.pressure_psi; }));
+    $('d5').innerHTML = '<b class="num">' + fmt(low.length) + '</b> placeable tests ran below 12 psi, the lowest at <b class="num">' + mi.toFixed(1) +
+      ' psi</b>. In the Moon Base range (8 to 12.5 psi, 24 to 40% oxygen) there are <b class="num">' + moon.length + '</b>, all of them ' +
+      Object.keys(moon.reduce(function (o, r) { o[r.investigation + ' ' + (r.fuel_phase === 'liquid' ? 'droplets' : r.fuel_phase)] = 1; return o; }, {})).join(', ') + '.';
+    flex(rows); map(rows);
+  }).catch(function () {
+    ['d1', 'd2', 'd5'].forEach(function (id) { $(id).textContent = 'The test data did not load. Serve the page from the repo root (see site/README.md).'; });
+  });
+
+  /* 1.6 FLEX by oxygen */
+  function flex(rows) {
+    var f = rows.filter(function (r) { return r.accession === 'PSI-69' && r.o2_pct != null; });
+    var B = [[0, 15], [15, 18], [18, 21.5], [21.5, 30], [30, 50]], box = $('flexBars');
+    B.forEach(function (b) {
+      var s = f.filter(function (r) { return r.o2_pct >= b[0] && r.o2_pct < b[1]; }); if (!s.length) return;
+      var c = { self_extinguished: 0, burned: 0, unknown: 0 }; s.forEach(function (r) { c[r.outcome] = (c[r.outcome] || 0) + 1; });
+      var row = document.createElement('div'); row.className = 'row';
+      var pct = function (n) { return (n / s.length * 100).toFixed(1) + '%'; };
+      row.innerHTML = '<span class="mono">' + b[0] + ' to ' + b[1] + '%</span><span class="track2" title="' + c.self_extinguished + ' went out, ' + c.burned + ' kept burning, ' + c.unknown + ' not recorded">' +
+        '<span class="b-out" style="width:' + pct(c.self_extinguished) + '"></span><span class="b-burn" style="width:' + pct(c.burned) + '"></span><span class="b-none" style="width:' + pct(c.unknown) + '"></span></span>' +
+        '<span class="mono">n=' + s.length + '</span>';
+      box.appendChild(row);
+    });
+    $('flexCap').textContent = fmt(f.length) + ' FLEX tests (PSI-69), methanol and heptane droplets, grouped by chamber oxygen. Hover a bar for the counts.';
+  }
+
+  /* 2.1 to 2.3: the live map, worked example and ranking */
+  var KINDS = [['gas', 'Gas flames'], ['liquid', 'Fuel droplets'], ['solid', 'Solid materials']], RATE = { lit: 'Well tested', dim: 'Thin', dark: 'No tests' };
+  var W = 440, H = 340, L = 44, R = 12, T = 14, Bm = 36;
+  var X = function (p) { return L + p / 16 * (W - L - R); }, Y = function (o) { return H - Bm - (o - 10) / 90 * (H - T - Bm); };
+  var Xi = function (px) { return (px - L) / (W - L - R) * 16; }, Yi = function (py) { return 10 + (H - Bm - py) / (H - T - Bm) * 90; };
+  var probe = { o: 30, p: 10.2 }, layer;
+  function map(rows) {
+    var svg = $('lmap');
+    el('rect', { 'class': 'mapbg', x: L, y: T, width: W - L - R, height: H - T - Bm }, svg);
+    for (var p = 0; p <= 16; p += 2) { el('line', { 'class': 'gridl', x1: X(p), x2: X(p), y1: T, y2: H - Bm }, svg); el('text', { x: X(p), y: H - Bm + 15, 'text-anchor': 'middle' }, svg).textContent = p; }
+    for (var o = 10; o <= 100; o += 10) { el('line', { 'class': 'gridl', x1: L, x2: W - R, y1: Y(o), y2: Y(o) }, svg); el('text', { x: L - 6, y: Y(o) + 4, 'text-anchor': 'end' }, svg).textContent = o; }
+    el('path', { 'class': 'axis', d: 'M' + L + ' ' + T + 'V' + (H - Bm) + 'H' + (W - R) }, svg);
+    el('text', { x: W - R, y: H - 4, 'text-anchor': 'end' }, svg).textContent = 'Total pressure (psi)';
+    el('text', { x: 4, y: T + 2, transform: 'rotate(90 4 ' + (T + 2) + ')' }, svg).textContent = 'Oxygen (%)';
+    var d = ''; for (var q = 3.1; q <= 16; q += 0.1) d += (d ? 'L' : 'M') + X(q).toFixed(1) + ' ' + Y(307 / q).toFixed(1);
+    el('path', { 'class': 'curve', d: d }, svg);
+    OFF.mappable(rows).forEach(function (r) { if (r.pressure_psi <= 16) el('circle', { 'class': 'dot ' + r.fuel_phase, cx: X(r.pressure_psi).toFixed(1), cy: Y(r.o2_pct).toFixed(1), r: 2.6 }, svg); });
+    [['ISS', 21, 14.7], ['MOON BASE', 30, 10.2], ['SUIT', 100, 4.3]].forEach(function (h) {
+      el('rect', { 'class': 'hab', x: X(h[2]) - 5, y: Y(h[1]) - 5, width: 10, height: 10 }, svg);
+      el('text', { 'class': 'hab-t', x: X(h[2]) + (h[0] === 'ISS' ? -8 : 9), y: Y(h[1]) - 8, 'text-anchor': h[0] === 'ISS' ? 'end' : 'start' }, svg).textContent = h[0];
+    });
+    layer = el('g', {}, svg);
+    svg.style.cursor = 'crosshair';
+    svg.addEventListener('click', function (e) {
+      var pt = svg.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY;
+      var s = pt.matrixTransform(svg.getScreenCTM().inverse());
+      probe = { p: Math.max(0.5, Math.min(16, Xi(s.x))), o: Math.max(10, Math.min(100, Yi(s.y))) }; update();
+    });
+    update();
+  }
+  function update() {
+    layer.textContent = '';
+    var ev = OFF.evidenceAt(ROWS, { o2_pct: probe.o, pressure_psi: probe.p });
+    // The "near" zone: d <= 1 is an oval 10 points of oxygen tall and 2 psi wide on each side.
+    el('ellipse', { 'class': 'near', cx: X(probe.p), cy: Y(probe.o), rx: X(OFF.P_SCALE * OFF.NEAR_DISTANCE) - X(0), ry: Y(10) - Y(10 + OFF.O2_SCALE * OFF.NEAR_DISTANCE) }, layer);
+    var n = ev.nearest[0];
+    if (n) el('line', { 'class': 'link', x1: X(probe.p), y1: Y(probe.o), x2: X(n.row.pressure_psi), y2: Y(n.row.o2_pct) }, layer);
+    el('circle', { 'class': 'probe', cx: X(probe.p), cy: Y(probe.o), r: 6 }, layer);
+    work(ev); rank();
+  }
+  function work(ev) {
+    var n = ev.nearest[0], o = probe.o, p = probe.p, h = '';
+    h += '<p>Your probe: <b class="mono">' + o.toFixed(1) + '% oxygen, ' + p.toFixed(1) + ' psi</b> (p<sub>O2</sub> = ' + (o / 100 * p).toFixed(2) + ' psi).</p>';
+    if (n) {
+      var r = n.row, dO = o - r.o2_pct, dP = p - r.pressure_psi;
+      h += '<p>Closest test: <b>' + r.investigation + ' ' + (r.test_id || '') + '</b> (' + r.accession + ', ' + r.fuel + '), at ' + r.o2_pct.toFixed(1) + '% and ' + r.pressure_psi.toFixed(1) + ' psi.</p>';
+      h += '<div class="formula"><div class="eq">d = &radic;( (' + dO.toFixed(1) + ' / 10)&sup2; + (' + dP.toFixed(1) + ' / 2)&sup2; )<br>&nbsp;&nbsp;= &radic;( ' + Math.pow(dO / 10, 2).toFixed(3) + ' + ' + Math.pow(dP / 2, 2).toFixed(3) + ' ) = <b>' + n.distance.toFixed(3) + '</b></div>' +
+        '<p class="where">' + (n.distance <= 1 ? 'd &le; 1, so this test counts as near.' : 'd &gt; 1, so even the closest test is not near.') + ' Source: ' + r.source + ', line ' + r.source_line + '.</p></div>';
+    }
+    h += '<table class="t"><thead><tr><th>Fuel kind</th><th>Near</th><th>Rating</th></tr></thead><tbody>';
+    KINDS.forEach(function (k) {
+      var e = OFF.evidenceAt(ROWS, { o2_pct: o, pressure_psi: p }, { k: 1, fuelPhase: k[0] });
+      h += '<tr><td>' + k[1] + '</td><td class="num">' + e.nearCount + '</td><td><span class="rate ' + e.rating + '">' + RATE[e.rating] + '</span>' + (k[0] === 'solid' ? ' <span style="color:var(--muted)">(no pressure in NASA\'s tables)</span>' : '') + '</td></tr>';
+    });
+    h += '</tbody></table>';
+    $('work').innerHTML = h;
+  }
+  function rank() {
+    var by = {}, out = [];
+    ROWS.forEach(function (r) { (by[r.accession] = by[r.accession] || []).push(r); });
+    Object.keys(by).forEach(function (a) {
+      var ev = OFF.evidenceAt(by[a], { o2_pct: probe.o, pressure_psi: probe.p }, { k: 1 });
+      out.push({ a: a, name: by[a][0].investigation, near: ev.nearCount, d: ev.nearest[0] ? ev.nearest[0].distance : null });
+    });
+    out.sort(function (x, y) { if ((x.d == null) !== (y.d == null)) return x.d == null ? 1 : -1; return y.near - x.near || (x.d || 0) - (y.d || 0); });
+    var tb = document.querySelector('#rankT tbody'); tb.textContent = '';
+    out.forEach(function (it, i) {
+      var tr = document.createElement('tr');
+      tr.innerHTML = '<td class="num">' + (it.d == null ? '-' : i + 1) + '</td><td>' + it.name + ' (' + it.a + ')</td><td class="num">' + (it.d == null ? '-' : it.near) + '</td><td class="num">' +
+        (it.d == null ? 'cannot be placed' : it.d.toFixed(2)) + '</td>';
+      tb.appendChild(tr);
+    });
+  }
+})();
+</script>
+</body>
+</html>

@@ -88,11 +88,23 @@ Flame lab changes after a teammate's review (Sat Nov 14, later):
   With gravity or airflow the whole chamber is shown. Display only: the model is untouched.
 - The CSS backup flame (`public/flames/`) still replays in a loop; it was not changed.
 
+## Learn page (Sat Nov 14, night)
+
+`learn.html` teaches why flames behave differently off Earth and how to read the site. Every number it shows is counted in
+the browser from `../data/tests.web.json`, and the evidence formula is the site's own (`../public/offline/offline-answer.js`).
+Each flame-science lesson opens with a narrated video. The videos are built outside the site, in `alanzim/learn/videos/`
+(scripts, scenes, the recorded narration and the renderer; see `videos-design.md` there), and only the finished files
+are copied here. The narration was recorded once with ElevenLabs; do not regenerate it (credits). AI use is logged in
+`docs/ai-usage-log.md`; every video frame carries a small AI badge (NASA rule for AI-generated video).
+
 ## Files
 
 ```
 index.html          the dashboard and the Map, SI Assist, Resources and Sim pages
 sim.html            the flame lab; index.html loads it with ?embed (header hidden), and it also works on its own
+learn.html          the learners page: six flame-science lessons (each opens with a narrated video) and five site guides,
+                    a formula sheet and a glossary; opened from the dashboard's Learn card and the bar
+videos/            the six lesson videos (MP4, captions, posters), made by alanzim/learn/videos/render.py
 assets/tokens.css   every colour, size and radius, light and dark (shared by both pages)
 assets/site.css     styles for index.html
 assets/app.js       script for index.html

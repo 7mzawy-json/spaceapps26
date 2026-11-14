@@ -67,12 +67,15 @@
     var g = E.el('radialGradient', { id: 'bgGlow', cx: '50%', cy: '45%', r: '70%' }, d);
     E.el('stop', { offset: '0', 'stop-color': '#0d2a66' }, g);
     E.el('stop', { offset: '1', 'stop-color': E.C.bg }, g);
-    var blur = E.el('filter', { id: 'soft', x: '-50%', y: '-50%', width: '200%', height: '200%' }, d);
-    E.el('feGaussianBlur', { stdDeviation: 90 }, blur);
     E.el('rect', { width: E.W, height: E.H, fill: 'url(#bgGlow)' }, svg);
-    var clouds = E.el('g', { filter: 'url(#soft)' }, svg);
-    var cl = [[420, 300, 300, '#1b4fb0', .35, .05], [1500, 760, 360, '#2a3f8f', .3, .04], [1100, 200, 220, '#3a2a7a', .22, .06]].map(function (c) {
-      return { e: E.el('circle', { cx: c[0], cy: c[1], r: c[2], fill: c[3], opacity: c[4] }, clouds), x: c[0], y: c[1], w: c[5] };
+    // Soft light clouds drawn with radial gradients (a blur filter looked the same but made 60 fps rendering ten times slower).
+    var clouds = E.el('g', {}, svg);
+    var cl = [[420, 300, 480, '#1b4fb0', .35, .05], [1500, 760, 560, '#2a3f8f', .3, .04], [1100, 200, 360, '#3a2a7a', .22, .06]].map(function (c, k) {
+      var gr = E.el('radialGradient', { id: 'cloud' + k }, d);
+      E.el('stop', { offset: 0, 'stop-color': c[3], 'stop-opacity': c[4] }, gr);
+      E.el('stop', { offset: .55, 'stop-color': c[3], 'stop-opacity': c[4] * .45 }, gr);
+      E.el('stop', { offset: 1, 'stop-color': c[3], 'stop-opacity': 0 }, gr);
+      return { e: E.el('circle', { cx: c[0], cy: c[1], r: c[2], fill: 'url(#cloud' + k + ')' }, clouds), x: c[0], y: c[1], w: c[5] };
     });
     var stars = E.el('g', {}, svg), r = E.rand(7), list = [];
     for (var i = 0; i < 150; i++) list.push(E.el('circle', { cx: r() * E.W, cy: r() * E.H, r: .6 + r() * 1.6, fill: '#cfe0ff', opacity: .2 + r() * .4 }, stars));

@@ -176,12 +176,14 @@ NASA's rule: no work on the challenge before the hackathon. No project code and 
 **Done when:** the public Vercel URL shows the page. Write the URL at the top of this file.
 
 ### Phase 1: catalogue snapshot (10:15 to 11:00)
-1. `scripts/fetch_psi.py`: request the search endpoint in the research notes, page until all 133 records
-   are read, keep `Research Area == "Combustion Science"`, write `data/investigations.json`.
+1. `scripts/fetch_psi.py`: request the search endpoint in the research notes with `size=100`, then again
+   with `from=100` (`page=` is ignored), until all 133 records are read. `q=` does not filter, so keep
+   `Research Area == "Combustion Science"`, write `data/investigations.json`.
 2. Print a table of accession, acronym and title.
 
-**Done when:** the file has 25 or more records and includes BASS, BASS-II, SAFFIRE-I to III, SAME,
-SAME-R, FLEX or CFI, ACME BRE and ACME CFI-G. If the endpoint fails, stop and report. Do not scrape HTML.
+**Done when:** the file has 24 records (the count seen on Nov 14, see `docs/challenge/resources.md`) and
+includes BASS, BASS-II, SAFFIRE-I to III, SAME, SAME-R, FLEX, FLEX-2, CFI, ACME BRE and ACME CFI-G.
+If the endpoint fails, stop and report. Do not scrape HTML.
 
 ### Phase 2: test-level data (11:00 to 12:30) [strong model]
 This phase decides how good the map looks. Spend the full slot.

@@ -93,6 +93,9 @@ The lane assignments below are a default. Swap names once skills are known, but 
   and fix errors by hand (the "human-checked" step), collect NASA images with credits, take the
   questions to each mentor round, and click through the live site every two hours as a first-time user.
   On Sunday: demo script, slides or video, submission text.
+- **AI labelling (submission rule):** AI-generated code and data must say so in text and metadata (a
+  header line in generated files, a `generated_by` note in AI-written JSON, and the About page). Any
+  AI-generated image or video needs a visible watermark. Generated content may never contain NASA logos.
 - **Git:** one branch per lane (`data`, `ui`, `story`). Merge into `main` whenever a step works, at
   least every two hours. Pull `main` before starting a step. Only `main` deploys to the public URL;
   Vercel gives every branch its own preview link.
@@ -284,12 +287,17 @@ an off-topic question is declined.
 **Feature freeze at 12:00.** After this, bug fixes and text only.
 
 ### Phase 8: pitch and submission (12:00 to 15:00) [strong model]
-1. Demo script, under 3 minutes: start at ISS (well lit), drag to the Moon Base (dimmer), keep going
-   along the curve into the dark, open the brief, end on the suggested experiment.
-2. Slides or demo recording in whatever format the Submission Guide requires.
-3. **13:00 Mentor round III:** full dry run. Apply only the top two pieces of feedback.
-4. Make the GitHub repo public. Fill in the project page: description, demo link, repo link, AI usage.
-5. **Submit by 15:00.** The deadline is 15:30 and the form will be slow.
+Rules: `docs/challenge/submission-and-awards.md`. Exceeding a demo limit removes us from Global Judging.
+1. Submission demo: **a video of 30 seconds or less, or at most 7 slides** including title and intro. English
+   (or English subtitles). Story: start at ISS (well lit), drag to the Moon Base (dimmer), keep going along
+   the curve into the dark, end on the suggested experiment. Slides must name the team, every member and the challenge.
+2. Host it on YouTube or Google Drive with a public link. Test it in a private window.
+3. Local judging pitch: ask the Local Lead for its format and length; it may differ from the submission demo.
+4. **13:00 Mentor round III:** full dry run. Apply only the top two pieces of feedback.
+5. Make the GitHub repo public. Fill in every project page field: name, summary, demo link, final project
+   link (Vercel URL and repo), detailed description, SI use, NASA data, other references (every library,
+   image and dataset).
+6. **Submit by 15:00.** Our local deadline is 15:30 and the form will be slow.
 
 ## If we fall behind
 

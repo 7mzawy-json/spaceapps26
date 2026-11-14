@@ -1,9 +1,28 @@
 # ROADMAP: Flashpoint
 
-Draft 3 of 2026-11-13 (team grew from one person to three). **Re-check on Fri Nov 13** when NASA publishes the Resources tab, the Project
-Submission Guide and the Judging and Awards Guide. Background: `docs/challenge/flame-in-freefall.md`
-and `docs/challenge/research-notes.md`. Read both before starting any phase.
+Draft 4 of 2026-11-14, before kickoff. All three NASA guides are now read: the Resources tab
+(`docs/challenge/resources.md`), the Project Submission Guide (`docs/challenge/submission-and-awards.md`) and the
+Judging and Awards Guide (`docs/challenge/judging.md`). Background: `docs/challenge/flame-in-freefall.md` and
+`docs/challenge/research-notes.md`. Read all five before starting any phase.
 Visual target: `docs/mockup/flashpoint.html` (its data points are placeholders, never copy them).
+
+**Live URL:** not deployed yet (Phase 0 writes it here).
+
+There is no team lead. The three members share responsibility, and decisions are made by the whole team.
+
+## Decide at kickoff (Sat 09:30, before any code)
+
+1. **Lane owners.** Put a name in each row of "Team and lanes". A person may work across lanes, but each lane needs
+   one name so every folder has someone who answers for it.
+2. **Chat as a main feature?** Proposal in `alanzim/chat-first-design.md`. If yes, Phase 6 moves earlier and chat
+   leaves the top of the cut list.
+3. **Tabs (Ask, Simulate, Compare, Explore)?** Proposal in `alanzim/tabs-dashboard-idea.md`. If yes, the page
+   structure in Phase 4 and the Design rules change.
+4. **Where the idea came from.** The SI rules say AI must not be used to come up with how to solve the challenge.
+   Write the team's own account of how the Flashpoint idea was chosen in `docs/ai-usage-log.md`.
+5. **Demo format:** 30-second video or up to 7 slides. Ask the Local Lead how the 16:00 local pitch works.
+
+Record each answer in this file and remove the item.
 
 ## What we are building
 
@@ -60,13 +79,15 @@ app/api/chat/route.ts             chat endpoint
 components/                       AtmosphereMap, AtmosphereVolume (3D), ProbePanel, FireLifeStrip, FlameCanvas, Brief, Chat
 lib/evidence.ts                   nearest tests, rating, pillar picks + self-check
 lib/predict.ts                    applies data/model.json
+data/tests.sample.json            ten made-up rows for the Interface lane, deleted at the 12:30 gate
 data/investigations.json          raw PSI snapshot (combustion only)
 data/enriched.json                AI-extracted fields + summaries, human-checked
 data/tests.json                   test-level rows (the flames on the map)
 data/briefs.json                  precomputed briefs for the four presets
 data/model.json                   fitted coefficients
 scripts/fetch_psi.py  scripts/enrich.py  scripts/fit_model.py
-docs/ai-usage-log.md              running log of AI use (required for submission)
+docs/ai-usage-log.md              running log of AI use and the References list (required for submission)
+README.md  .env.example           repo front page; names of the env vars (no values)
 ```
 
 `data/tests.json` row: `accession`, `test_id`, `fuel`, `fuel_phase`, `o2_pct`, `pressure_psi`,
@@ -81,9 +102,11 @@ The lane assignments below are a default. Swap names once skills are known, but 
 
 | Lane | Owner | Owns | Phases |
 |---|---|---|---|
-| Data | Team lead (drives the agents on the desktop) | `scripts/`, `data/`, `lib/` | 0, 1, 2, 3, 5 (predictor and briefs) |
-| Interface | Teammate 2 | `app/`, `components/`, styles | 4, 6, 7 (flame visual from 5) |
-| Story | Teammate 3 | `docs/`, the About page text, pitch and submission | 8, plus the checks below |
+| Data | (name at kickoff) | `scripts/`, `data/`, `lib/` | 0, 1, 2, 3, 5 (predictor and briefs) |
+| Interface | (name at kickoff) | `app/`, `components/`, styles | 4, 6, 7 (flame visual from 5) |
+| Story | (name at kickoff) | `docs/`, the About page text, pitch and submission | 8, plus the checks below |
+
+Personal working folders (for example `alanzim/`) hold drafts and proposals. They are not deployed and belong to no lane.
 
 - **The contract between Data and Interface** is the `data/tests.json` row shape in "File layout".
   It is frozen. Interface builds against `data/tests.sample.json` (ten made-up rows, every one marked
@@ -160,19 +183,30 @@ this section wins, because the skill is written for marketing pages and Flashpoi
 
 NASA's rule: no work on the challenge before the hackathon. No project code and no data ingestion today.
 
-- [ ] Human: send the agent the Resources tab link and both new guides. Agent crawls them into `docs/challenge/`.
-- [ ] Agent: update this roadmap for anything the guides change (judging criteria, demo format, deadlines).
-- [ ] Human: create an Anthropic API key with a small credit balance. Keep it out of chat.
-- [ ] Agent: confirm Vercel access works from this machine (list teams). Confirm `uv`, `node`, `gh` run.
-- [ ] Human: test Remote Control and Chrome Remote Desktop from the venue network if possible.
-- [ ] Teammates: accept the GitHub invitation, join the team on spaceappschallenge.org, read this file
-      and `AGENTS.md`, and confirm `git` and `node` run on the laptop they will bring.
-- [ ] Team: confirm or swap the lane owners in "Team and lanes".
+Status on Sat 08:30. Anything still open moves to the first ten minutes of kickoff.
+
+- [x] Resources tab and both guides crawled into `docs/challenge/` (YouTube video still unwatched).
+- [x] Roadmap updated for the guides (demo limits, AI labelling, deadlines, judging criteria).
+- [ ] Anthropic API key with a small credit balance, kept out of chat and git. Put it in `.env.local` (see `.env.example`).
+- [ ] Vercel access confirmed from the machine that will deploy (list teams). `uv`, `node`, `gh` run there.
+- [ ] Remote Control and Chrome Remote Desktop tested from the venue network.
+- [ ] Every member: GitHub access accepted, on the team page at spaceappschallenge.org for the same Local Event
+      (required for Global Judging), read this file and `AGENTS.md`, `git` and `node` run on their laptop.
+- [ ] Lane owners named (see "Decide at kickoff").
 
 ## Saturday Nov 14
 
 ### Phase 0: skeleton online (09:30 to 10:15)
-1. `npx create-next-app@latest . --ts --tailwind --app --eslint --use-npm` (accept defaults, keep existing files).
+1. Scaffold Next.js. `create-next-app .` refuses this folder because `AGENTS.md`, `ROADMAP.md` and others count as
+   conflicts, so scaffold into a subfolder and move it up, keeping our `README.md` and appending to our `.gitignore`.
+   PowerShell 5.1 (on macOS or Linux, do the same with `mv` and `cat >>`):
+   ```
+   npx create-next-app@latest scaffold --ts --tailwind --app --eslint --use-npm --yes
+   Get-ChildItem scaffold -Force | Where-Object { $_.Name -notin @('.git', 'README.md', '.gitignore') } | Move-Item -Destination .
+   Get-Content scaffold\.gitignore | Add-Content .gitignore
+   Remove-Item scaffold -Recurse -Force
+   ```
+   Then `npm run dev` must show the starter page before going on.
 2. Replace the home page with the project name and one sentence.
 3. Create the Vercel project from the GitHub repo and deploy.
 
@@ -297,7 +331,9 @@ Rules: `docs/challenge/submission-and-awards.md`. Exceeding a demo limit removes
 5. Make the GitHub repo public. Fill in every project page field: name, summary, demo link, final project
    link (Vercel URL and repo), detailed description, SI use, NASA data, other references (every library,
    image and dataset).
-6. **Submit by 15:00.** Our local deadline is 15:30 and the form will be slow.
+6. **Submit by 15:00.** The global form stays open until Sun 23:59, but our Local Event's schedule puts
+   submission at 15:30 and judging at 16:00, so 15:30 is the deadline we work to. The form will be slow.
+   Before pressing submit, check the eligibility list in `docs/challenge/judging.md`.
 
 ## If we fall behind
 

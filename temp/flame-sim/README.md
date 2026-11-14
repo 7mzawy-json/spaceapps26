@@ -6,7 +6,7 @@ The idea came from a teammate, who wanted a flame like https://www.runcell.dev/t
 
 ## What it does
 
-Pick a test from `data/tests.json`. The flame is set up from that one row:
+Pick a test from `data/tests.web.json` (the slim file that leaves out rows that are not separate tests). The flame is set up from that one row:
 
 | From the row | Sets | Kind |
 |---|---|---|
@@ -21,7 +21,7 @@ When you add gravity or move the oxygen and pressure sliders by hand, the page s
 
 ## How to open it
 
-The page reads `data/tests.json`, so it needs a web server (opening the file directly will not load the data).
+The page reads `data/tests.web.json`, so it needs a web server (opening the file directly will not load the data).
 From the repo root:
 
 - Windows (PowerShell): `python -m http.server 8765`

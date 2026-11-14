@@ -6,9 +6,9 @@
   if (!fp) return;
   var journey = [
     { title:'Start with the air we know.', text:'The ISS uses an Earth-like atmosphere: 21% oxygen at 14.7 psi. Start here, then ask what happens when a habitat uses less pressure and more oxygen.', p:14.7, o:21, next:'Next: Moon Base' },
-    { title:'Similar oxygen pressure. Different evidence.', text:'At 30% oxygen and 10.2 psi, the dry oxygen partial pressure is almost the same as at sea level. But the nearby tests burn droplets, not cabin fabrics and plastics. That distinction is the finding.', p:10.2, o:30, next:'Next: spacesuit' },
-    { title:'Beyond the edge of the tested conditions.', text:'NASA\'s challenge gives a spacesuit atmosphere of 100% oxygen at 4.3 psi. Look at the distance to the test cloud. A nearest row is not necessarily a relevant experiment.', p:4.3, o:100, next:'Next: the research gap' },
-    { title:'The gap becomes the next experiment.', text:'Return to the Moon Base. We need material tests at the relevant oxygen, pressure and gravity. Read the evidence brief for the sources, limits and NASA work aimed at closing that gap.', p:10.2, o:30, next:'Read the evidence brief' }
+    { title:'Compare the Moon Base atmosphere.', text:'At 30% oxygen and 10.2 psi, the dry oxygen partial pressure is almost the same as at sea level. But the nearby tests burn droplets, not cabin fabrics and plastics. The material tests cannot be placed here because their tables omit pressure.', p:10.2, o:30, next:'Next: spacesuit' },
+    { title:'Check the spacesuit atmosphere.', text:'NASA\'s challenge gives a spacesuit atmosphere of 100% oxygen at 4.3 psi. Look at the distance to the test cloud. A nearest row is not necessarily a relevant experiment.', p:4.3, o:100, next:'Next: the research gap' },
+    { title:'What would a relevant material test need?', text:'Return to the Moon Base. We need material tests at the relevant oxygen, pressure and gravity. Read the evidence brief for the sources, limits and NASA work aimed at closing that gap.', p:10.2, o:30, next:'Read the evidence brief' }
   ];
   function setStep(i) {
     step = i; custom = false; var s = journey[i];
@@ -29,7 +29,7 @@
   function freeExplore() {
     custom = true;
     $('journeyCount').textContent = 'FREE EXPLORATION';
-    $('journeyTitle').textContent = 'Your atmosphere. The same honest questions.';
+    $('journeyTitle').textContent = 'Explore a custom atmosphere.';
     $('journeyText').textContent = 'Move the point, enter exact values or choose a preset. Compare the fuels separately. A count of nearby tests describes evidence coverage, never safety.';
     $('journeyNext').textContent = 'Resume the journey \u2192';
     $('journeyTrack').querySelectorAll('button').forEach(function (b) { b.removeAttribute('aria-current'); });
@@ -47,13 +47,21 @@
   $('journeyTrack').querySelectorAll('button').forEach(function (b) { b.addEventListener('click',function () { setStep(+b.dataset.step); }); });
   $('startJourney').addEventListener('click',function () { fp.go('analysis'); document.querySelector('#anMode [data-m="simple"]').click(); setStep(0); });
   document.querySelectorAll('[data-go]').forEach(function (a) { a.addEventListener('click',function (e) { e.preventDefault(); fp.go(a.dataset.go); }); });
-  document.querySelectorAll('[data-hero-g]').forEach(function (b) { b.addEventListener('click',function () {
-    document.querySelector('.hero-chamber').dataset.gravity=b.dataset.heroG;
-    document.querySelectorAll('[data-hero-g]').forEach(function (v) { v.setAttribute('aria-pressed',v===b); });
-    var earth=b.dataset.heroG==='earth';
-    $('heroFlameTitle').textContent=earth?'Hot gas rises. Fresh air moves in.':'No rising hot gas. A different kind of fire.';
-    $('heroFlameNote').textContent=earth?'Buoyancy stretches a flame upward and supplies fresh oxygen. This is the familiar teardrop.':'Without buoyancy, oxygen diffuses toward the flame. In still air, a flame can form a blue sphere.';
+  var heroStudy = FlashpointStudies.flow($('heroFlow')), heroG = 0;
+  function heroUpdate() {
+    var fan=$('heroFan').checked;
+    heroStudy.set(heroG,fan);
+    $('heroFlameTitle').textContent=fan?'A fan moves gas even without gravity.':heroG?'On Earth, hot gas rises.':'In still microgravity, oxygen diffuses inward.';
+    $('heroFlameNote').textContent=fan?'Ventilation supplies forced flow. Turn the fan off and compare it with buoyancy from rising hot gas.':heroG?'Buoyancy draws surrounding gas toward the flame. The orange dots represent rising hot gas; blue dots show incoming gas.':'No buoyant updraft forms. Oxygen reaches the reaction zone by molecular diffusion. The dots show transport directions, not tracked molecules.';
+  }
+  document.querySelectorAll('[data-hero-g]').forEach(function(b){ b.addEventListener('click',function(){
+    heroG=b.dataset.heroG==='earth'?1:0;
+    document.querySelectorAll('[data-hero-g]').forEach(function(x){x.setAttribute('aria-pressed',x===b);});heroUpdate();
   }); });
+  $('heroFan').addEventListener('change',heroUpdate);
+  $('heroMotion').textContent=heroStudy.get().paused?'Animate motion':'Pause motion';
+  $('heroMotion').addEventListener('click',function(){var paused=!heroStudy.get().paused;heroStudy.pause(paused);this.textContent=paused?'Animate motion':'Pause motion';this.setAttribute('aria-pressed',paused);});
+  heroUpdate();
   $('mapFuels').querySelectorAll('button').forEach(function (b) { b.addEventListener('click',function () {
     $('mapFuels').querySelectorAll('button').forEach(function (x) { x.setAttribute('aria-pressed',x===b); });
     var n=fp.mapFuel(b.dataset.fuel), empty=$('mapEmpty'); empty.hidden=!!n;
@@ -61,7 +69,9 @@
     count.textContent=(n===undefined?'Loading':n.toLocaleString('en-US'))+' placeable rows shown. Fuel buttons filter the map; coverage compares all fuels.';
     empty.textContent=b.dataset.fuel==='solid'?'These material tests cannot be plotted: their NASA tables omit pressure. Missing coordinates do not mean the materials cannot burn.':'No placeable tests for this fuel in the map range.';
   }); });
-  document.addEventListener('fp-data',function (e) { rows=e.detail; $('missionRows').textContent=rows.length.toLocaleString('en-US'); });
+  function loaded(data) { rows=data; $('missionRows').textContent=rows.length.toLocaleString('en-US'); var missing=rows.filter(function(r){return r.fuel_phase==='solid' && r.pressure_psi==null;}).length; $('materialGap').textContent=missing+' solid-material test rows have no recorded pressure.'; }
+  document.addEventListener('fp-data',function(e){loaded(e.detail);});
+  if(window.FlashpointRows)loaded(window.FlashpointRows);
   // Modal focus containment and restoration complement the original Escape handler.
   var modal=$('brief');
   new MutationObserver(function () {

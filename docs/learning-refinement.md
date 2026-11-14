@@ -21,7 +21,7 @@ Keep the dark visual identity, but use theme tokens for both the landing gravity
 
 ## Soundtrack
 
-Compose an original, instrumental ambient score in Python using the standard library. Mix it quietly under the existing narration, with fades and narration-driven ducking. Copy each MP4's video stream without re-encoding it. Keep clean narration in the existing source folders. Export a narration-only audio option for visitors who turn music off. Use the installed imageio-ffmpeg tool, already referenced in the project.
+Compose an original, instrumental ambient score in Python using the standard library. Mix it quietly under the existing narration, with fades and narration-driven ducking. Copy each MP4's video stream without re-encoding it. Keep clean narration in the existing source folders and provide direct links to clean narration recordings. Use the installed imageio-ffmpeg tool, already referenced in the project.
 
 ## Scientific review
 
@@ -30,3 +30,20 @@ NASA's Combustion Science page and the existing Researcher's Guide were reread f
 ## Validation plan
 
 Exercise every activity at endpoints, reset, pause, keyboard controls, lesson history, light/dark themes, reduced motion and phone/tablet/desktop sizes. Compare displayed FLEX records with source rows. Decode the six mixed files, verify video stream identity and duration, test actual video/audio playback and seeking, and check soundtrack peaks and speech/music levels. Rerun the existing application and offline-engine regressions. Keep results in `.qa/` and record remaining limits here.
+
+## Final implementation and checks
+
+All six activities are implemented in `site/assets/learning-labs.js`. Experiment, Watch lesson and Explanation are separate keyboard-accessible views. Exploration progress is stored on the device, with a clear action. The FLEX activity reveals actual source outcomes and compares two tests at 14% oxygen that recorded different outcomes with different fuels. Every test retains its filename and line.
+
+The landing study and the gravity lesson share `studies.js`: directional transport paths, continuous gravity changes, ventilation and pause. Both use the active theme. The homepage uses Analysis and directly explains that 263 solid-material rows omit pressure. Text was reviewed with the Humanizer skill. NASA records were unchanged.
+
+The six MP4s contain an original ambient score with fades and speech-driven ducking. Compressed video-stream hashes match the original files exactly. Durations and captions are unchanged. Mix mean levels range from -22.8 to -23.4 dBFS and peaks from -4.7 to -6.0 dBFS. Source voice files are preserved as `site/videos/*.voice.m4a`. No voice was regenerated and no third-party music was used.
+
+An optional synchronized narration-only switch failed twice during sequential media tests. Work on that switch was stopped and reported, and it was removed. The stable player uses native controls and direct links to clean narration recordings. Native seeking also exposed the old local server's lack of byte-range support. The new standard-library preview server supports media byte ranges. Hidden videos release their requests and decoder resources, and restore their saved playheads when Watch is reopened.
+
+- 146 learning/browser checks passed, including all activity calculations, real-record comparisons, six-video playback and seeking, source release and playhead restoration, history, keyboard tabs and persistent progress.
+- 50 application/browser checks passed, including Analysis, CSV export, assistant citations, the flame lab and fallback, the one-page brief and navigation.
+- The existing offline-engine checks passed. JavaScript syntax, Python compilation and Git whitespace checks passed.
+- All six activities were captured and inspected in light and dark themes at 375, 768 and 1440 pixels. Reduced motion starts the flow study paused and supports an explicit opt-in to animation.
+
+Evidence is in `.qa/learning/`, `.qa/audio/` and `.qa/results.json`. Tests use the installed Chrome browser and block Google Fonts to exercise local font fallbacks. Safari, Firefox, actual touch hardware and listening tests by a human remain unverified. Automated audio checks establish valid decoding, preserved timing and unclipped output, not a subjective listening assessment. Nothing was deployed or pushed; the parent checkout is unchanged.

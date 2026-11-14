@@ -193,6 +193,7 @@ footer { border-top: 1px solid var(--line); padding: 24px 0 40px; color: var(--m
 }
 </style>
 <link rel="stylesheet" href="assets/refinement.css">
+<link rel="stylesheet" href="assets/learning-labs.css">
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="fpLogo" viewBox="10 14 178 372"><polygon points="100,178 73,150 47,117 50,63 87,115 113,22 122,117 168,70 134,122 156,126 131,143 108,173"/><polygon points="100,178 142,245 150,264 169,272 154,278 179,346 122,277 102,378 85,281 18,352 72,285 40,268 60,250"/><polygon points="100.4,126.2 107.8,141.7 95.6,153.8 88.2,138.3"/><polygon points="103.1,236.1 114.9,248.6 106.9,263.9 95.1,251.4"/></symbol></svg>
@@ -209,8 +210,8 @@ footer { border-top: 1px solid var(--line); padding: 24px 0 40px; color: var(--m
 <main class="wrap">
   <section class="hero">
     <div class="kicker">LEARN</div>
-    <h1>How fire changes<br><span>off Earth.</span></h1>
-    <p class="lede">Six science lessons and five field guides. Watch, explore, then test your understanding against NASA's data.</p>
+    <h1>Learn how fire behaves<br><span>in space.</span></h1>
+    <p class="lede">Start with an experiment. Change a condition, compare what happens, then check the explanation and NASA records. Each science lesson also has a short video.</p>
     <div class="paths">
       <a class="path" href="#track-science"><span class="n">TRACK 1 &middot; 6 LESSONS</span><h2>Flame science</h2><p>Fuel and oxygen, gravity, oxygen pressure, nitrogen, low pressure, and how flames go out.</p></a>
       <a class="path" href="#track-site"><span class="n">TRACK 2 &middot; 5 GUIDES</span><h2>Using Flashpoint</h2><p>Read the map, understand the evidence rating, rank investigations, dig into the data, run the Sim.</p></a>
@@ -262,7 +263,7 @@ footer { border-top: 1px solid var(--line); padding: 24px 0 40px; color: var(--m
             <p>A flame needs three things at once: <b>fuel</b>, <b>oxygen</b> and enough <b>heat</b> to keep the reaction going.
               Take any one away and it goes out. Fire safety is built on this: <b>prevent</b> (keep heat sources and fuel apart,
               pick materials that resist burning), <b>detect</b> (notice smoke early) and <b>suppress</b> (remove oxygen or heat).</p>
-            <p>Most fires in a cabin are <b>diffusion flames</b>: fuel and oxygen start apart and only burn where they meet, in a thin
+            <p>Many familiar flames are <b>diffusion flames</b>: fuel and oxygen start apart and only burn where they meet, in a thin
               glowing zone. A candle and a burning fuel droplet are examples. Smouldering is a separate form of combustion without a flame.</p>
             <h4>THE FORMULA</h4>
             <div class="formula">
@@ -310,8 +311,7 @@ footer { border-top: 1px solid var(--line); padding: 24px 0 40px; color: var(--m
             <h4>THE IDEA</h4>
             <p>On Earth, gas heated by a flame is lighter than the air around it, so it <b>rises</b>. Fresh air rushes in underneath
               to replace it. That flow stretches the flame into a teardrop, feeds it oxygen quickly and makes it flicker.</p>
-            <p>In microgravity (free fall), nothing is "lighter" any more, so hot gas does not rise. Oxygen only reaches the flame by
-              slowly <b>diffusing</b> in. The flame becomes a small, steady, dim blue <b>sphere</b>.</p>
+            <p>In microgravity (free fall), buoyancy is negligible. In still gas, oxygen reaches a flame by <b>diffusion</b>, and a flame around a round source can become spherical. Ventilation adds flow even when gravity is negligible.</p>
             <h4>THE FORMULA</h4>
             <div class="formula">
               <div class="eq">F<sub>b</sub> = (&rho;<sub>air</sub> &minus; &rho;<sub>hot</sub>) &times; g</div>
@@ -353,8 +353,7 @@ footer { border-top: 1px solid var(--line); padding: 24px 0 40px; color: var(--m
           </div>
         </div>
         <div class="why"><b>Why it matters.</b> A Moon Base sits at 1/6 of Earth's gravity, Mars at about 3/8. NASA's PSI database has no
-          partial-gravity fire tests yet, so for those places the honest answer is "somewhere between the 0 g and 1 g results".
-          Flashpoint says that out loud instead of guessing.</div>
+          partial-gravity fire tests yet, so this collection cannot supply a measured result for either location. Experiments at the relevant gravity are needed.</div>
         <div class="check" data-answer="2">
           <p>Quick check: on the ISS, why can a flame go out without anyone touching it?</p>
           <div class="opts"><button type="button">It is too cold in orbit</button><button type="button">There is less oxygen on the ISS</button><button type="button">Without rising hot gas, fresh oxygen arrives too slowly</button></div>
@@ -378,16 +377,14 @@ footer { border-top: 1px solid var(--line); padding: 24px 0 40px; color: var(--m
             <p>Two numbers describe the oxygen in a cabin, and they mean different things:</p>
             <ul>
               <li><b>Oxygen percent</b>: what share of the gas molecules are oxygen. This drives how easily things <b>burn</b>.</li>
-              <li><b>Oxygen partial pressure</b>: how hard the oxygen alone pushes. This is what your lungs care about: it decides
-                whether you can <b>breathe</b>.</li>
+              <li><b>Oxygen partial pressure</b>: how hard the oxygen alone pushes. It is calculated from the oxygen fraction and total pressure. It is one quantity used in atmosphere comparisons.</li>
             </ul>
             <p>A habitat at lower total pressure (good for spacesuit use, see the glossary) must raise the oxygen percent to keep the
-              same partial pressure. Same breathing, more flammable air. That trade is the whole reason Flashpoint exists.</p>
+              same partial pressure. Matching dry oxygen partial pressure can require a higher oxygen percentage. The fire evidence needs to account for both variables.</p>
             <h4>THE FORMULA</h4>
             <div class="formula">
               <div class="eq">p<sub>O2</sub> = (O<sub>2</sub>% / 100) &times; P<sub>total</sub></div>
-              <p class="where">Sea-level air: 0.209 &times; 14.696 psi = <b>3.07 psi</b>. Every atmosphere with p<sub>O2</sub> = 3.07 psi
-                breathes like sea level. On the map this is the dashed curve: O<sub>2</sub>% = 307 / P<sub>total</sub>.</p>
+              <p class="where">Sea-level air: 0.209 &times; 14.696 psi = <b>3.07 psi</b>. Every dry atmosphere on this reference has p<sub>O2</sub> = 3.07 psi. That calculation alone does not establish breathing suitability. On the map this is the dashed curve: O<sub>2</sub>% = 307 / P<sub>total</sub>.</p>
               <p class="src">Used in: site/assets/app.js (SEA_PPO2 = 3.07), site/sim.html (Oxygen pressure row).</p>
             </div>
           </div>
@@ -402,7 +399,7 @@ footer { border-top: 1px solid var(--line); padding: 24px 0 40px; color: var(--m
               </div>
               <div class="readout">
                 <div><b id="ppV">3.06</b><span>oxygen pressure, psi</span></div>
-                <div><b id="ppR">100%</b><span>of sea-level breathing</span></div>
+                <div><b id="ppR">100%</b><span>of the dry oxygen reference</span></div>
               </div>
               <p class="cap" id="ppNote"></p>
             </div>
@@ -418,13 +415,11 @@ footer { border-top: 1px solid var(--line); padding: 24px 0 40px; color: var(--m
             </div>
           </div>
         </div>
-        <div class="why"><b>Why it matters.</b> The ISS and the planned Moon Base breathe almost the same, but the Moon Base air is 30% oxygen
-          instead of 21%: more than 40% more oxygen per molecule of air. Materials that are safe on the ISS can burn there. The figures
-          for the three places come from NASA's challenge statement.</div>
+        <div class="why"><b>Why it matters.</b> The example ISS and Moon Base atmospheres have similar dry oxygen partial pressure, but different oxygen percentages and total pressures. Those differences matter when selecting relevant combustion tests. The preset figures come from NASA's challenge statement.</div>
         <div class="check" data-answer="0">
-          <p>Quick check: an atmosphere of 40% oxygen at 7.7 psi. Compared with sea level, is it easier to breathe, the same, or harder?</p>
-          <div class="opts"><button type="button">About the same</button><button type="button">Much easier</button><button type="button">Much harder</button></div>
-          <p class="fb" hidden>About the same: 0.40 &times; 7.7 = 3.08 psi, right on the sea-level curve. But at 40% oxygen it is far more flammable.</p>
+          <p>Quick check: an atmosphere of 40% oxygen at 7.7 psi. Is its dry oxygen partial pressure close to the 3.07 psi reference?</p>
+          <div class="opts"><button type="button">Close to the reference</button><button type="button">About twice the reference</button><button type="button">About half the reference</button></div>
+          <p class="fb" hidden>Close: 0.40 &times; 7.7 = 3.08 psi. The oxygen percentage and total pressure still differ from the reference atmosphere. This calculation does not establish breathing suitability or material flammability.</p>
         </div>
         <div class="try">Try it: <a class="btn ghost sm" href="index.html#analysis">On the map, follow the dashed curve from ISS to Moon Base</a></div>
       </article>
@@ -468,7 +463,7 @@ footer { border-top: 1px solid var(--line); padding: 24px 0 40px; color: var(--m
             </div>
           </div>
         </div>
-        <div class="why"><b>Why it matters.</b> This is why "same breathing" (lesson 1.3) does not mean "same fire risk". Apollo 1's cabin was pure
+        <div class="why"><b>Why it matters.</b> Equal dry oxygen partial pressure does not establish equal fire behavior. Apollo 1's cabin was pure
           oxygen during a ground test, and a small fire spread through it in seconds.</div>
         <div class="check" data-answer="1">
           <p>Quick check: adding helium to a chamber (as NASA's FLEX tests did) helps put a flame out mainly because helium...</p>
@@ -489,8 +484,7 @@ footer { border-top: 1px solid var(--line); padding: 24px 0 40px; color: var(--m
           <div>
             <h4>THE IDEA</h4>
             <p>At lower pressure, gas molecules are further apart and bump into each other less, so they <b>spread out faster</b>.
-              In microgravity, where spreading (diffusion) is the only way oxygen reaches a flame, this matters a lot: at low pressure
-              the flame gets its oxygen from further away, grows larger and dimmer.</p>
+              In still microgravity, diffusion supplies oxygen to the flame. Lower pressure increases the diffusion coefficient at fixed temperature and composition. Flame size also depends on reaction and heat loss; it cannot be inferred from diffusion alone.</p>
             <h4>THE FORMULA</h4>
             <div class="formula">
               <div class="eq">D &prop; 1 / P &nbsp;&rArr;&nbsp; D / D<sub>sea</sub> = 14.696 / P</div>
@@ -533,8 +527,7 @@ footer { border-top: 1px solid var(--line); padding: 24px 0 40px; color: var(--m
           <div>
             <h4>THE IDEA</h4>
             <p>A flame survives only while it makes heat faster than it loses it. Lower the oxygen and the flame makes less heat; at
-              some point losses win and it <b>goes out by itself</b> (self-extinguishes). The oxygen level where this happens is a
-              material's <b>flammability limit</b>, the single most useful number for choosing cabin materials.</p>
+              some point losses win and it <b>goes out by itself</b> (self-extinguishes). An extinction boundary depends on the fuel and the test conditions, including airflow and pressure.</p>
             <h4>THE FORMULA</h4>
             <div class="formula">
               <div class="eq">burns while &nbsp;Q<sub>made</sub> &gt; Q<sub>lost</sub></div>
@@ -557,8 +550,7 @@ footer { border-top: 1px solid var(--line); padding: 24px 0 40px; color: var(--m
         <div class="check" data-answer="2">
           <p>Quick check: in the chart, what happens to the share of droplets that went out by themselves as oxygen rises?</p>
           <div class="opts"><button type="button">It rises</button><button type="button">It stays the same</button><button type="button">It falls</button></div>
-          <p class="fb" hidden>It falls. In low oxygen almost every flame went out on its own; at Moon Base oxygen levels very few did. That is the
-            fire-risk side of the Moon Base trade, in NASA's own numbers.</p>
+          <p class="fb" hidden>The share generally falls in these grouped FLEX rows. Fuel, pressure and diluent also varied, so this chart cannot isolate the effect of oxygen or establish a limit for cabin materials.</p>
         </div>
         <div class="try">Try it: <a class="btn ghost sm" href="index.html#sim">In the Sim, pick FLEX and step through the tests</a></div>
       </article>
@@ -580,7 +572,7 @@ footer { border-top: 1px solid var(--line); padding: 24px 0 40px; color: var(--m
               <li><b>Across:</b> total pressure, 0 to 16 psi. Left is thinner air.</li>
               <li><b>Up:</b> oxygen percent, 10 to 100%.</li>
               <li><b>Each dot</b> is one NASA microgravity test, placed at the oxygen and pressure it ran at. Blue: gas flames. Amber: fuel droplets.</li>
-              <li><b>The dashed curve</b> is sea-level breathing, p<sub>O2</sub> = 3.07 psi (lesson 1.3). Atmospheres for people sit near it.</li>
+              <li><b>The dashed curve</b> marks the dry oxygen partial-pressure reference, p<sub>O2</sub> = 3.07 psi (lesson 1.3). It is not a safety boundary.</li>
               <li><b>Squares</b> mark ISS, Moon Base and spacesuit.</li>
               <li><b>The red dot</b> is your probe: the atmosphere you are asking about. Click anywhere on the map below to move it.</li>
             </ul>
@@ -727,7 +719,7 @@ footer { border-top: 1px solid var(--line); padding: 24px 0 40px; color: var(--m
             <thead><tr><th>What</th><th>Formula</th><th>Where on the site</th><th>Source file</th></tr></thead>
             <tbody>
               <tr><td>Oxygen partial pressure</td><td class="eq">p<sub>O2</sub> = O<sub>2</sub>%/100 &times; P</td><td>Map curve, Sim record table</td><td>app.js, sim.html</td></tr>
-              <tr><td>Sea-level breathing curve</td><td class="eq">O<sub>2</sub>% = 307 / P</td><td>Dashed curve on the map</td><td>app.js (SEA_PPO2)</td></tr>
+              <tr><td>Dry oxygen reference curve</td><td class="eq">O<sub>2</sub>% = 307 / P</td><td>Dashed curve on the map</td><td>app.js (SEA_PPO2)</td></tr>
               <tr><td>Distance to a test</td><td class="eq">d = &radic;((&Delta;O<sub>2</sub>/10)&sup2; + (&Delta;P/2)&sup2;)</td><td>Evidence rating, nearest tests</td><td>lib/evidence.ts</td></tr>
               <tr><td>Near</td><td class="eq">d &le; 1</td><td>Counts on the map panel</td><td>lib/evidence.ts</td></tr>
               <tr><td>Rating</td><td class="eq">&ge;10 10+ nearby, 1 to 9 1 to 9 nearby, 0 None nearby</td><td>Rating per fuel kind</td><td>lib/evidence.ts</td></tr>
@@ -745,10 +737,10 @@ footer { border-top: 1px solid var(--line); padding: 24px 0 40px; color: var(--m
         <header><span class="k">G</span><h3>Glossary</h3></header>
         <dl class="gl">
           <dt>Microgravity (0 g)</dt><dd>Free fall, as on the ISS. Objects float and hot gas does not rise.</dd>
-          <dt>Partial gravity</dt><dd>Between 0 g and 1 g: the Moon (0.166 g), Mars (0.378 g). No fire data in PSI yet.</dd>
+          <dt>Partial gravity</dt><dd>Between 0 g and 1 g: the Moon (0.166 g), Mars (0.378 g). No partial-gravity tests in this collection.</dd>
           <dt>Diffusion flame</dt><dd>A flame where fuel and oxygen start apart and burn where they meet.</dd>
           <dt>Inverse flame</dt><dd>Oxygen flows out of the burner into a fuel-filled chamber, the reverse of usual. Its oxygen comes from the burner, so the map leaves it out by default.</dd>
-          <dt>Oxygen partial pressure</dt><dd>The pressure of the oxygen alone. Decides breathing.</dd>
+          <dt>Oxygen partial pressure</dt><dd>The oxygen fraction multiplied by total pressure. The site compares dry-gas values.</dd>
           <dt>psi</dt><dd>Pounds per square inch. Sea-level air is 14.7 psi.</dd>
           <dt>Pre-breathing</dt><dd>Breathing pure oxygen before a spacewalk to clear nitrogen from the body and avoid the bends. Lower cabin pressure shortens it.</dd>
           <dt>Self-extinguish</dt><dd>A flame going out on its own because it loses heat faster than it makes it.</dd>
@@ -840,9 +832,9 @@ footer { border-top: 1px solid var(--line); padding: 24px 0 40px; color: var(--m
     var o = +$('ppO').value, p = +$('ppP').value, v = o / 100 * p, r = v / 3.07;
     $('ppOo').textContent = o + '%'; $('ppPo').textContent = p.toFixed(1) + ' psi';
     $('ppV').textContent = v.toFixed(2); $('ppR').textContent = Math.round(r * 100) + '%';
-    $('ppNote').textContent = r < 0.85 ? 'Below sea-level breathing: crew would need time to adapt, or extra oxygen.' :
-      r > 1.25 ? 'Above sea-level breathing. Fine for short spells (spacesuits run here), but the air is very flammable.' :
-      'Close to sea-level breathing. The question is now how flammable ' + o + '% oxygen is.';
+    $('ppNote').textContent = r < 0.85 ? 'Below the dry oxygen reference. This comparison does not assess breathing suitability.' :
+      r > 1.25 ? 'Above the dry oxygen reference. A partial-pressure calculation does not establish a suitable cabin atmosphere.' :
+      'Close to the dry oxygen reference. Compare the oxygen percentage as well as this number.';
   }
   ['ppO', 'ppP'].forEach(function (id) { $(id).addEventListener('input', pp); });
   document.querySelectorAll('[data-pp]').forEach(function (b) { b.addEventListener('click', function () { var v = b.dataset.pp.split(','); $('ppO').value = v[0]; $('ppP').value = v[1]; pp(); }); });
@@ -985,6 +977,8 @@ footer { border-top: 1px solid var(--line); padding: 24px 0 40px; color: var(--m
   }
 })();
 </script>
+<script src="assets/studies.js"></script>
 <script src="assets/learn-guide.js"></script>
+<script src="assets/learning-labs.js"></script>
 </body>
 </html>

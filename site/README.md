@@ -1,5 +1,13 @@
 # Flashpoint site
 
+## Codex refinement
+
+This clone includes interactive science lessons, original soundtrack mixes, a theme-aware gravity/ventilation study and revised plain-language copy. The Learn page opens an Experiment view by default, with separate Watch lesson and Explanation tabs. Videos release resources when hidden and restore the playhead when reopened. Clean narration recordings are linked beside each video.
+
+For local review use `python scripts/preview.py` from this clone's root. The standard-library server supports the byte ranges required for reliable video seeking. Open `http://127.0.0.1:8766/site/`.
+
+Validation: 146 learning/media checks and 50 application checks passed in installed Chrome. Detailed scope and limitations are in `docs/learning-refinement.md`. Earlier project notes follow.
+
 The website itself: plain HTML, CSS and JavaScript, no build step. Everything runs in the visitor's browser, including
 the flame simulation (WebGL 2, with a CSS backup flame). Open to change by the team like everything else in the repo.
 

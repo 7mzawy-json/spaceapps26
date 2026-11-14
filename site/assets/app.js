@@ -1027,7 +1027,7 @@
       note.appendChild(g); note.appendChild(document.createTextNode(k[2]));
     });
     note.appendChild(document.createTextNode('. Source: NASA PSI. The curve and habitat points use the values in the challenge statement.'));
-    updateEvidence(home.state.p, home.state.o); document.dispatchEvent(new CustomEvent('fp-data', { detail: rows }));
+    updateEvidence(home.state.p, home.state.o); window.FlashpointRows = rows; document.dispatchEvent(new CustomEvent('fp-data', { detail: rows }));
   });
 
   /* ---------- Navigation: a card opens its page; the other cards shrink into the bar ---------- */

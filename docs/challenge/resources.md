@@ -74,8 +74,9 @@ Watched by AlanziM2 on Nov 14. Notes from memory, not a transcript.
 - Main point: without gravity there are fewer variables (no buoyant flow), so flames are simpler to study and the
   experiments can be more efficient. This matches the Glenn page above and the spherical-flame argument in
   `alanzim/tabs-dashboard-idea.md`.
-- A speaker, Mr Stokes, says there are many surprises ahead from this research (paraphrased). Check the exact
-  words and his role in the video before quoting him in the pitch.
+- A speaker, Mr Stocker, says there are many surprises ahead from this research (paraphrased). Possibly Dennis
+  Stocker of NASA Glenn, a co-author of the Researcher's Guide (item 4). Check the exact words and his role in the
+  video before quoting him in the pitch.
 
 ## 4. A Researcher's Guide to: Combustion Science (ISS Researcher's Guide, Oct 2015)
 

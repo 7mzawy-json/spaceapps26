@@ -58,8 +58,10 @@ def render(page, audio, out, seconds, fps=FPS, poster=None):
     out.parent.mkdir(parents=True, exist_ok=True)
     n = math.ceil(seconds * fps)
     ff = [imageio_ffmpeg.get_ffmpeg_exe(), "-y", "-loglevel", "error", "-f", "image2pipe", "-framerate", str(fps),
-          "-c:v", "mjpeg", "-i", "-", "-i", str(audio), "-map", "0:v", "-map", "1:a", "-c:v", "libx264", "-pix_fmt",
-          "yuv420p", "-crf", "23", "-preset", "medium", "-c:a", "aac", "-b:a", "128k", "-af", "apad", "-shortest",
+          "-c:v", "mjpeg", "-i", "-", "-i", str(audio), "-map", "0:v", "-map", "1:a", "-c:v", "libx264",
+          # JPEG frames are full range; convert to the standard (TV) range so every player shows the same colours
+          "-vf", "scale=in_range=pc:out_range=tv:out_color_matrix=bt709,format=yuv420p",
+          "-color_range", "tv", "-colorspace", "bt709", "-color_primaries", "bt709", "-color_trc", "bt709", "-crf", "23", "-preset", "medium", "-c:a", "aac", "-b:a", "128k", "-af", "apad", "-shortest",
           "-movflags", "+faststart", str(out)]
     srv, base = serve(ROOT)
     try:
@@ -85,6 +87,7 @@ def render(page, audio, out, seconds, fps=FPS, poster=None):
             b.close()
     finally:
         srv.shutdown()
+        srv.server_close()
     if out.stat().st_size > MAX_BYTES:
         smaller = out.with_name(out.stem + ".small.mp4")
         subprocess.run([imageio_ffmpeg.get_ffmpeg_exe(), "-y", "-loglevel", "error", "-i", str(out), "-c:v", "libx264",

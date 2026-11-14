@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flashpoint dashboard draft (temporary)</title>
+<!--
+  TEMPORARY DRAFT. Nothing in this file is final. Everything is open to change by anyone on the team.
+  Rough design exploration only: layout, colours, fonts, wording, animations and page contents are all suggestions.
+  Layout from AlanziM2's paper sketch; built with Claude Code (AI-assisted). Not part of the site, not deployed.
+  See README.md in this folder.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0f1012;
+  --fg: 245, 245, 245;          /* text drawn at four opacities */
+  --accent: #E85D35;
+  --t1: rgba(var(--fg), 1);
+  --t2: rgba(var(--fg), .87);
+  --t3: rgba(var(--fg), .60);
+  --t4: rgba(var(--fg), .38);
+  --hair: rgba(var(--fg), .12);
+  --hair-strong: rgba(var(--fg), .40);
+  --sans: Inter, system-ui, sans-serif;
+  --mono: "JetBrains Mono", Menlo, monospace;
+  --ease: cubic-bezier(.16,1,.3,1);
+}
+@media (prefers-color-scheme: light) {
+  :root { --bg: #f5f5f5; --fg: 24, 24, 26; }
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { min-height: 100dvh; }
+body {
+  font-family: var(--sans); font-weight: 300; color: var(--t2); background: var(--bg);
+  background-image: linear-gradient(rgba(var(--fg), .028) 1px, transparent 1px), linear-gradient(90deg, rgba(var(--fg), .028) 1px, transparent 1px);
+  background-size: 48px 48px; background-attachment: fixed;
+  line-height: 1.6; overflow-x: hidden; -webkit-font-smoothing: antialiased;
+}
+main { max-width: 1180px; margin: 0 auto; padding: 0 1.5rem 6rem; }
+
+header { display: flex; justify-content: space-between; align-items: baseline; padding: 2rem 0; }
+.mark { font-weight: 500; color: var(--t1); letter-spacing: -.01em; }
+.mark i { display: inline-block; width: 6px; height: 6px; background: var(--accent); margin-right: .6rem; vertical-align: middle; }
+.meta { font-size: .8rem; color: var(--t4); }
+.draft { color: var(--accent); }
+
+.intro { padding: clamp(3rem, 8vw, 6rem) 0 clamp(2.5rem, 6vw, 4rem); max-width: 760px; }
+.intro h1 { font-size: clamp(2.25rem, 5vw, 3.75rem); font-weight: 200; line-height: 1.08; letter-spacing: -.035em; color: var(--t1); }
+.intro h1 span { color: var(--t4); }
+.intro p { margin-top: 1.5rem; font-size: 1rem; color: var(--t3); max-width: 52ch; }
+
+/* Cards: one hairline grid, no boxes floating apart */
+.grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border-top: 1px solid var(--hair); border-left: 1px solid var(--hair); }
+.card {
+  position: relative; display: flex; flex-direction: column; min-height: 360px; padding: 2rem;
+  border-right: 1px solid var(--hair); border-bottom: 1px solid var(--hair);
+  color: inherit; text-decoration: none; cursor: pointer; transition: background-color 300ms var(--ease);
+  opacity: 0; transform: translateY(16px); animation: enter 420ms var(--ease) forwards;
+}
+.card:nth-child(2) { animation-delay: 80ms; } .card:nth-child(3) { animation-delay: 160ms; } .card:nth-child(4) { animation-delay: 240ms; }
+@keyframes enter { to { opacity: 1; transform: none; } }
+.card:hover, .card:focus-visible { background: rgba(var(--fg), .025); }
+.card:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.card h2 { font-size: 1.25rem; font-weight: 400; color: var(--t1); letter-spacing: -.01em; }
+.card p { margin-top: .35rem; font-size: .875rem; color: var(--t3); max-width: 40ch; }
+.arrow { position: absolute; top: 2rem; right: 2rem; width: 18px; height: 18px; stroke: var(--t1); opacity: 0; transform: translate(-6px, 6px); transition: opacity 300ms var(--ease), transform 300ms var(--ease); }
+.card:hover .arrow, .card:focus-visible .arrow { opacity: 1; transform: none; }
+.viz { flex: 1; display: flex; align-items: center; justify-content: center; padding-top: 1.5rem; }
+.viz svg { width: 100%; max-width: 380px; height: auto; overflow: visible; }
+svg text { font-family: var(--mono); font-size: 8px; fill: var(--t4); }
+
+/* Home: curve draws itself, habitats light up, the gap appears */
+.map .axis { stroke: var(--hair-strong); }
+.map .curve { stroke: var(--t3); stroke-dasharray: 280; transition: stroke 300ms; }
+.map .mk circle { fill: var(--t3); transition: fill 300ms; }
+.map .mk.moon circle { fill: var(--accent); }
+.map .dark rect { stroke: var(--accent); }
+.map .dark text { fill: var(--accent); }
+.map .dark { opacity: 0; transition: opacity 400ms var(--ease); }
+.card:hover .map .curve, .card:focus-visible .map .curve { stroke: var(--t1); animation: draw 900ms var(--ease) backwards; }
+.card:hover .map .mk circle { fill: var(--t1); }
+.card:hover .map .mk.moon circle { fill: var(--accent); }
+.card:hover .map .dark, .card:focus-visible .map .dark { opacity: 1; transition-delay: 800ms; }
+@keyframes draw { from { stroke-dashoffset: 280; } }
+
+/* SI Assist: question types out, answer lines grow, citations rise */
+.chat { width: 100%; max-width: 380px; display: grid; gap: .9rem; font-size: .85rem; }
+.q { justify-self: end; color: var(--t2); border-bottom: 1px solid var(--hair-strong); padding-bottom: .3rem; }
+.q .typed { display: inline-block; overflow: hidden; white-space: nowrap; vertical-align: bottom; width: 27ch; font-family: var(--mono); font-size: .8rem; }
+.q .caret { display: inline-block; width: 1px; height: 1em; vertical-align: -2px; margin-left: 2px; background: var(--accent); animation: blink 1s steps(1) infinite; }
+.a { display: grid; gap: .55rem; }
+.bar { height: 2px; background: var(--hair-strong); transform-origin: left; }
+.bar:nth-child(1) { width: 92%; } .bar:nth-child(2) { width: 80%; } .bar:nth-child(3) { width: 58%; }
+.cite { display: flex; flex-wrap: wrap; gap: 1rem; font-family: var(--mono); font-size: .7rem; color: var(--t4); }
+.cite .gap { color: var(--accent); }
+.card:hover .q .typed, .card:focus-visible .q .typed { animation: type 1.1s steps(27) backwards; }
+.card:hover .bar, .card:focus-visible .bar { background: var(--t3); animation: grow 500ms var(--ease) backwards; }
+.card:hover .bar:nth-child(1) { animation-delay: 1.15s; }
+.card:hover .bar:nth-child(2) { animation-delay: 1.3s; }
+.card:hover .bar:nth-child(3) { animation-delay: 1.45s; }
+.card:hover .cite, .card:focus-visible .cite { animation: rise 420ms var(--ease) 1.75s backwards; }
+@keyframes type { from { width: 0; } }
+@keyframes grow { from { transform: scaleX(0); } }
+@keyframes rise { from { opacity: 0; transform: translateY(8px); } }
+@keyframes blink { 50% { opacity: 0; } }
+
+/* Resources: a hairline scans the catalogue and lights each record */
+.cat { position: relative; width: 100%; max-width: 380px; font-size: .85rem; }
+.row { display: grid; grid-template-columns: 9ch 1fr auto; gap: .5rem; padding: .55rem 0; border-bottom: 1px solid var(--hair); color: var(--t3); transition: color 300ms; }
+.row .acc { font-family: var(--mono); font-size: .75rem; color: var(--t4); }
+.row .ph { font-size: .75rem; color: var(--t4); }
+.scan { position: absolute; left: 0; right: 0; top: 0; height: 1px; background: var(--accent); opacity: 0; }
+.card:hover .scan, .card:focus-visible .scan { animation: scan 1.6s var(--ease) forwards; }
+.card:hover .row, .card:focus-visible .row { animation: lit 1.6s var(--ease) backwards; }
+.card:hover .row:nth-child(3) { animation-delay: .2s; }
+.card:hover .row:nth-child(4) { animation-delay: .4s; }
+.card:hover .row:nth-child(5) { animation-delay: .6s; }
+.card:hover .row:nth-child(6) { animation-delay: .8s; }
+@keyframes scan { 0% { transform: translateY(0); opacity: 1; } 85% { opacity: 1; } 100% { transform: translateY(190px); opacity: 0; } }
+@keyframes lit { 0%, 100% { color: var(--t3); } 20% { color: var(--t1); } }
+
+/* Sim: the droplet's spherical flame grows and breathes, a ripple spreads outward */
+.sim .guide { stroke: var(--hair); }
+.sim .drop { fill: var(--t1); }
+.sim .ring { stroke: var(--t3); transform-origin: 160px 90px; transform: scale(.6); transition: transform 700ms var(--ease), stroke 300ms; }
+.sim .ripple { stroke: var(--accent); transform-origin: 160px 90px; opacity: 0; }
+.card:hover .sim .ring, .card:focus-visible .sim .ring { stroke: var(--accent); transform: scale(1); animation: breathe 2.4s 700ms ease-in-out infinite; }
+.card:hover .sim .ripple, .card:focus-visible .sim .ripple { animation: ripple 2.4s 700ms var(--ease) infinite; }
+@keyframes breathe { 50% { transform: scale(1.05); } }
+@keyframes ripple { from { transform: scale(1); opacity: .5; } to { transform: scale(1.6); opacity: 0; } }
+
+/* Card grows into its page */
+.expander { position: fixed; z-index: 200; background: var(--bg); border: 1px solid var(--hair-strong);
+  transition: top 450ms var(--ease), left 450ms var(--ease), width 450ms var(--ease), height 450ms var(--ease), border-color 450ms; }
+.page { position: fixed; inset: 0; z-index: 210; overflow-y: auto; background: var(--bg); opacity: 0; visibility: hidden; transition: opacity 200ms; }
+.page.open { opacity: 1; visibility: visible; }
+.page-in { max-width: 1180px; margin: 0 auto; padding: 2rem 1.5rem 6rem; }
+.back { font: inherit; font-size: .875rem; font-weight: 400; color: var(--t3); background: none; border: 0; cursor: pointer; padding: 0; transition: color 200ms; }
+.back:hover { color: var(--t1); }
+.back:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+.page h1 { margin-top: clamp(3rem, 8vw, 5rem); font-size: clamp(2.25rem, 5vw, 3.5rem); font-weight: 200; letter-spacing: -.035em; color: var(--t1); }
+.page .lead { margin-top: 1rem; color: var(--t3); max-width: 60ch; }
+.layout { margin-top: 3rem; display: grid; grid-template-columns: 2fr 1fr; border-top: 1px solid var(--hair); border-left: 1px solid var(--hair); }
+.block { min-height: 150px; padding: 1.5rem; border-right: 1px solid var(--hair); border-bottom: 1px solid var(--hair); font-size: .85rem; color: var(--t4); }
+.block b { display: block; font-weight: 500; color: var(--t2); margin-bottom: .35rem; }
+.block.tall { grid-row: span 3; min-height: 450px; }
+.btn { margin-top: 1rem; font: inherit; font-size: .85rem; font-weight: 500; color: #fff; background: var(--accent); border: 0; padding: .6rem 1rem; cursor: pointer; transition: filter 200ms, transform 100ms; }
+.btn:hover { filter: brightness(.92); } .btn:active { transform: translateY(1px); }
+.page .reveal { opacity: 0; transform: translateY(16px); transition: opacity 420ms var(--ease), transform 420ms var(--ease); }
+.page.open .reveal { opacity: 1; transform: none; }
+.page.open .reveal:nth-child(2) { transition-delay: 80ms; }
+.page.open .reveal:nth-child(3) { transition-delay: 160ms; }
+.page.open .reveal:nth-child(4) { transition-delay: 240ms; }
+
+@media (max-width: 767px) {
+  .grid, .layout { grid-template-columns: 1fr; }
+  .card { min-height: 300px; padding: 1.5rem; }
+  .arrow { top: 1.5rem; right: 1.5rem; opacity: .6; transform: none; }
+  .block.tall { grid-row: auto; min-height: 280px; }
+  .meta-rest { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  .card { opacity: 1; transform: none; }
+  .map .dark { opacity: 1; }
+}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <span class="mark"><i></i>Flashpoint</span>
+    <span class="meta"><span class="draft">Draft, open to change</span><span class="meta-rest"> &middot; Flame in Freefall &middot; NASA Space Apps 2026</span></span>
+  </header>
+
+  <section class="intro">
+    <h1>Fire evidence for the places <span>astronauts will live.</span></h1>
+    <p>NASA's microgravity fire tests, set against the cabin atmospheres planned for the ISS, a Moon Base and rovers.</p>
+  </section>
+
+  <section class="grid" aria-label="Modules">
+    <a class="card" href="#home" data-page="home">
+      <h2>Home</h2>
+      <p>Every test by pressure and oxygen, and where the evidence runs out.</p>
+      <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke-width="1.5" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"/></svg>
+      <div class="viz">
+        <svg class="map" viewBox="0 0 320 190" fill="none" aria-hidden="true">
+          <path class="axis" d="M40 170H305M40 170V18"/>
+          <text x="290" y="184">psi</text><text x="8" y="22">% O2</text>
+          <path class="curve" stroke-width="1.25" d="M89.9 18.0 L96.9 38.7 L105.0 57.3 L113.1 71.7 L121.2 83.2 L137.5 100.5 L153.8 112.8 L170.0 122.1 L186.2 129.3 L202.5 135.0 L218.8 139.8 L235.0 143.7 L251.2 147.0 L267.5 149.9 L283.8 152.3 L300.0 154.5"/>
+          <g class="mk"><circle cx="278.9" cy="151.4" r="3"/><text x="272" y="166">ISS</text></g>
+          <g class="mk moon"><circle cx="205.8" cy="136.2" r="3"/><text x="184" y="158">MOON BASE</text></g>
+          <g class="mk"><circle cx="109.9" cy="18" r="3"/><text x="118" y="21">SUIT</text></g>
+          <g class="dark"><rect x="175" y="40" width="115" height="55" stroke-width="1" stroke-dasharray="3 3"/><text x="203" y="71">NO DATA</text></g>
+        </svg>
+      </div>
+    </a>
+
+    <a class="card" href="#si" data-page="si">
+      <h2>SI Assist</h2>
+      <p>Ask in plain words. Answers cite NASA records.</p>
+      <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke-width="1.5" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"/></svg>
+      <div class="viz">
+        <div class="chat" aria-hidden="true">
+          <div class="q"><span class="typed">Can fabric burn at 30% O2?</span><span class="caret"></span></div>
+          <div class="a"><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>
+          <div class="cite"><span>PSI-25</span><span>PSI-98</span><span class="gap">no data at 1/6 g</span></div>
+        </div>
+      </div>
+    </a>
+
+    <a class="card" href="#resources" data-page="resources">
+      <h2>Resources</h2>
+      <p>The 24 NASA investigations behind every number.</p>
+      <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke-width="1.5" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"/></svg>
+      <div class="viz">
+        <div class="cat" aria-hidden="true">
+          <div class="scan"></div>
+          <div class="row"><span class="acc">PSI-159</span><span>ACME CFI-G</span><span class="ph">gas</span></div>
+          <div class="row"><span class="acc">PSI-69</span><span>FLEX</span><span class="ph">droplet</span></div>
+          <div class="row"><span class="acc">PSI-25</span><span>BASS-II</span><span class="ph">solid</span></div>
+          <div class="row"><span class="acc">PSI-98</span><span>SAFFIRE-I</span><span class="ph">solid</span></div>
+          <div class="row"><span class="acc">PSI-101</span><span>SAME-R</span><span class="ph">smoke</span></div>
+        </div>
+      </div>
+    </a>
+
+    <a class="card" href="#sim" data-page="sim">
+      <h2>Sim</h2>
+      <p>A droplet flame in freefall, checked against NASA's measurements.</p>
+      <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke-width="1.5" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"/></svg>
+      <div class="viz">
+        <svg class="sim" viewBox="0 0 320 180" fill="none" aria-hidden="true">
+          <path class="guide" d="M160 10v160M70 90h180"/>
+          <circle class="ripple" cx="160" cy="90" r="50" stroke-width="1"/>
+          <circle class="ring" cx="160" cy="90" r="50" stroke-width="1.5"/>
+          <circle class="drop" cx="160" cy="90" r="5"/>
+          <text x="236" y="34">O2   30%</text><text x="236" y="48">P    10.2 psi</text><text x="236" y="62">g    0</text>
+        </svg>
+      </div>
+    </a>
+  </section>
+</main>
+
+<section class="page" id="page-home" aria-label="Home">
+  <div class="page-in">
+    <button class="back">&larr; Dashboard</button>
+    <h1>Atmosphere map</h1>
+    <p class="lead">Drag the probe anywhere. See how much evidence sits near that point, the nearest tests, and what is not known.</p>
+    <div class="layout">
+      <div class="block tall reveal"><b>Map</b>Pressure against oxygen. Sea-level curve, habitats, tests by outcome, draggable probe.</div>
+      <div class="block reveal"><b>Probe</b>Evidence rating, test count, nearest five tests.</div>
+      <div class="block reveal"><b>Prevent, detect, suppress</b>The closest investigation for each.</div>
+      <div class="block reveal"><b>Evidence brief</b><button class="btn">Open the brief</button></div>
+    </div>
+  </div>
+</section>
+<section class="page" id="page-si" aria-label="SI Assist">
+  <div class="page-in">
+    <button class="back">&larr; Dashboard</button>
+    <h1>SI Assist</h1>
+    <p class="lead">Ask about fire in space. Answers cite PSI records, and the map and tables beside them update to show the evidence.</p>
+    <div class="layout">
+      <div class="block tall reveal"><b>Conversation</b>Question box, three starter questions, answers with citations.</div>
+      <div class="block reveal"><b>What changed</b>Moved probe to 30% at 10.2 psi, set gravity to Moon.</div>
+      <div class="block reveal"><b>Evidence</b>The tests the answer used.</div>
+      <div class="block reveal"><b>Not covered</b>What the data cannot answer.</div>
+    </div>
+  </div>
+</section>
+<section class="page" id="page-resources" aria-label="Resources">
+  <div class="page-in">
+    <button class="back">&larr; Dashboard</button>
+    <h1>Resources</h1>
+    <p class="lead">Every combustion investigation in NASA's PSI database: fuel, hardware, conditions tested, and the source.</p>
+    <div class="layout">
+      <div class="block tall reveal"><b>Catalogue</b>24 investigations. Search, filter by fuel and hardware, download as CSV.</div>
+      <div class="block reveal"><b>Compare</b>Two investigations side by side.</div>
+      <div class="block reveal"><b>Reading</b>Researcher's Guide, Apollo 1, Apollo 13, Mir.</div>
+      <div class="block reveal"><b>Credits</b>Data, images and libraries used.</div>
+    </div>
+  </div>
+</section>
+<section class="page" id="page-sim" aria-label="Sim">
+  <div class="page-in">
+    <button class="back">&larr; Dashboard</button>
+    <h1>Flame in freefall</h1>
+    <p class="lead">A spherical droplet flame in microgravity. Change the conditions and compare the model with what NASA measured.</p>
+    <div class="layout">
+      <div class="block tall reveal"><b>Flame</b>Droplet, flame sphere, oxygen field with a numbered legend.</div>
+      <div class="block reveal"><b>Conditions</b>Oxygen, pressure, fuel. Presets: ISS, Moon Base, spacesuit.</div>
+      <div class="block reveal"><b>Readouts</b>Burn rate, flame size, burnout time.</div>
+      <div class="block reveal"><b>Model vs NASA</b>Nearest FLEX test and the difference.</div>
+    </div>
+  </div>
+</section>
+
+<script>
+(function () {
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var openCard = null;
+  function rectStyle(r) { return 'top:' + r.top + 'px;left:' + r.left + 'px;width:' + r.width + 'px;height:' + r.height + 'px'; }
+
+  function open(name, card) {
+    var page = document.getElementById('page-' + name);
+    if (!page) return;
+    openCard = card;
+    if (reduce || !card) { page.classList.add('open'); page.querySelector('.back').focus(); return; }
+    var ex = document.createElement('div');
+    ex.className = 'expander';
+    ex.style.cssText = rectStyle(card.getBoundingClientRect());
+    document.body.appendChild(ex);
+    ex.getBoundingClientRect();
+    ex.style.cssText = 'top:0;left:0;width:100vw;height:100dvh;border-color:transparent';
+    setTimeout(function () {
+      page.classList.add('open');
+      page.querySelector('.back').focus({ preventScroll: true });
+      setTimeout(function () { ex.remove(); }, 220);
+    }, 430);
+  }
+
+  function close() {
+    var page = document.querySelector('.page.open');
+    if (!page) return;
+    var card = openCard;
+    if (reduce || !card) { page.classList.remove('open'); if (card) card.focus(); return; }
+    var ex = document.createElement('div');
+    ex.className = 'expander';
+    ex.style.cssText = 'top:0;left:0;width:100vw;height:100dvh;border-color:transparent;transition:none';
+    document.body.appendChild(ex);
+    page.classList.remove('open');
+    ex.getBoundingClientRect();
+    ex.style.transition = '';
+    ex.style.cssText = rectStyle(card.getBoundingClientRect());
+    setTimeout(function () { ex.style.transition = 'opacity 200ms'; ex.style.opacity = '0'; }, 430);
+    setTimeout(function () { ex.remove(); card.focus({ preventScroll: true }); }, 650);
+  }
+
+  document.querySelectorAll('.card').forEach(function (card) {
+    card.addEventListener('click', function (e) {
+      e.preventDefault();
+      history.pushState({ page: card.dataset.page }, '', '#' + card.dataset.page);
+      open(card.dataset.page, card);
+    });
+  });
+  document.querySelectorAll('.back').forEach(function (b) { b.addEventListener('click', function () { history.back(); }); });
+  window.addEventListener('popstate', function () {
+    var name = location.hash.slice(1);
+    if (name) open(name, document.querySelector('.card[data-page="' + name + '"]')); else close();
+  });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && document.querySelector('.page.open')) history.back(); });
+  if (location.hash) {
+    var n = location.hash.slice(1), p = document.getElementById('page-' + n);
+    if (p) { openCard = document.querySelector('.card[data-page="' + n + '"]'); p.classList.add('open'); }
+  }
+})();
+</script>
+</body>
+</html>

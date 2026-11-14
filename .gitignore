@@ -5,3 +5,6 @@ node_modules/
 .claude/worktrees/
 data/raw/
 .env.local
+
+.qa/
+baseline*.png

@@ -144,6 +144,13 @@ output { font-family: var(--mono); color: var(--brand); }
   background: var(--surface); border: 1px solid var(--line); border-radius: var(--corner); padding: 1.25rem 1.35rem; min-width: 0;
 }
 .results { border-top: 1px solid var(--line); padding-top: 1.25rem; gap: 1.4rem; }
+/* Left column: the chamber, then the live measurements, which grow so both columns end level (no empty space under the flame). */
+.grid { align-items: stretch; }
+.col { display: flex; flex-direction: column; gap: 1.4rem; min-width: 0; }
+.col > :last-child { flex: 1; }
+body.nogpu .col > .chamber { flex: 1; }
+.live { background: var(--surface); border: 1px solid var(--line); border-radius: var(--corner); padding: 1.25rem 1.35rem; min-width: 0; }
+.results { grid-template-columns: minmax(0, 1fr); }
 .truth { border-top: 0; padding-top: 0; gap: 1.4rem; }
 .truth p { color: var(--muted); font-size: var(--t-sm); }
 .window { background: var(--chamber); border-color: var(--chamber); }
@@ -182,6 +189,7 @@ footer { color: var(--muted); font-size: var(--t-xs); }
   </header>
 
   <div class="grid">
+    <div class="col">
     <section class="chamber">
       <div class="tabs gpu" role="radiogroup" aria-label="What the chamber shows">
         <label><input type="radio" name="view" value="0" checked>Flame</label>
@@ -209,6 +217,20 @@ footer { color: var(--muted); font-size: var(--t-xs); }
       </div>
       <p class="note gpu">Move the pointer over the chamber to read the model's values at that spot. Drag to blow on the flame.</p>
     </section>
+    <section class="live gpu">
+    <h2>Measured from the model, live</h2>
+    <div class="meters">
+      <div class="meter"><b id="mState">.</b><span>model flame</span></div>
+      <div class="meter"><b id="mShape">.</b><span>height divided by width (1 is a ball)</span></div>
+      <div class="meter"><b id="mSize">.</b><span>flame width, in fuel source widths</span></div>
+      <div class="meter"><b id="mO2">.</b><span>lowest oxygen inside the flame</span></div>
+      <div class="meter"><b id="mHot">.</b><span>hottest point, on the heat scale</span></div>
+      <div class="meter"><b id="mFlick">.</b><span>steadiness over the last 3 seconds</span></div>
+    </div>
+    <canvas id="spark" role="img" aria-label="Burning rate of the model flame over the last 30 seconds"></canvas>
+    <p class="note">Burning rate over the last 30 seconds (model units). A flat line is a steady flame, a sawtooth is flicker, a drop to zero is a flame going out.</p>
+    </section>
+    </div>
 
     <section class="panel">
       <div class="field">
@@ -256,19 +278,6 @@ footer { color: var(--muted); font-size: var(--t-xs); }
   </div>
 
   <section class="results gpu">
-    <div>
-      <h2>Measured from the model, live</h2>
-      <div class="meters">
-        <div class="meter"><b id="mState">.</b><span>model flame</span></div>
-        <div class="meter"><b id="mShape">.</b><span>height divided by width (1 is a ball)</span></div>
-        <div class="meter"><b id="mSize">.</b><span>flame width, in fuel source widths</span></div>
-        <div class="meter"><b id="mO2">.</b><span>lowest oxygen inside the flame</span></div>
-        <div class="meter"><b id="mHot">.</b><span>hottest point, on the heat scale</span></div>
-        <div class="meter"><b id="mFlick">.</b><span>steadiness over the last 3 seconds</span></div>
-      </div>
-      <canvas id="spark" role="img" aria-label="Burning rate of the model flame over the last 30 seconds"></canvas>
-      <p class="note">Burning rate over the last 30 seconds (model units). A flat line is a steady flame, a sawtooth is flicker, a drop to zero is a flame going out.</p>
-    </div>
     <div>
       <h2 id="recTitle">NASA's record, by oxygen level</h2>
       <div class="tablewrap">

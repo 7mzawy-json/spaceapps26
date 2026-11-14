@@ -19,6 +19,22 @@ Two fixes made while joining them:
   last change", "Open on PSI") and pinned them in place, unclickable. The animation's class is now `morph`.
 - The logo style (`.mark`) is limited to the header and the bar, because the Resources charts also use `mark` for their dots.
 
+Fixes after a teammate's review (Sat Nov 14, afternoon):
+
+- **Sim, empty space under the flame.** In `sim.html` the live measurements moved from the bottom row to under the
+  chamber, and the two columns now stretch to the same height. NASA's record table takes the full width below.
+- **Box sizes.** Map, SI Assist and Resources all use the same split (a wide box of 8 columns, a side column of 4), and
+  the side column's last box grows so both columns end level. On the Map the evidence brief moved under the probe and
+  the nearest tests take the full width. The chat takes the height of the controls beside it and scrolls inside.
+- **Map legend.** The three legend marks were stretched to the full width of the panel by the rule for the map itself.
+  They are 12 px again.
+- **Map gravity.** Every test in the data ran in microgravity. Picking Moon, Mars or Earth now says so on the map, sets
+  the evidence rating to "No tests", and labels the nearest tests as microgravity tests. Nothing is estimated.
+- **SI Assist fuel and gravity.** The fuel buttons now filter the marks on the small map, and gravity shows the same
+  message as on the Map. Solid fuels show no marks, with the reason: NASA's tables give those tests no pressure.
+- **Resources, Colour by.** The grid of two groups (for example outcome by fuel type) ignored the colour. Each cell
+  now holds a bar split by the chosen colour column.
+
 ## Files
 
 ```

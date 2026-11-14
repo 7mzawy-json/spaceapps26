@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Video 1.4: Why more oxygen burns hotter</title>
+<!-- Learners page video 1.4. AI-assisted animation (Claude Code). Original drawings. Drawn as a function of time by engine.js. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;600&family=Geist+Mono:wght@500&display=block" rel="stylesheet">
+<link rel="stylesheet" href="scene.css">
+</head>
+<body>
+<svg id="stage" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid meet" aria-label="Animation: why more oxygen burns hotter"></svg>
+<div id="cap" hidden></div>
+<div id="ctl" hidden><button type="button">Play</button><input type="range" min="0" value="0" aria-label="Time"><output>0.0 s</output></div>
+<script src="engine.js"></script>
+<script>
+E.scene('1-4', function (E, root) {
+  var C = E.C, el = E.el, set = E.set, at = E.at, win = E.window, L = E.label;
+  var B = {};
+  ['nitrogen', 'ratio_earth', 'sponge', 'raise', 'moon_ratio', 'suit', 'hotter', 'same_breath', 'diluents', 'flex'].forEach(function (b) { B[b] = E.beat(b); });
+  var END = E.timing.duration;
+  var defs = E.flameDefs(root);
+  var chap = E.chapter(root, '1.4', 'Why more oxygen burns hotter');
+  // Heat factor from the Sim (site/sim.html, flameParams): 16 / (1 + 3.15 / x), capped at 1.5. Illustrative size only.
+  function heat(o2) { return Math.min(1.5, 16 / (1 + 3.15 / (o2 / 100))); }
+
+  /* ---------- drifting nitrogen, the opening ---------- */
+  var drift = el('g', {}, root), dn = [], r = E.rand(41);
+  for (var i = 0; i < 22; i++) dn.push({ g: E.mol(drift, C.grey, 15), x: r() * 1920, y: 180 + r() * 760, v: 20 + r() * 30, rot: r() * 360 });
+  var lN = L('nitrogen does not burn', 960, 560, 64, C.ink, { weight: 600, anchor: 'middle' }, root);
+
+  /* ---------- the flame and the nitrogen around it ---------- */
+  var FX = 600, FY = 640;
+  var fl = el('g', {}, root);
+  var halo = el('circle', { cx: FX, cy: FY - 60, r: 230, fill: 'url(#haloWarm)' }, fl);
+  var flame = el('path', { fill: 'url(#warm)' }, fl);
+  var cool = el('path', { fill: 'url(#cool)' }, fl);
+  var ring = [], waves = [];
+  for (var j = 0; j < 7; j++) {
+    var a = -Math.PI / 2 + (j - 3) * .55, rr = 300;
+    var g = E.mol(fl, C.grey, 17), w = el('path', { fill: 'none', stroke: C.red, 'stroke-width': 5, 'stroke-linecap': 'round' }, fl);
+    ring.push({ g: g, a: a, x: FX + rr * Math.cos(a) * 1.15, y: FY - 70 + rr * Math.sin(a) * .9 }); waves.push(w);
+  }
+  var lSponge = L('nitrogen soaks up the heat', FX, FY + 200, 38, C.ink, { anchor: 'middle' }, fl);
+  var hot = el('g', {}, fl), hotL = [];
+  ['burns hotter', 'spreads faster', 'harder to put out'].forEach(function (s, k) { hotL.push(L(s, 1060, 760 + k * 72, 44, C.amber, { weight: 600 }, hot)); });
+
+  /* diluents: carbon dioxide and helium */
+  var dil = el('g', {}, fl), co2 = [], he = [], r2 = E.rand(77);
+  for (var c = 0; c < 10; c++) {
+    var m = el('g', {}, dil);
+    el('circle', { cx: -26, cy: 0, r: 13, fill: '#c9ccd6' }, m); el('circle', { cx: 0, cy: 0, r: 15, fill: '#2b3445' }, m); el('circle', { cx: 26, cy: 0, r: 13, fill: '#c9ccd6' }, m);
+    co2.push({ g: m, a: r2() * 6.3, d: r2() });
+  }
+  for (var hh = 0; hh < 12; hh++) he.push({ g: el('circle', { r: 9, fill: '#f4e27a' }, dil), a: r2() * 6.3, d: r2() });
+  var lDil = el('g', {}, fl);
+  E.place(el('g', {}, lDil), 0, 0);
+  var dl1 = L('carbon dioxide', FX + 330, FY - 220, 36, '#c9ccd6', { weight: 600 }, lDil);
+  var dl2 = L('helium', FX + 330, FY - 160, 36, '#f4e27a', { weight: 600 }, lDil);
+  var dl3 = L('dilute the oxygen, carry heat away', FX + 330, FY - 100, 32, C.muted, {}, lDil);
+  var lFlex = L('NASA FLEX: burning droplets on the space station', FX + 330, FY + 40, 34, C.blueSoft, {}, fl);
+
+  /* ---------- the ratio: nitrogen molecules per oxygen molecule ---------- */
+  var R = el('g', {}, root), RX = 1060, RY = 330;
+  E.place(E.mol(R, C.blue, 26), RX + 40, RY);
+  L('1 oxygen', RX + 40, RY + 80, 28, C.blueSoft, { anchor: 'middle' }, R);
+  var slots = [];
+  for (var s = 0; s < 4; s++) {
+    var x = RX + 220 + s * 150, cp = el('clipPath', { id: 'slot' + s }, defs), cr = el('rect', { x: x - 60, y: RY - 40, height: 80 }, cp);
+    el('circle', { cx: x, cy: RY, r: 56, fill: 'none', stroke: C.line, 'stroke-width': 2, 'stroke-dasharray': '6 6' }, R);
+    var mg = el('g', { 'clip-path': 'url(#slot' + s + ')' }, R); E.place(E.mol(mg, C.grey, 26), x, RY);
+    slots.push({ rect: cr, x: x, mg: mg });
+  }
+  var nTxt = L('', RX + 520, RY + 120, 64, C.ink, { mono: true, anchor: 'middle' }, R);
+  L('nitrogen per oxygen', RX + 520, RY + 166, 28, C.muted, { anchor: 'middle' }, R);
+  var forms = [['(100 − 21) / 21 = 3.76', 'Earth air, 21% oxygen'], ['(100 − 30) / 30 = 2.33', 'Moon Base, 30% oxygen'], ['(100 − 100) / 100 = 0', 'spacesuit, pure oxygen']].map(function (f) {
+    var g = el('g', {}, R); L(f[0], RX, RY + 300, 50, C.blueSoft, { mono: true }, g); L(f[1], RX, RY + 356, 32, C.muted, {}, g); return g;
+  });
+  var o2Txt = L('', RX, RY - 110, 40, C.blueSoft, { mono: true }, R);
+
+  /* same breathing, not the same fire */
+  var S = el('g', {}, root);
+  [['same breathing', C.teal], ['not the same fire risk', C.red]].forEach(function (d, k) {
+    var g = el('g', {}, S), y = 760 + k * 100;
+    el('rect', { x: RX, y: y - 56, width: 700, height: 80, rx: 40, fill: C.panel, stroke: d[1], 'stroke-width': 3 }, g);
+    L(d[0], RX + 40, y, 40, d[1], { weight: 600 }, g); d.g = g; S['c' + k] = g;
+  });
+
+  return function draw(t) {
+    set(chap, { opacity: (.35 + .65 * (1 - at(t, 5, 1))) * (1 - at(t, END - 1, 1)) });
+    /* opening: nitrogen drifts past */
+    var dOn = at(t, .1, .6) * (1 - at(t, B.ratio_earth, 1));
+    dn.forEach(function (n) { E.place(n.g, ((n.x + t * n.v) % 2040) - 60, n.y + 18 * Math.sin(t + n.x), n.rot + t * 20, 1, dOn * .8); });
+    set(lN, { opacity: win(t, .5, B.ratio_earth - .3) });
+
+    /* oxygen share over the video: 21% (Earth), 30% (Moon Base), 100% (suit) */
+    var toMoon = at(t, B.raise + .5, 3, E.ease.inOut), toSuit = at(t, B.suit, 1.6, E.ease.inOut), back = at(t, B.same_breath, 1, E.ease.inOut);
+    var o2 = E.lerp(E.lerp(21, 30, toMoon), 100, toSuit);
+    var ratio = (100 - o2) / o2;
+
+    /* the ratio panel */
+    set(R, { opacity: win(t, B.ratio_earth, B.diluents - .3) });
+    slots.forEach(function (sl, k) { var f = E.clamp(ratio - k); set(sl.rect, { width: Math.max(.01, 120 * f) }); });
+    nTxt.textContent = ratio.toFixed(2);
+    o2Txt.textContent = o2.toFixed(0) + '% oxygen';
+    var fe = win(t, B.ratio_earth + 1.5, B.raise + 1), fm = win(t, B.moon_ratio + .3, B.suit), fs = at(t, B.suit + 1, .6);
+    set(forms[0], { opacity: fe }); set(forms[1], { opacity: fm }); set(forms[2], { opacity: fs });
+
+    /* flame: Earth air first, grows with oxygen, shrinks when diluted, then a droplet in orbit */
+    var on = at(t, B.sponge, 1, E.ease.back);
+    var dilute = at(t, B.diluents + 1.5, 4, E.ease.inOut);
+    var size = heat(o2) * (1 - .45 * dilute) * Math.max(.02, on);
+    var orbit = at(t, B.flex, 1.6, E.ease.inOut);
+    var k = 1 - orbit, d = E.flameShape(k, 58 * size + 20 * orbit, FX, FY, 9 * Math.sin(t * 9) * k);
+    set(fl, { opacity: at(t, B.sponge, .6) * (1 - at(t, END - 1, 1)) });
+    set(flame, { d: d, opacity: k }); set(cool, { d: d, opacity: 1 - k });
+    set(halo, { r: 160 + 100 * size, opacity: (.6 + .4 * (size - 1)) * k });
+    var soak = at(t, B.sponge + 1.5, 2.5) * (1 - toMoon * .6) * (1 - toSuit);
+    ring.forEach(function (n, j) {
+      var heatC = Math.round(138 + (252 - 138) * soak), ok = (j + 1) / 7 <= ratio / 3.76 + .01;
+      E.place(n.g, n.x, n.y + 8 * Math.sin(t * 1.5 + j), n.a * 57 + 90, 1, ok ? 1 - dilute : 0);
+      [].forEach.call(n.g.childNodes, function (cn) { cn.setAttribute('fill', 'rgb(' + heatC + ',' + Math.round(151 - 90 * soak) + ',' + Math.round(173 - 140 * soak) + ')'); });
+      var ph = (t * 1.1 + j * .3) % 1, x1 = FX + 70 * Math.cos(n.a), y1 = FY - 70 + 70 * Math.sin(n.a), x2 = n.x - 30 * Math.cos(n.a), y2 = n.y - 30 * Math.sin(n.a);
+      var mx = (x1 + x2) / 2 - 20 * Math.sin(n.a + t * 3), my = (y1 + y2) / 2 + 20 * Math.cos(n.a + t * 3);
+      set(waves[j], { d: 'M' + x1.toFixed(1) + ' ' + y1.toFixed(1) + ' Q' + mx.toFixed(1) + ' ' + my.toFixed(1) + ' ' + x2.toFixed(1) + ' ' + y2.toFixed(1),
+        opacity: ok ? win(t, B.sponge + 1, B.raise + 1) * (.4 + .6 * (1 - ph)) * (1 - dilute) : 0 });
+    });
+    set(lSponge, { opacity: win(t, B.sponge + 2, B.raise + 1) });
+    set(hot, { opacity: win(t, B.hotter, B.same_breath, .5) });
+    hotL.forEach(function (h, j) { set(h, { opacity: at(t, B.hotter + .5 + j * 1.3, .5) }); });
+
+    /* same breathing, different fire risk */
+    set(S, { opacity: win(t, B.same_breath, B.diluents - .3) });
+    set(S.c0, { opacity: at(t, B.same_breath + .7, .5) }); set(S.c1, { opacity: at(t, B.same_breath + 1.9, .5) });
+
+    /* diluents stream in */
+    var dOn2 = win(t, B.diluents + .5, B.flex, .8);
+    co2.forEach(function (m, j) { var life = ((t - B.diluents) * .1 + m.d) % 1, rad = 520 - 340 * life; E.place(m.g, FX + rad * Math.cos(m.a), FY - 60 + rad * Math.sin(m.a) * .8, m.a * 57 + t * 15, 1, dOn2 * Math.min(1, life * 5)); });
+    he.forEach(function (h, j) { var life = ((t - B.diluents) * .14 + h.d) % 1, rad = 520 - 360 * life; set(h.g, { cx: FX + rad * Math.cos(h.a), cy: FY - 60 + rad * Math.sin(h.a) * .8, opacity: dOn2 * Math.min(1, life * 5) }); });
+    set(lDil, { opacity: win(t, B.diluents + .8, B.flex) });
+    set(dl1, { opacity: at(t, B.diluents + .8, .5) }); set(dl2, { opacity: at(t, B.diluents + 1.8, .5) }); set(dl3, { opacity: at(t, B.diluents + 3.5, .5) });
+    set(lFlex, { opacity: at(t, B.flex + 1, .6) });
+  };
+});
+</script>
+</body>
+</html>

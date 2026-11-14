@@ -68,7 +68,7 @@ export const FACTS = {
     source: `${GUIDE}, p. 26 and 34 (SAME, PSI-102; SAME-R, PSI-101)`,
   },
   partialGravity: {
-    text: "PSI holds no partial-gravity combustion data yet. Microgravity results and normal-gravity results bound what happens at Moon or Mars gravity. FM2 (Flammability of Materials on the Moon) is planned to burn materials at lunar gravity.",
+    text: "PSI holds no partial-gravity combustion data yet. NASA's challenge statement says microgravity and normal-gravity results could bound what happens at Moon or Mars gravity. FM2 (Flammability of Materials on the Moon) is planned to burn materials at lunar gravity.",
     source: `${CHALLENGE}; ${GLENN}`,
   },
   moonAtmosphere: {

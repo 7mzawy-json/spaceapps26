@@ -4,9 +4,11 @@ For the local preview, run `python scripts/preview.py`, then open `http://127.0.
 
 Start with **Start the guided analysis** for the evidence presentation. Use **Research tools** for the complete catalogue, filters, graphs and CSV export. Learn opens one chapter at a time with six interactive experiments and separate Watch/Explanation views. The flame lab has its own four-step demonstration: one NASA record, gravity, ventilation and a recorded extinction. Pin a model frame to compare one changed variable, or copy a setup link. The source card keeps NASA's actual conditions and outcome separate from the live illustration.
 
+Data check: `python scripts/check_data.py` derives every test value a second time from the raw NASA cells kept in `data/tests.json` and compares it with what the site loads. Add `--against-nasa` to download the tables from NASA PSI again and compare every row. It uses the standard library only.
+
 Validation: `python scripts/check_experience.py` runs the local Chrome browser checks; `node scripts/check_offline_native.mjs` runs the existing evidence/answer checks with Node 24 and no installation. Browser checks use the already installed Playwright and pypdf tools. Details: `docs/codex-refinement.md`.
 
-The learning/media audit is `python scripts/check_learning.py` (140 passing checks). The application audit has 50 passing checks. Scientific limits and media validation are described in `docs/learning-refinement.md`.
+The learning/media audit is `python scripts/check_learning.py` (141 passing checks). The application audit has 50 passing checks. Scientific limits and media validation are described in `docs/learning-refinement.md`.
 
 The flame-lab audit is `python scripts/check_flame_lab.py` (99 passing checks), including source provenance, comparisons, custom settings, fallback, reduced motion and delayed first-load transfers. See `docs/flame-lab-refinement.md` for scope and verification.
 

@@ -351,6 +351,7 @@ footer { border-top: 1px solid var(--line); padding: 24px 0 40px; color: var(--m
             </div>
             <h4>IN NASA'S DATA</h4>
             <div class="data" id="d2">Counting the tests...</div>
+            <div class="data" id="d2g" hidden></div>
           </div>
         </div>
         <div class="why"><b>Why it matters.</b> A Moon Base sits at 1/6 of Earth's gravity, Mars at about 3/8. NASA's PSI database has no
@@ -443,8 +444,10 @@ footer { border-top: 1px solid var(--line); padding: 24px 0 40px; color: var(--m
             <div class="formula">
               <div class="eq">N<sub>2</sub> per O<sub>2</sub> = (100 &minus; O<sub>2</sub>%) / O<sub>2</sub>%</div>
               <p class="where">Earth air: 79 / 21 = 3.76. Moon Base: 70 / 30 = 2.33. Spacesuit: 0.</p>
-              <p class="src">The Sim turns this into a flame-heat factor: heat &prop; 16 / (1 + 3.15 / x), where x is the oxygen share.
-                It equals 1 in Earth air and is capped at 1.5. The direction is real; the size is tuned by hand (site/sim.html, flameParams).</p>
+              <p class="src">The flame lab turns this into a heat factor. From 21% oxygen up it follows the flame temperatures NASA
+                calculated for its own propane tests, 2,271 K in 21.1% oxygen and 2,730 K in 39.5% (CFI-G, PSI-159):
+                factor = 11.76 / (8 + N<sub>2</sub> per O<sub>2</sub>). That gives 1.00 in Earth air, 1.14 at 30% and 1.47 in pure oxygen.
+                NASA's rows stop at 40% oxygen, so the pure-oxygen figure is an extrapolation (site/sim.html, heatFactor).</p>
             </div>
           </div>
           <div>
@@ -459,7 +462,7 @@ footer { border-top: 1px solid var(--line); padding: 24px 0 40px; color: var(--m
               <div class="legend"><span><i style="background:var(--brand-fill)"></i>oxygen</span><span><i style="background:var(--line-strong);opacity:.55"></i>nitrogen (soaks up heat)</span></div>
               <div class="readout">
                 <div><b id="molR">3.76</b><span>nitrogen per oxygen</span></div>
-                <div><b id="molH">1.00</b><span>Sim heat factor (illustrative)</span></div>
+                <div><b id="molH">1.00</b><span>flame lab heat factor</span></div>
               </div>
             </div>
           </div>
@@ -484,13 +487,18 @@ footer { border-top: 1px solid var(--line); padding: 24px 0 40px; color: var(--m
         <div class="cols">
           <div>
             <h4>THE IDEA</h4>
-            <p>At lower pressure, gas molecules are further apart and bump into each other less, so they <b>spread out faster</b>.
-              In still microgravity, diffusion supplies oxygen to the flame. Lower pressure increases the diffusion coefficient at fixed temperature and composition. Flame size also depends on reaction and heat loss; it cannot be inferred from diffusion alone.</p>
+            <p>At lower pressure, gas molecules are further apart and collide less often, so each one travels further before it is
+              knocked off course. Gases <b>spread out faster</b>: the diffusion coefficient rises as pressure falls. The gas is also
+              thinner by the same factor, so the <b>mass of oxygen</b> that diffusion delivers to a flame each second stays about the same.</p>
+            <p>Lower pressure changes the flame in other ways. The chemistry runs slower, because molecules meet less often.
+              Where there is gravity, buoyant flow has less effect. So a flame at 10 psi is a different flame from one at 14.7 psi, even at the same oxygen percent.</p>
             <h4>THE FORMULA</h4>
             <div class="formula">
               <div class="eq">D &prop; 1 / P &nbsp;&rArr;&nbsp; D / D<sub>sea</sub> = 14.696 / P</div>
-              <p class="where">D is how fast a gas spreads (the diffusion coefficient), at a fixed temperature. Halve the pressure and gases spread about twice as fast.</p>
-              <p class="src">Used in the Sim: mixing = 0.2 / atm, with atm = psi / 14.696 (site/sim.html, flameParams).</p>
+              <p class="where">D is how fast a gas spreads (the diffusion coefficient), at a fixed temperature. Halve the pressure and gases spread about twice as fast.
+                Density &rho; falls in step with pressure, so &rho; &times; D, which sets how much oxygen diffusion carries, does not change.</p>
+              <p class="src">Used in the flame lab: heat, motion and gases all spread as 1 / atm, with atm = psi / 14.696 (site/sim.html, flameParams).
+                The lab's reaction speed does not change with pressure, which is one of its stated limits.</p>
             </div>
           </div>
           <div>
@@ -512,8 +520,8 @@ footer { border-top: 1px solid var(--line); padding: 24px 0 40px; color: var(--m
             <div class="data" id="d5">Counting the tests...</div>
           </div>
         </div>
-        <div class="why"><b>Why it matters.</b> A Moon Base runs at about 10.2 psi, lower than the ISS. Its fires would mix differently, which is
-          why tests at the right pressure, not just the right oxygen percent, are the evidence that counts.</div>
+        <div class="why"><b>Why it matters.</b> NASA's challenge statement expects a Moon Base at 10.2 psi or less, lower than the ISS. Oxygen percent and
+          pressure would both differ from Earth's, and they act on a flame in different ways. A test is evidence for that cabin only when both are close.</div>
       </article>
 
       <article class="lesson" id="l6">
@@ -665,7 +673,8 @@ footer { border-top: 1px solid var(--line); padding: 24px 0 40px; color: var(--m
             <p>A script downloaded NASA's per-test tables and copied the values. Where NASA used other units, it converted them to psi:</p>
             <div class="formula">
               <div class="eq">psi = atm &times; 14.696 &nbsp;|&nbsp; bar &times; 14.504 &nbsp;|&nbsp; mmHg &times; 0.019337</div>
-              <p class="where">Oxygen given as a fraction is multiplied by 100. Anything not stated is left empty, never estimated.</p>
+              <p class="where">Oxygen given as a fraction is multiplied by 100. Anything not stated is left empty, never estimated.
+                Where NASA's table also gives the other gases in the chamber, the burn time, or its own words for how the test ended, the row keeps them.</p>
               <p class="src">Used in: scripts/build_tests.py; listed in data/tests.meta.json.</p>
             </div>
           </div>
@@ -688,21 +697,22 @@ footer { border-top: 1px solid var(--line); padding: 24px 0 40px; color: var(--m
           <div>
             <h4>REAL, FROM NASA'S TEST</h4>
             <ul>
-              <li>The oxygen, pressure and fuel of the test you pick.</li>
+              <li>The oxygen, pressure and fuel of the test you pick, with the other gases in the chamber and the burn time where NASA's table gives them.</li>
               <li>Whether NASA's flame lit and whether it went out. At the original atmosphere, 0 g and no added ventilation, the illustration follows that outcome when it is recorded.</li>
             </ul>
             <h4>REAL PHYSICS, IN THE EQUATIONS</h4>
             <ul>
               <li>Fuel burns only where it meets oxygen (lesson 1.1).</li>
               <li>Buoyancy scales with gravity, F<sub>b</sub> &prop; g (lesson 1.2). The model also approximates how flow changes fuel release.</li>
-              <li>Less oxygen, more nitrogen to heat, cooler flame (lesson 1.4).</li>
-              <li>Lower pressure, faster mixing (lesson 1.5).</li>
+              <li>Less oxygen, more nitrogen to heat, cooler flame (lesson 1.4). Between 20% and 40% oxygen the size of that effect follows the flame temperatures in NASA's tables.</li>
+              <li>Lower pressure, faster spreading of heat, motion and gases (lesson 1.5).</li>
             </ul>
           </div>
           <div>
             <h4>ILLUSTRATION</h4>
             <ul>
-              <li>The model's constants were tuned by hand, not fitted to NASA measurements.</li>
+              <li>Apart from the heat curve, the model's constants were tuned by hand. One reaction stands in for every fuel, and its speed does not change with pressure.</li>
+              <li>Carbon dioxide and helium, which FLEX added to put flames out, are treated as nitrogen.</li>
               <li>The colours of the 0 g flame are painted after NASA photographs.</li>
               <li>Moon, Mars and Earth gravity: NASA ran every test at 0 g, so these show the same air with gravity added, not a measured result.</li>
             </ul>
@@ -719,16 +729,17 @@ footer { border-top: 1px solid var(--line); padding: 24px 0 40px; color: var(--m
           <table class="t sheet">
             <thead><tr><th>What</th><th>Formula</th><th>Where on the site</th><th>Source file</th></tr></thead>
             <tbody>
-              <tr><td>Oxygen partial pressure</td><td class="eq">p<sub>O2</sub> = O<sub>2</sub>%/100 &times; P</td><td>Map curve, Sim record table</td><td>app.js, sim.html</td></tr>
+              <tr><td>Oxygen partial pressure</td><td class="eq">p<sub>O2</sub> = O<sub>2</sub>%/100 &times; P</td><td>Map curve, flame lab record</td><td>app.js, sim.html</td></tr>
               <tr><td>Dry oxygen reference curve</td><td class="eq">O<sub>2</sub>% = 307 / P</td><td>Dashed curve on the map</td><td>app.js (SEA_PPO2)</td></tr>
               <tr><td>Distance to a test</td><td class="eq">d = &radic;((&Delta;O<sub>2</sub>/10)&sup2; + (&Delta;P/2)&sup2;)</td><td>Evidence rating, nearest tests</td><td>lib/evidence.ts</td></tr>
               <tr><td>Near</td><td class="eq">d &le; 1</td><td>Counts on the map panel</td><td>lib/evidence.ts</td></tr>
               <tr><td>Rating</td><td class="eq">&ge;10 10+ nearby, 1 to 9 1 to 9 nearby, 0 None nearby</td><td>Rating per fuel kind</td><td>lib/evidence.ts</td></tr>
               <tr><td>Ranking</td><td class="eq">near &darr;, then closest d &uarr;</td><td>Investigations ranked for this point</td><td>app.js (rankAt)</td></tr>
               <tr><td>Unit conversion</td><td class="eq">atm&times;14.696, bar&times;14.504, mmHg&times;0.019337</td><td>Every pressure</td><td>build_tests.py</td></tr>
-              <tr><td>Buoyancy</td><td class="eq">F<sub>b</sub> = (&rho;<sub>air</sub> &minus; &rho;<sub>hot</sub>) g</td><td>Sim gravity</td><td>sim.html (grav)</td></tr>
-              <tr><td>Nitrogen per oxygen</td><td class="eq">(100 &minus; O<sub>2</sub>%) / O<sub>2</sub>%</td><td>Sim flame heat</td><td>sim.html (heat)</td></tr>
-              <tr><td>Mixing vs pressure</td><td class="eq">D &prop; 1/P</td><td>Sim mixing</td><td>sim.html (dx, diff)</td></tr>
+              <tr><td>Buoyancy</td><td class="eq">F<sub>b</sub> = (&rho;<sub>air</sub> &minus; &rho;<sub>hot</sub>) g</td><td>Flame lab gravity</td><td>sim.html (grav)</td></tr>
+              <tr><td>Nitrogen per oxygen</td><td class="eq">(100 &minus; O<sub>2</sub>%) / O<sub>2</sub>%</td><td>Flame lab heat</td><td>sim.html (heatFactor)</td></tr>
+              <tr><td>Heat factor, 21% oxygen and up</td><td class="eq">11.76 / (8 + N<sub>2</sub> per O<sub>2</sub>)</td><td>Flame lab heat, fitted to NASA's flame temperatures</td><td>sim.html (heatFactor)</td></tr>
+              <tr><td>Mixing vs pressure</td><td class="eq">D &prop; 1/P</td><td>Flame lab spreading</td><td>sim.html (dx, diff)</td></tr>
             </tbody>
           </table>
         </div>
@@ -745,6 +756,8 @@ footer { border-top: 1px solid var(--line); padding: 24px 0 40px; color: var(--m
           <dt>psi</dt><dd>Pounds per square inch. Sea-level air is 14.7 psi.</dd>
           <dt>Pre-breathing</dt><dd>Breathing pure oxygen before a spacewalk to clear nitrogen from the body and avoid the bends. Lower cabin pressure shortens it.</dd>
           <dt>Self-extinguish</dt><dd>A flame going out on its own because it loses heat faster than it makes it.</dd>
+          <dt>Kept burning</dt><dd>The site's label for a test where the flame did not go out by itself. It burned until the droplet was used up (FLEX: "Completion"), until NASA stopped the fuel flow (CFI-G: "FT") or for the burn time listed (SAFFIRE).</dd>
+          <dt>Diluent</dt><dd>A gas that does not burn, mixed into the atmosphere. Cabin air uses nitrogen. FLEX also added carbon dioxide or helium to study how they put flames out.</dd>
           <dt>Flammability limit</dt><dd>The lowest oxygen at which a material keeps burning.</dd>
           <dt>PSI accession</dt><dd>NASA Physical Science Informatics record number, for example PSI-69 for FLEX. Every test row cites one.</dd>
           <dt>Investigation</dt><dd>One NASA experiment campaign, such as FLEX or BASS-II, made up of many tests.</dd>
@@ -849,7 +862,7 @@ footer { border-top: 1px solid var(--line); padding: 24px 0 40px; color: var(--m
     for (var j = 0; j < nN; j++) { var b = document.createElement('i'); b.className = 'n'; box.appendChild(b); }
     var x = o / 100;
     $('molR').textContent = ((100 - o) / o).toFixed(2);
-    $('molH').textContent = Math.min(1.5, 16 / (1 + 3.15 / x)).toFixed(2);
+    $('molH').textContent = (x >= 0.21 ? (8 + 79 / 21) / (8 + (1 - x) / x) : 16 / (1 + 3.15 / x)).toFixed(2);   // same curve as heatFactor in sim.html
     document.querySelectorAll('[data-mol]').forEach(function (b) { b.setAttribute('aria-pressed', String(+b.dataset.mol === o)); });
   }
   document.querySelectorAll('[data-mol]').forEach(function (b) { b.addEventListener('click', function () { mol(+b.dataset.mol); }); });
@@ -875,12 +888,28 @@ footer { border-top: 1px solid var(--line); padding: 24px 0 40px; color: var(--m
     var g = by(function (r) { return r.gravity; });
     $('d2').innerHTML = 'Every one of the <b class="num">' + fmt(rows.length) + '</b> test rows ran at <b class="num">' + (Object.keys(g).join(', ').replace(/g\b/g, ' g')) +
       '</b>. There is no Moon or Mars gravity test to compare with yet. NASA\'s challenge statement names two planned ones: LUCI and FM2.';
-    var m = rows.filter(function (r) { return r.o2_pct != null && r.pressure_psi != null; });
-    var low = m.filter(function (r) { return r.pressure_psi < 12; }), moon = m.filter(function (r) { return r.pressure_psi >= 8 && r.pressure_psi <= 12.5 && r.o2_pct >= 24 && r.o2_pct <= 40 && r.oxygen_from !== 'burner'; });
+    // SAFFIRE-II is the one table that lists a 1 g burn length beside the microgravity one. The cells are shown as NASA wrote them.
+    var both = rows.filter(function (r) { return r.ug_burn_length || r.g1_burn_length; });
+    if (both.length) {
+      var cellText = function (v) { return v ? String(v).replace(/[&<>]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]; }) : 'not stated'; };
+      $('d2g').hidden = false;
+      $('d2g').innerHTML = '<p style="margin:0 0 .5rem">One NASA table does list both. For ' + both.length + ' ' + cellText(both[0].investigation) +
+        ' samples, burned in about 22% oxygen with a 20 cm/s airflow, it gives the burn length in microgravity beside the burn length at 1 g:</p>' +
+        '<div class="tablewrap"><table><thead><tr><th>Sample</th><th>Material</th><th>Microgravity</th><th>At 1 g</th></tr></thead><tbody>' +
+        both.map(function (r) { return '<tr><td>' + cellText(r.test_id) + '</td><td>' + cellText(r.fuel) + '</td><td>' + cellText(r.ug_burn_length) + '</td><td>' + cellText(r.g1_burn_length) + '</td></tr>'; }).join('') +
+        '</tbody></table></div><p style="margin:.5rem 0 0">Cells are NASA\'s own (' + cellText(both[0].source) + '). Its notes say that in sample 2-7 the PMMA was consumed ' +
+        'and the Nomex did not ignite, that the 10 cm figures are the length with visible damage, and that those flames stayed anchored at the base of the sample. Each sample was burned once at each gravity level, ' +
+        'so the table shows that gravity can change the result for one material. It cannot tell you how a different material would behave.</p>';
+    }
+    // Placeable means what the map can place: chamber oxygen and pressure both in NASA's table (inverse flames, whose oxygen is the burner stream, are left out).
+    var m = rows.filter(function (r) { return r.o2_pct != null && r.pressure_psi != null && r.oxygen_from !== 'burner'; });
+    var low = m.filter(function (r) { return r.pressure_psi < 12; }), moon = m.filter(function (r) { return r.pressure_psi >= 8 && r.pressure_psi <= 12.5 && r.o2_pct >= 24 && r.o2_pct <= 40; });
+    var moonDiluted = moon.filter(function (r) { return r.co2_pct > 0 || r.he_pct > 0; }).length;
     var mi = Math.min.apply(null, m.map(function (r) { return r.pressure_psi; }));
     $('d5').innerHTML = '<b class="num">' + fmt(low.length) + '</b> placeable tests ran below 12 psi, the lowest at <b class="num">' + mi.toFixed(1) +
       ' psi</b>. In the Moon Base range (8 to 12.5 psi, 24 to 40% oxygen) there are <b class="num">' + moon.length + '</b>, all of them ' +
-      Object.keys(moon.reduce(function (o, r) { o[r.investigation + ' ' + (r.fuel_phase === 'liquid' ? 'droplets' : r.fuel_phase)] = 1; return o; }, {})).join(', ') + '.';
+      Object.keys(moon.reduce(function (o, r) { o[r.investigation + ' ' + (r.fuel_phase === 'liquid' ? 'droplets' : r.fuel_phase)] = 1; return o; }, {})).join(', ') + '.' +
+      (moonDiluted ? ' Only <b class="num">' + (moon.length - moonDiluted) + '</b> of those ran in oxygen and nitrogen. The other <b class="num">' + moonDiluted + '</b> had carbon dioxide or helium added.' : '');
     flex(rows); map(rows);
   }).catch(function () {
     ['d1', 'd2', 'd5'].forEach(function (id) { $(id).textContent = 'The test data did not load. Serve the page from the repo root (see site/README.md).'; });

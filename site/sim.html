@@ -273,7 +273,7 @@ footer { color: var(--muted); font-size: var(--t-xs); }
   <details class="model-method"><summary>How the model works and what it cannot tell you</summary><section class="truth">
     <div><h2>Real physics</h2><p>Fuel burns only where it meets oxygen, and each bit of fuel uses up a fixed share of it. Hot gas rises only when there is gravity. Heat, motion and gases spread in proportion to 1 / pressure. Between 20% and 40% oxygen, the flame's heat follows the flame temperatures NASA lists for its own gas tests. A flame goes out when it loses heat faster than it makes it.</p></div>
     <div><h2>From NASA's table</h2><p>Oxygen, pressure, fuel, the other gases in the chamber, the burn time, and whether the flame lit and went out. These come from the test's own row and are never filled in or estimated. At 0 g with no airflow, the flame follows NASA's record of the test.</p></div>
-    <div><h2>What the model leaves out</h2><p>The chamber is flat (two dimensions). One reaction stands in for every fuel, and its speed does not change with pressure, although real chemistry slows as pressure drops. The model knows only oxygen percent and pressure, so the carbon dioxide and helium that FLEX added to put flames out are treated as nitrogen. Soot and radiation are a single cooling term. Sizes, speeds and times are in the model's own units, and above 40% oxygen the heat curve is an extrapolation. Use it to see which way a change pushes a flame. It cannot tell you whether a material will burn.</p></div>
+    <div><h2>What the model leaves out</h2><p>The chamber is flat (two dimensions). One reaction stands in for every fuel, and its speed does not change with pressure, although real chemistry slows as pressure drops. The model knows only oxygen percent and pressure, so the carbon dioxide and helium that FLEX added to put flames out are treated as nitrogen. Soot and radiation are a single cooling term. Fuel leaves the source at one fixed rate whatever the pressure. Sizes, speeds and times are in the model's own units, and above 40% oxygen the heat curve is an extrapolation. Use it to see which way a change pushes a flame. It cannot tell you whether a material will burn.</p></div>
   </section></details>
 
   <footer>
@@ -813,7 +813,7 @@ function readout() {
     const gases = [[r.n2_pct, 'nitrogen'], [r.co2_pct, 'carbon dioxide'], [r.he_pct, 'helium']].filter(g => g[0] > 0).map(g => g[0].toFixed(0) + '% ' + g[1]);
     const stated = r.n2_pct != null || r.co2_pct != null || r.he_pct != null;
     rows.splice(3, 0, ['Other gases', stated ? (gases.join(', ') || 'none') : 'not stated', stated && (r.co2_pct > 0 || r.he_pct > 0) ? 'the model treats every gas except oxygen as nitrogen' : '']);
-    rows.push(['Burn time', r.burn_time_s == null ? 'not recorded' : r.burn_time_s + ' s', r.burn_time_s == null ? '' : 'from NASA\'s table; the replay keeps its own clock']);
+    rows.push(['Burn time', r.burn_time_s == null ? 'not recorded' : (r.burn_time_approx ? 'about ' : '') + r.burn_time_s + ' s', r.burn_time_s == null ? '' : 'from NASA\'s table; the replay keeps its own clock']);
   }
   dl.textContent = '';
   for (const [k, v, hint] of rows) {

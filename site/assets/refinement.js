@@ -46,7 +46,11 @@
   $('journeyRestart').addEventListener('click',function () { setStep(0); });
   $('journeyTrack').querySelectorAll('button').forEach(function (b) { b.addEventListener('click',function () { setStep(+b.dataset.step); }); });
   $('startJourney').addEventListener('click',function () { fp.go('analysis'); document.querySelector('#anMode [data-m="simple"]').click(); setStep(0); });
-  document.querySelectorAll('[data-go]').forEach(function (a) { a.addEventListener('click',function (e) { e.preventDefault(); fp.go(a.dataset.go); }); });
+  document.querySelectorAll('[data-go]').forEach(function (a) { a.addEventListener('click',function (e) {
+    e.preventDefault(); fp.go(a.dataset.go);
+    if (a.dataset.mode) { document.querySelector('#anMode [data-m="'+a.dataset.mode+'"]').click(); if (a.dataset.mode==='advanced') document.querySelector('#resView [data-v="data"]').click(); }
+  }); });
+  $('moonBrief').addEventListener('click',function () { fp.go('analysis'); document.querySelector('#anMode [data-m="simple"]').click(); setStep(1); setTimeout(fp.brief,120); });
   var heroStudy = FlashpointStudies.flow($('heroFlow')), heroG = 0;
   function heroUpdate() {
     var fan=$('heroFan').checked;
@@ -69,7 +73,30 @@
     count.textContent=(n===undefined?'Loading':n.toLocaleString('en-US'))+' placeable rows shown. Fuel buttons filter the map; coverage compares all fuels.';
     empty.textContent=b.dataset.fuel==='solid'?'These material tests cannot be plotted: their NASA tables omit pressure. Missing coordinates do not mean the materials cannot burn.':'No placeable tests for this fuel in the map range.';
   }); });
-  function loaded(data) { rows=data; $('missionRows').textContent=rows.length.toLocaleString('en-US'); var inv={}; rows.forEach(function(r){inv[r.accession]=1;}); $('missionInv').textContent=Object.keys(inv).length; var missing=rows.filter(function(r){return r.fuel_phase==='solid' && r.pressure_psi==null;}).length; $('materialGap').textContent=missing+' solid-material test rows have no recorded pressure.'; }
+  function loaded(data) { rows=data; $('missionRows').textContent=rows.length.toLocaleString('en-US'); var inv={}; rows.forEach(function(r){inv[r.accession]=1;}); $('missionInv').textContent=Object.keys(inv).length; findings(); }
+  // The landing page's four findings and the Moon Base step of the journey, counted from the rows with the same rule the map uses.
+  function findings() {
+    var b=function (n) { return '<b>'+n+'</b>'; }, count=function (n,word) { return (n?b(n.toLocaleString('en-US')):'no')+' '+word+(n===1?'':'s'); };
+    var solid=rows.filter(function (r) { return r.fuel_phase==='solid'; }), missing=solid.filter(function (r) { return r.pressure_psi==null; }).length;
+    var solidO=solid.filter(function (r) { return r.o2_pct!=null; }).map(function (r) { return r.o2_pct; });
+    $('materialGap').innerHTML=b(missing)+' solid-material test rows have no recorded pressure. Where their oxygen is recorded, it tops out at '+b(Math.max.apply(null,solidO).toFixed(1)+'%')+'. NASA expects a Moon Base at 30% or more.';
+    var moon=fp.cover(10.2,30), suit=fp.cover(4.3,100);
+    if (moon) {
+      var gas=moon[0], drops=moon[1];
+      $('findMoon').innerHTML='At 30% oxygen and 10.2 psi, '+count(gas.n,'gas-flame test')+' and '+count(drops.n,'droplet test')+' sit nearby.'+(drops.diluted?' Only '+b(drops.plain)+' of the droplet tests ran in oxygen and nitrogen. The other '+b(drops.diluted)+' had carbon dioxide or helium added.':'');
+      if (drops.diluted) journey[1].text='At 30% oxygen and 10.2 psi, the dry oxygen partial pressure is almost the same as at sea level. The nearby tests burn fuel droplets, and only '+drops.plain+' of the '+drops.n+' ran in oxygen and nitrogen. No cabin fabric or plastic test can be placed here, because those tables omit pressure.';
+      if (step===1 && !custom) $('journeyText').textContent=journey[1].text;
+    }
+    var chamber=rows.filter(function (r) { return r.o2_pct!=null && r.oxygen_from==='chamber'; }).map(function (r) { return r.o2_pct; });
+    var burner=rows.filter(function (r) { return r.o2_pct!=null && r.oxygen_from==='burner'; }).map(function (r) { return r.o2_pct; });
+    if (suit) {
+      var nearSuit=suit.reduce(function (n,c) { return n+c.n; },0);
+      $('findSuit').innerHTML=(nearSuit?count(nearSuit,'test')+' sit':'No test of any fuel sits')+' near 100% oxygen at 4.3 psi. The most oxygen any test chamber held was '+b(Math.max.apply(null,chamber).toFixed(1)+'%')+'.'+(burner.length?' NASA\'s '+Math.max.apply(null,burner).toFixed(0)+'% oxygen tests fed it through the burner into fuel gas, the reverse of a cabin fire.':'');
+    }
+    var gravities={}; rows.forEach(function (r) { gravities[r.gravity]=1; });
+    var paired=rows.filter(function (r) { return r.ug_burn_length || r.g1_burn_length; });
+    $('findGravity').innerHTML=(Object.keys(gravities).join()==='0g'?'Every test ran in microgravity. None ran at Moon or Mars gravity.':'Gravity levels in the rows: '+Object.keys(gravities).join(', ')+'.')+(paired.length?' One NASA table, '+paired[0].investigation+', lists a burn length at 1 g beside the microgravity one, for '+b(paired.length)+' samples.':'');
+  }
   document.addEventListener('fp-data',function(e){loaded(e.detail);});
   if(window.FlashpointRows)loaded(window.FlashpointRows);
   // Modal focus containment and restoration complement the original Escape handler.

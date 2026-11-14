@@ -218,3 +218,20 @@ body[data-learn] .toc a.on { background:var(--brand-soft); color:var(--brand); }
   #page-analysis .stats dd { font-size:1.15rem; }
   #page-analysis .journey-track button { font-size:10.5px; }
 }
+/* Landing page: findings counted from the rows, and the challenge's three objectives (AI-assisted, Claude Code). */
+.findings { padding:0 0 70px; }
+.finding-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:18px; margin-top:26px; }
+.finding-grid article { border:1px solid var(--line); border-radius:12px; padding:22px; background:linear-gradient(140deg,var(--surface),var(--well)); }
+.finding-grid .kind { color:var(--accent); }
+.finding-grid p { font-size:14px; line-height:1.65; color:var(--muted); margin-top:12px; }
+.finding-grid p b { color:var(--ink); font:500 15px var(--mono); }
+.asked { padding:0 0 74px; }
+.asked-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:26px; margin-top:26px; }
+.asked-grid article { border-top:2px solid var(--accent-mark); padding-top:18px; display:flex; flex-direction:column; gap:12px; }
+.asked-grid blockquote { font-size:16px; line-height:1.5; color:var(--ink); margin:0; }
+.asked-grid p { font-size:14px; line-height:1.65; color:var(--muted); }
+.asked-grid .go { margin-top:auto; font:600 14px var(--sans); color:var(--brand); text-decoration:none; background:none; border:0; padding:0; text-align:left; cursor:pointer; min-height:32px; display:inline-flex; align-items:center; gap:10px; }
+.asked-grid .go:hover { color:var(--accent); }
+@media(max-width:1100px) { .finding-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media(max-width:860px) { .asked-grid { grid-template-columns:1fr; }.findings { padding-bottom:44px; }.asked { padding-bottom:48px; } }
+@media(max-width:540px) { .finding-grid { grid-template-columns:1fr; } }

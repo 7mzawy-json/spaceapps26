@@ -1,6 +1,19 @@
 # Flashpoint site
 
-## Current site (Sat Nov 14, evening)
+## Accuracy pass (Sat Nov 14, night)
+
+The dataset was rebuilt from a fresh download of NASA's 11 PSI tables and matches the earlier build row for row. The build now also keeps columns that were being dropped: the other gases in the chamber (FLEX and CFI), the burn time, NASA's own words for how a test ended, and the microgravity and 1 g burn lengths that SAFFIRE-II lists side by side. Four SAFFIRE-II silicone rows whose burn time NASA gives as "Insignificant" now read as went out instead of not recorded. `python scripts/check_data.py` re-derives every value from the raw cells.
+
+What changed on the site because of it:
+
+- Analysis says how many of the nearby tests ran in oxygen and nitrogen and how many had carbon dioxide or helium added. At the Moon Base point that is 21 and 47 of 68. Research tools has a filter, a table column, a graph colour and CSV columns for the same thing, and burn time can be graphed.
+- The flame lab's heat against oxygen follows the adiabatic flame temperatures in NASA's CFI-G and Flame Design tables between 20% and 40% oxygen (one constant, within 1% of the temperature rise over 64 rows). Spreading of heat, motion and gases follows 1 / pressure down to the bottom of the slider; it used to stop changing below about 12 psi. The page lists what the model leaves out.
+- Lesson 1.5 no longer suggests that lower pressure feeds a flame more oxygen: the gas is thinner by the same factor that diffusion is faster. Lesson 1.2 shows NASA's SAFFIRE-II burn lengths at both gravity levels.
+- The landing page states four findings counted from the rows and maps the challenge's three objectives to the part of the site that answers each.
+
+The assistant still answers from fixed rules. The challenge asks for an SI-powered dashboard, so connecting a model is the largest open item.
+
+## Earlier on Sat Nov 14, evening
 
 The Codex refinement was merged into the main site on Sat Nov 14, keeping the original headline and the original lesson videos (the synthesized soundtrack was left out because no human had listened to it). The site includes interactive science lessons, a theme-aware gravity/ventilation study and revised plain-language copy. The Learn page opens an Experiment view by default, with separate Watch lesson and Explanation tabs. Videos release resources when hidden and restore the playhead when reopened.
 
@@ -8,7 +21,7 @@ The flame lab now opens with a four-step demonstration: read one NASA record, ad
 
 For local review use `python scripts/preview.py` from the repo root. The standard-library server supports the byte ranges required for reliable video seeking. Open `http://127.0.0.1:8766/site/`.
 
-Validation: 99 flame-lab checks, 140 learning/media checks and 50 application checks passed in installed Chrome, plus the existing offline-engine checks. Detailed scope and limitations are in `docs/flame-lab-refinement.md` and `docs/learning-refinement.md`. Earlier project notes follow.
+Validation: 99 flame-lab checks, 141 learning/media checks and 50 application checks passed in installed Chrome, plus the existing offline-engine checks. Detailed scope and limitations are in `docs/flame-lab-refinement.md` and `docs/learning-refinement.md`. Earlier project notes follow.
 
 The website itself: plain HTML, CSS and JavaScript, no build step. Everything runs in the visitor's browser, including
 the flame simulation (WebGL 2, with a CSS backup flame). Open to change by the team like everything else in the repo.

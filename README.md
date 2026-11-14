@@ -2,11 +2,13 @@
 
 This is the isolated **Codex experience refinement**, on branch `codex/experience-refinement`. The parent project is unchanged.
 
-For the local preview, serve this clone's root with `python -m http.server 8766 --bind 127.0.0.1`, then open `http://127.0.0.1:8766/site/`.
+For the local preview, run `python scripts/preview.py`, then open `http://127.0.0.1:8766/site/`. This server supports media byte ranges so video seeking works.
 
-Start with **Follow the evidence** for the four-step presentation. Use **Research tools** for the complete catalogue, filters, graphs and CSV export. Learn now opens one chapter at a time. The flame lab supports recorded conditions, atmosphere presets and gravity comparisons, with explicit illustration labels.
+Start with **Start the guided analysis** for the four-step presentation. Use **Research tools** for the complete catalogue, filters, graphs and CSV export. Learn opens one chapter at a time with six interactive experiments and separate Watch/Explanation views. Its videos include an original quiet soundtrack and links to clean narration recordings. The flame lab supports recorded conditions, atmosphere presets and gravity comparisons, with explicit illustration labels.
 
 Validation: `python scripts/check_experience.py` runs the local Chrome browser checks; `node scripts/check_offline_native.mjs` runs the existing evidence/answer checks with Node 24 and no installation. Browser checks use the already installed Playwright and pypdf tools. Details: `docs/codex-refinement.md`.
+
+The learning/media audit is `python scripts/check_learning.py` (146 passing checks). The application audit has 50 passing checks. Scientific limits, soundtrack generation and media validation are described in `docs/learning-refinement.md`.
 
 Fire evidence for the places astronauts will live. Built for the NASA Space Apps Challenge 2026, challenge
 **Flame in Freefall** (Nov 14 to 15, 2026), by team BrayTech Pyrotechnics.

@@ -16,6 +16,7 @@ played in planning, research and drafting the roadmap.
 
 | When | Who | Tool and model | What the AI did | What a human checked |
 |---|---|---|---|---|
+| Sat Nov 14, Codex learning refinement | user requested | OpenAI Codex | Reworked six science lessons into distinct interactive experiments with separate video/explanation views; added ventilation and animated gas-transport studies with light/dark support; revised slogans and scientific wording using Humanizer and NASA sources; composed an original instrumental soundtrack in Python and mixed it under the six original narrations; added a range-capable local preview server and extensive media/UI checks | 146 learning checks and 50 application checks passed in Chrome, plus offline-engine checks; media stream hashes and durations verified; human review and listening assessment pending; details in `docs/learning-refinement.md` |
 | Thu Nov 12 to Sat Nov 14, before kickoff | team | Claude Code | Read the challenge page, Resources tab links, Project Submission Guide and Judging and Awards Guide into `docs/challenge/`; drafted `ROADMAP.md` and `AGENTS.md` from the team's plan | (team to fill in) |
 | Sat Nov 14, 10:30 | team | Claude Code | Wrote `scripts/build_tests.py`, which downloads the PSI per-test tables and writes `data/tests.json` (1,285 rows, each with its source file, line and raw cells) and `data/tests.meta.json`. Values are copied or unit-converted by code, none typed by the AI | (team to fill in) |
 | Sat Nov 14, 10:45 | AlanziM2 | Claude Code | Built the temporary clickable mockup in `temp/dashboard-draft/` from AlanziM2's paper sketch and two style references AlanziM2 chose | AlanziM2 reviewed it in the browser and asked for a less cluttered version |
@@ -44,6 +45,10 @@ The original-work checkbox at submission confirms this list is complete. Add eac
 
 | Item | Type | Source or URL | License or credit |
 |---|---|---|---|
+| Original ambient lesson soundtrack | synthesized audio, mixed under existing narration | `scripts/add_lesson_soundtrack.py`, `site/videos/1-1.mp4` to `1-6.mp4` | Original, AI-assisted composition by OpenAI Codex; no external recording or sampled music; disclosed in media metadata |
+| Interactive lesson and gas-transport illustrations | original code and canvas illustrations | `site/assets/learning-labs.js`, `studies.js`, `learning-labs.css` | AI-assisted by OpenAI Codex; diagrams explicitly labelled as schematic |
+| A Researcher's Guide to Combustion Science | NASA reference for lesson explanations | https://www.nasa.gov/wp-content/uploads/2016/05/np-2015-10-034-jsc_combustion_in_reduced_gravity-iss-mini-book-011116-508.pdf | NASA ISS Program, 2015; linked in lessons |
+| NASA Glenn Combustion Science | NASA reference for lesson explanations | https://www.nasa.gov/glenn/glenn-expertise-space-exploration/physical-sciences-program/combustion-science/ | NASA; linked in lessons |
 | Landing-page CSS flame illustration and guided experience | original code and illustration | `site/assets/refinement.css`, `refinement.js`, `learn-guide.js` | AI-assisted by OpenAI Codex; illustration visibly labelled |
 | pypdf | test-only library, verifies the printed brief's page count | https://pypi.org/project/pypdf/ | Installed verification tool; no browser/runtime dependency |
 | NASA Physical Science Informatics (PSI) database | dataset | https://psi.nasa.gov/ | NASA open data |

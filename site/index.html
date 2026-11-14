@@ -18,6 +18,7 @@
 <link rel="stylesheet" href="assets/tokens.css">
 <link rel="stylesheet" href="assets/site.css">
 <link rel="stylesheet" href="assets/refinement.css">
+<link rel="stylesheet" href="assets/learning-labs.css">
 <!-- The team's offline (rule-based) answer engine, used when the SI chat is not available. -->
 <script src="../public/offline/offline-answer.js"></script>
 <script>try { if (localStorage.getItem('fp-theme') === 'light') delete document.documentElement.dataset.theme; } catch (e) {}</script>
@@ -39,32 +40,33 @@
 <main class="wrap" id="mainContent" tabindex="-1">
   <header class="top">
     <a class="mark" href="./" aria-label="Flashpoint home"><svg class="logo" viewBox="10 14 178 372" aria-hidden="true"><use href="#fpLogo"/></svg>Flashpoint</a>
-    <nav class="home-nav" aria-label="Main navigation"><a href="#analysis" data-go="analysis">Evidence</a><a href="#sim" data-go="sim">Flame lab</a><a href="learn.html">Learn</a></nav>
+    <nav class="home-nav" aria-label="Main navigation"><a href="#analysis" data-go="analysis">Analysis</a><a href="#sim" data-go="sim">Flame lab</a><a href="learn.html">Learn</a></nav>
     <button class="theme" type="button" aria-label="Change color theme"></button>
   </header>
   <section class="mission-hero" aria-labelledby="heroTitle">
     <div class="hero-copy">
       <p class="eyebrow"><i></i> FLAME IN FREEFALL / NASA SPACE APPS 2026</p>
-      <h1 id="heroTitle">Before we live there,<br><em>understand fire.</em></h1>
-      <p class="hero-lede">Fire behaves differently off Earth. Explore NASA's experiments, see what gravity changes, and find the questions we still need to answer.</p>
-      <div class="hero-actions"><button class="btn primary" id="startJourney" type="button">Follow the evidence <span aria-hidden="true">&rarr;</span></button><a class="text-action" href="#sim" data-go="sim">Enter the flame lab <span aria-hidden="true">&#8599;</span></a></div>
-      <p class="hero-source">Built on NASA's Physical Science Informatics data.<br>For exploration and learning. Every gap stays visible.</p>
+      <h1 id="heroTitle">Explore fire safety<br><em>in space.</em></h1>
+      <p class="hero-lede">Compare NASA's microgravity combustion tests by oxygen, pressure and fuel. Use the learning experiments to understand the conditions behind the data.</p>
+      <div class="hero-actions"><button class="btn primary" id="startJourney" type="button">Start the guided analysis <span aria-hidden="true">&rarr;</span></button><a class="text-action" href="#sim" data-go="sim">Enter the flame lab <span aria-hidden="true">&#8599;</span></a></div>
+      <p class="hero-source">Data from NASA Physical Science Informatics.<br>Illustrations and recorded measurements are labelled separately.</p>
     </div>
     <div class="hero-chamber" data-gravity="space">
       <div class="chamber-top"><span><i></i> GRAVITY STUDY</span><span>AI ILLUSTRATION</span></div>
-      <div class="orbital"><div class="orbit o-one"></div><div class="orbit o-two"></div><div class="hero-fire"><div class="fire-halo"></div><div class="fire-shell"></div><div class="fire-core"></div><div class="fuel-source"></div></div><span class="chamber-cross cross-a">+</span><span class="chamber-cross cross-b">+</span></div>
-      <div class="chamber-caption"><strong id="heroFlameTitle">No rising hot gas. A different kind of fire.</strong><p id="heroFlameNote">Without buoyancy, oxygen diffuses toward the flame. In still air, a flame can form a blue sphere.</p></div>
+      <div id="heroFlow"><canvas class="study-canvas" role="img" aria-label="Illustrative gas motion around a flame"></canvas></div>
+      <div class="chamber-caption"><strong id="heroFlameTitle">How does oxygen reach a flame?</strong><p id="heroFlameNote">The moving dots illustrate gas transport. At 0 g in still gas, oxygen diffuses inward. Switch to Earth or turn on the fan to compare the flow.</p></div>
+      <div class="study-options"><label><input id="heroFan" type="checkbox"> Ventilation fan</label><button id="heroMotion" type="button">Pause motion</button></div>
       <div class="gravity-switch" aria-label="Compare flame illustrations"><button type="button" data-hero-g="space" aria-pressed="true">Microgravity <span>0 g</span></button><button type="button" data-hero-g="earth" aria-pressed="false">Earth <span>1 g</span></button></div>
     </div>
   </section>
   <section class="evidence-ribbon" aria-label="The evidence behind Flashpoint">
-    <p><b id="missionRows">...</b><span>NASA test rows</span></p><p><b>3</b><span>kinds of fuel</span></p><p class="ribbon-finding"><span class="eyebrow">THE QUESTION THAT MATTERS</span><strong>Droplets were tested.<br>What about the materials in a cabin?</strong></p>
+    <p><b id="missionRows">...</b><span>NASA test rows</span></p><p><b>3</b><span>kinds of fuel</span></p><p class="ribbon-finding"><span class="eyebrow">READING THE MAP</span><strong id="materialGap">Some material tests have no recorded pressure.</strong><small>These records stay in Analysis, but cannot be placed on the pressure map.</small></p>
   </section>
-  <div class="section-intro"><div><span class="eyebrow">THREE WAYS IN</span><h2>From a flame to a finding.</h2></div><p>Start with the story. Go as deep as you need.</p></div>
+  <div class="section-intro"><div><span class="eyebrow">EXPLORE FLASHPOINT</span><h2>Choose what you want to do.</h2></div><p>Compare the records, try a model, or learn the science.</p></div>
   <section class="cards" aria-label="Modules">
     <a class="card" href="#analysis" data-page="analysis">
       <span class="kind">Explore</span>
-      <h2>Read the evidence</h2>
+      <h2>Analysis</h2>
       <p>Pick a cabin atmosphere. See which NASA fire tests sit near it, what burned in them, and what is missing.</p>
       <div class="viz">
         <svg class="c-map" viewBox="0 0 320 190" fill="none" aria-hidden="true">
@@ -82,7 +84,7 @@
 
     <a class="card" href="#sim" data-page="sim">
       <span class="kind">Experiment</span>
-      <h2>Change the gravity</h2>
+      <h2>Flame lab</h2>
       <p>Set up a flame from one NASA test, then add gravity.</p>
       <div class="viz">
         <svg class="c-sim" viewBox="0 0 320 190" fill="none" aria-hidden="true">
@@ -101,7 +103,7 @@
 
     <a class="card" href="learn.html">
       <span class="kind">Learn</span>
-      <h2>Understand the science</h2>
+      <h2>Learn</h2>
       <p>Six short narrated videos and hands-on lessons: why fire behaves differently off Earth, and how to read the evidence.</p>
       <div class="viz">
         <svg class="c-learn" viewBox="0 0 320 190" fill="none" aria-hidden="true">
@@ -118,7 +120,7 @@
       <span class="go">Start learning <span class="arr" aria-hidden="true">&rarr;</span></span>
     </a>
   </section>
-  <section class="closing-question"><span class="eyebrow">ASK A BETTER QUESTION</span><h2>Same oxygen pressure.<br>A different fire question.</h2><p>A lower-pressure cabin needs a higher oxygen percentage to maintain a similar dry oxygen partial pressure. Explore the fire evidence behind that trade.</p><form class="askbar" id="homeAsk"><input id="homeAskIn" autocomplete="off" placeholder="What do we know about 30% oxygen at 10.2 psi?" aria-label="Ask about a cabin atmosphere"><button class="btn" type="submit">Ask the data</button></form><p class="helper">Answers use fixed rules and cited NASA records. No live AI service is connected.</p></section>
+  <section class="closing-question"><span class="eyebrow">ASK FLASHPOINT</span><h2>Ask about the test records.</h2><p>For example, ask which tests used 30% oxygen at 10.2 psi, or what the records say about solid materials. Answers include their sources and identify missing data.</p><form class="askbar" id="homeAsk"><input id="homeAskIn" autocomplete="off" placeholder="What do we know about 30% oxygen at 10.2 psi?" aria-label="Ask about a cabin atmosphere"><button class="btn" type="submit">Ask the data</button></form><p class="helper">Answers use fixed rules and cited NASA records. No live AI service is connected.</p></section>
 </main>
 <footer class="site-foot" id="siteFoot">
   <div class="wrap">
@@ -131,7 +133,7 @@
 <section class="page" id="page-analysis" aria-label="Analysis">
   <div class="band"><div class="wrap">
     <div class="kind">Explore</div>
-    <h1 tabindex="-1">Where the evidence ends.</h1>
+    <h1 tabindex="-1">Analysis</h1>
     <p>Choose an atmosphere. Separate what NASA tested from what we still need to know.</p>
     <svg class="art" viewBox="0 0 230 150" fill="none" stroke="currentColor" stroke-width="3"><path d="M10 140H220M10 140V10"/><path d="M40 12 C 60 80, 110 110, 220 122"/><circle cx="150" cy="112" r="8" fill="currentColor"/></svg>
   </div></div>
@@ -334,7 +336,7 @@
 <section class="page" id="page-sim" aria-label="Sim">
   <div class="band sim"><div class="wrap">
     <div class="kind">Experiment</div>
-    <h1 tabindex="-1">One flame. Four worlds.</h1>
+    <h1 tabindex="-1">Flame lab</h1>
     <p>Start with a recorded atmosphere. Change gravity and explore how buoyancy changes a flame.</p>
     <svg class="art" viewBox="0 0 230 150" fill="none" stroke="currentColor" stroke-width="3"><circle cx="70" cy="85" r="40"/><path d="M170 20 C 195 60, 205 80, 198 100 C 190 125, 150 125, 142 100 C 135 80, 145 60, 170 20 Z"/></svg>
   </div></div>
@@ -370,6 +372,7 @@
   <form class="compose" id="compose"><input id="ask" autocomplete="off" placeholder="Ask, or tell it where to move the point" aria-label="Message"><button class="btn" type="submit">Send</button></form>
 </aside>
 <script src="assets/app.js"></script>
+<script src="assets/studies.js"></script>
 <script src="assets/refinement.js"></script>
 </body>
 </html>

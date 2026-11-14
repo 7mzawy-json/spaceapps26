@@ -185,7 +185,7 @@ NASA's rule: no work on the challenge before the hackathon. No project code and 
 
 Status on Sat 08:30. Anything still open moves to the first ten minutes of kickoff.
 
-- [x] Resources tab and both guides crawled into `docs/challenge/` (YouTube video still unwatched).
+- [x] Resources tab and both guides crawled into `docs/challenge/`, YouTube video watched and noted.
 - [x] Roadmap updated for the guides (demo limits, AI labelling, deadlines, judging criteria).
 - [ ] Anthropic API key with a small credit balance, kept out of chat and git. Put it in `.env.local` (see `.env.example`).
 - [ ] Vercel access confirmed from the machine that will deploy (list teams). `uv`, `node`, `gh` run there.

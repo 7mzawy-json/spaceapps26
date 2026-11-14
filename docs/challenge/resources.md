@@ -68,8 +68,14 @@ https://www.nasa.gov/glenn/glenn-expertise-space-exploration/physical-sciences-p
 
 https://www.youtube.com/watch?v=W1oXykoz9zg
 
-Not watched: YouTube is not reachable from the agent's session and a transcript would be needed anyway.
-Someone on the team should watch it and add two lines here.
+Watched by AlanziM2 on Nov 14. Notes from memory, not a transcript.
+
+- Explains why microgravity combustion matters and how a flame behaves differently on Earth and in space.
+- Main point: without gravity there are fewer variables (no buoyant flow), so flames are simpler to study and the
+  experiments can be more efficient. This matches the Glenn page above and the spherical-flame argument in
+  `alanzim/tabs-dashboard-idea.md`.
+- A speaker, Mr Stokes, says there are many surprises ahead from this research (paraphrased). Check the exact
+  words and his role in the video before quoting him in the pitch.
 
 ## 4. A Researcher's Guide to: Combustion Science (ISS Researcher's Guide, Oct 2015)
 

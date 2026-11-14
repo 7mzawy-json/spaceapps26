@@ -1,0 +1,429 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flashpoint Flame Sim</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="generator" content="AI-assisted: written with Claude Code for team BrayTech Pyrotechnics">
+<!--
+  Draft prototype, AI-assisted (Claude Code). Not deployed. See README.md in this folder.
+  Each flame is set up from one row of data/tests.json (NASA PSI). Gravity is the only real-physics control.
+-->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: the chamber window on the left, the test's own numbers and the controls on the right; one column on phones. */
+:root {
+  --bg: #0f1012;
+  --fg: 245, 245, 245;
+  --accent: #E85D35;
+  --chamber: #000;
+  --t1: rgba(var(--fg), 1);
+  --t2: rgba(var(--fg), .87);
+  --t3: rgba(var(--fg), .60);
+  --t4: rgba(var(--fg), .38);
+  --hair: rgba(var(--fg), .12);
+  --hair-strong: rgba(var(--fg), .40);
+  --sans: Inter, system-ui, sans-serif;
+  --mono: "JetBrains Mono", Menlo, Consolas, monospace;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) { --bg: #f5f4f1; --fg: 22, 22, 24; --accent: #C2441D; color-scheme: light; }
+}
+:root[data-theme="light"] { --bg: #f5f4f1; --fg: 22, 22, 24; --accent: #C2441D; color-scheme: light; }
+
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--t2);
+  font: 300 15px/1.55 var(--sans);
+  padding-block: 2rem 3rem;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+main { max-width: 1080px; margin: 0 auto; display: grid; gap: 2rem; }
+h1 { margin: 0; font-weight: 300; font-size: clamp(1.6rem, 3.4vw, 2.4rem); line-height: 1.15; color: var(--t1); text-wrap: balance; }
+h2 { margin: 0 0 .4rem; font: 500 .7rem/1.3 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--t3); }
+p { margin: 0; }
+a { color: var(--accent); }
+.tag { font: 500 .7rem/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--accent); margin-bottom: .7rem; }
+.lede { max-width: 62ch; margin-top: .7rem; color: var(--t3); }
+
+.grid { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 2rem; align-items: start; }
+@media (max-width: 760px) { .grid { grid-template-columns: minmax(0, 1fr); } }
+
+.chamber { display: grid; gap: .7rem; }
+canvas { display: block; width: 100%; max-width: 100%; aspect-ratio: 1; background: var(--chamber); border: 1px solid var(--hair-strong); }
+#status { min-height: 3.1em; color: var(--t2); }
+#status b { font-weight: 500; color: var(--t1); }
+
+.panel { display: grid; gap: 1.4rem; min-width: 0; }
+.field { display: grid; gap: .45rem; }
+label, legend { font: 500 .7rem/1.3 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--t3); padding: 0; }
+output { color: var(--t1); text-transform: none; letter-spacing: 0; }
+select, button {
+  font: 400 .9rem var(--sans); color: var(--t1); background: transparent;
+  border: 1px solid var(--hair-strong); border-radius: 0; padding: .55rem .7rem;
+}
+select { width: 100%; }
+select option { background: var(--bg); color: var(--t1); }
+button { cursor: pointer; justify-self: start; }
+button:hover { border-color: var(--accent); }
+input[type=range] { width: 100%; accent-color: var(--accent); margin: 0; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+dl { margin: 0; display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: .45rem 1.2rem; border-block: 1px solid var(--hair); padding-block: 1rem; }
+dt { color: var(--t3); }
+dd { margin: 0; color: var(--t1); font-family: var(--mono); font-size: .85rem; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+dd small { display: block; font: 300 .8rem var(--sans); color: var(--t3); }
+
+fieldset { border: 0; margin: 0; padding: 0; display: grid; gap: .55rem; min-width: 0; }
+.seg { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.seg label { display: grid; gap: .15rem; padding: .55rem .5rem; border: 1px solid var(--hair-strong); margin-left: -1px; cursor: pointer; text-transform: none; letter-spacing: 0; font: 400 .85rem var(--sans); color: var(--t2); }
+.seg label:first-child { margin-left: 0; }
+.seg label small { font: 400 .7rem var(--mono); color: var(--t4); }
+.seg input { position: absolute; opacity: 0; pointer-events: none; }
+.seg label:has(input:checked) { border-color: var(--accent); color: var(--t1); position: relative; z-index: 1; }
+.seg label:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 2px; }
+.note { font-size: .82rem; color: var(--t3); }
+
+details { border-top: 1px solid var(--hair); padding-top: 1rem; }
+summary { cursor: pointer; color: var(--t2); }
+details .field { margin-top: 1rem; }
+
+.truth { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.5rem; border-top: 1px solid var(--hair); padding-top: 1.5rem; }
+@media (max-width: 760px) { .truth { grid-template-columns: minmax(0, 1fr); } }
+.truth p { color: var(--t3); font-size: .9rem; }
+footer { font-size: .8rem; color: var(--t4); max-width: 80ch; }
+</style>
+
+<main>
+  <header>
+    <p class="tag">Draft prototype</p>
+    <h1>One NASA test, one flame</h1>
+    <p class="lede">Pick a microgravity fire test from NASA's PSI database. Its oxygen, pressure and fuel set up the flame.
+      Then change gravity to see how the same air would burn on the Moon, on Mars or on Earth.</p>
+  </header>
+
+  <div class="grid">
+    <section class="chamber">
+      <canvas id="flame" role="img" aria-label="Simulated flame for the selected test"></canvas>
+      <p id="status" aria-live="polite">Loading NASA test data.</p>
+      <button id="pause" type="button">Pause</button>
+    </section>
+
+    <section class="panel">
+      <div class="field">
+        <label for="inv">Experiment</label>
+        <select id="inv"></select>
+      </div>
+      <div class="field">
+        <label for="test">Test <output id="testNo" for="test"></output></label>
+        <input type="range" id="test" min="0" max="0" value="0">
+        <p class="note">Tests are sorted from low to high oxygen. Drag to move through them.</p>
+      </div>
+
+      <dl id="readout"></dl>
+
+      <fieldset>
+        <legend>Gravity</legend>
+        <div class="seg">
+          <label><input type="radio" name="g" value="0" checked>Space<small>0 g, as tested</small></label>
+          <label><input type="radio" name="g" value="0.166">Moon<small>0.17 g</small></label>
+          <label><input type="radio" name="g" value="0.38">Mars<small>0.38 g</small></label>
+          <label><input type="radio" name="g" value="1">Earth<small>1 g</small></label>
+        </div>
+        <p class="note">NASA ran every one of these tests at 0 g. The other three are the same air with gravity added.</p>
+      </fieldset>
+
+      <details>
+        <summary>Change oxygen and pressure by hand</summary>
+        <div class="field">
+          <label for="o2">Oxygen <output id="o2Out" for="o2"></output></label>
+          <input type="range" id="o2" min="10" max="90" step="0.5" value="21">
+        </div>
+        <div class="field">
+          <label for="psi">Pressure <output id="psiOut" for="psi"></output></label>
+          <input type="range" id="psi" min="4" max="75" step="0.1" value="14.7">
+        </div>
+        <p class="note" style="margin-top:.8rem">Moving these leaves the NASA data. The flame is then a guess, and the page says so.</p>
+      </details>
+    </section>
+  </div>
+
+  <section class="truth">
+    <div><h2>Real physics</h2><p>Hot gas rises only when there is gravity. With gravity the flame stretches upward and flickers. At 0 g nothing lifts it, so it sits as a slow round ball. Gravity changes one term in the equations and nothing else.</p></div>
+    <div><h2>From NASA's table</h2><p>Oxygen, pressure, fuel, and whether the flame lit and went out. These come from the test's own row and are never filled in or estimated.</p></div>
+    <div><h2>Illustration only</h2><p>How much oxygen and pressure change the flame's size, softness and colour. The direction is right (more oxygen burns hotter, low pressure makes a thicker, softer flame) but the amounts are not a prediction.</p></div>
+  </section>
+
+  <footer>
+    Data: NASA Physical Science Informatics (psi.nasa.gov). Fluid method: Jos Stam, "Stable Fluids" (1999), with the
+    vorticity step as used in Pavel Dobryakov's WebGL-Fluid-Simulation (MIT licence). This page was written with an AI
+    coding assistant (Claude Code) for team BrayTech Pyrotechnics, NASA Space Apps 2026.
+  </footer>
+</main>
+
+<script>
+'use strict';
+const $ = id => document.getElementById(id);
+const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
+
+// ---- From a test's numbers to simulation settings. This is the whole "model"; keep it readable. ----
+// o2 in percent, psi in psi, g in Earth gravities, jet = true for a gas jet burner (ACME CFI-G).
+function flameParams(o2, psi, g, jet) {
+  const ox = clamp((o2 - 10) / 75, 0, 1);
+  const atm = clamp(psi / 14.696, 0.3, 5);
+  const rate = 1.5 + 6 * ox;                  // illustration: more oxygen, the fuel burns sooner (shorter, fiercer flame)
+  return {
+    fuel: 4,                                  // fuel leaving the droplet or burner, the same for every test
+    rate,
+    q: 1.6 + 2 * ox,                          // illustration: more oxygen, hotter and brighter
+    expand: 4 * rate,                       // gas expands where it burns
+    diff: Math.min(0.24, 0.07 / atm),         // illustration: gases spread faster at low pressure (thicker, softer flame)
+    grav: 600 * g,                           // real physics: buoyancy is the only term gravity touches
+    blue: Math.exp(-12 * g),                  // 0 g flames carry little soot and glow blue
+    jet: jet ? 350 : 0,
+    src: jet ? [0.5, 0.2] : [0.5, 0.42],
+  };
+}
+// Self-check: fails loudly in the console if the mapping is ever turned upside down.
+console.assert(flameParams(21, 14.7, 0, false).grav === 0, 'no buoyancy at 0 g');
+console.assert(flameParams(40, 14.7, 0, false).q > flameParams(21, 14.7, 0, false).q, 'more oxygen, more heat');
+console.assert(flameParams(21, 8, 0, false).diff > flameParams(21, 14.7, 0, false).diff, 'lower pressure, more spreading');
+
+// Is the flame lit, t seconds after the test was picked? Only real outcomes switch it off.
+function lit(t, row) {
+  if (!row) return 1;
+  if (row.ignited === false) return t % 6 < 0.25 ? 1 : 0;             // igniter fires, no flame holds
+  if (row.outcome === 'self_extinguished') return t % 12 < 7 ? 1 : 0;  // burns, goes out, replays
+  return 1;
+}
+
+// ---- GPU fluid solver (WebGL 2). State texture: xy = velocity in cells per second, z = temperature, w = unburnt fuel. ----
+const N = 256, COOL = 2.4, VDAMP = 0.4, SRCR = 0.05, CURL = 5;
+const cv = $('flame');
+const gl = cv.getContext('webgl2', { alpha: false, antialias: false });
+const gpuOk = gl && (gl.getExtension('EXT_color_buffer_float') || gl.getExtension('EXT_color_buffer_half_float'));
+
+const VS = `#version 300 es
+in vec2 a; out vec2 uv; void main(){ uv = a*.5+.5; gl_Position = vec4(a,0.,1.); }`;
+const HEAD = `#version 300 es
+precision highp float; precision highp sampler2D;
+in vec2 uv; out vec4 o; const vec2 px = vec2(${1 / N});
+const float COOL=${COOL.toFixed(3)}, VDAMP=${VDAMP.toFixed(3)}, SRCR=${SRCR.toFixed(3)}, CURL=${CURL.toFixed(3)};
+bool outside(vec2 c){ return c.x<0.||c.x>1.||c.y<0.||c.y>1.; }
+`;
+const FS = {
+  // Move everything along the flow, spread it, cool it (hot gas radiates much faster), then feed fuel, burn it, add jet and buoyancy.
+  advect: `uniform sampler2D s; uniform float dt, diff, fuel, rate, q, expand, jet, grav; uniform vec2 src;
+void main(){
+  vec2 b = uv - dt*texture(s,uv).xy*px;
+  vec4 c = texture(s,b);
+  vec4 n = texture(s,b+vec2(px.x,0.))+texture(s,b-vec2(px.x,0.))+texture(s,b+vec2(0.,px.y))+texture(s,b-vec2(0.,px.y));
+  c += diff*(n-4.*c);
+  if (outside(b)) c.zw = vec2(0.);
+  c.xy /= 1.+VDAMP*dt; c.z /= 1.+COOL*(1.+.5*c.z*c.z)*dt;
+  vec2 k = (uv-src)/SRCR; float f = exp(-dot(k,k));
+  c.w /= 1.+expand*c.w*dt;   // expanding gas thins the fuel out (keeps the total fuel honest)
+  c.w += fuel*f*dt;
+  float burnt = c.w*(1.-exp(-rate*dt));
+  c.w -= burnt; c.z += q*burnt;
+  c.y += (jet*f + grav*c.z)*dt;
+  o = c;
+}`,
+  // Vorticity confinement: puts back the small swirls the grid smears away.
+  vort: `uniform sampler2D s; uniform float dt;
+float curl(vec2 c){ return .5*(texture(s,c+vec2(px.x,0.)).y-texture(s,c-vec2(px.x,0.)).y-texture(s,c+vec2(0.,px.y)).x+texture(s,c-vec2(0.,px.y)).x); }
+void main(){
+  float L=curl(uv-vec2(px.x,0.)), R=curl(uv+vec2(px.x,0.)), B=curl(uv-vec2(0.,px.y)), T=curl(uv+vec2(0.,px.y)), C=curl(uv);
+  vec2 f = .5*vec2(abs(T)-abs(B), abs(R)-abs(L));
+  f = f/(length(f)+1e-4)*CURL*C; f.y = -f.y;
+  vec4 c = texture(s,uv); c.xy = clamp(c.xy+f*dt, -2000., 2000.); o = c;
+}`,
+  // Divergence of the flow, minus the expansion of gas where fuel is burning.
+  diverge: `uniform sampler2D s; uniform float expand;
+void main(){
+  float d = .5*(texture(s,uv+vec2(px.x,0.)).x-texture(s,uv-vec2(px.x,0.)).x+texture(s,uv+vec2(0.,px.y)).y-texture(s,uv-vec2(0.,px.y)).y);
+  o = vec4(d - expand*texture(s,uv).w);
+}`,
+  // Pressure solve (Jacobi). Open walls: pressure is zero outside the window.
+  jacobi: `uniform sampler2D p, d;
+float P(vec2 c){ return outside(c) ? 0. : texture(p,c).x; }
+void main(){ o = vec4((P(uv+vec2(px.x,0.))+P(uv-vec2(px.x,0.))+P(uv+vec2(0.,px.y))+P(uv-vec2(0.,px.y))-texture(d,uv).x)*.25); }`,
+  grad: `uniform sampler2D s, p;
+float P(vec2 c){ return outside(c) ? 0. : texture(p,c).x; }
+void main(){ vec4 c = texture(s,uv); c.xy -= .5*vec2(P(uv+vec2(px.x,0.))-P(uv-vec2(px.x,0.)), P(uv+vec2(0.,px.y))-P(uv-vec2(0.,px.y))); o = c; }`,
+  // Temperature to colour: red, orange, yellow, white with soot (gravity); blue, cyan, white without.
+  show: `uniform sampler2D s; uniform float blue;
+void main(){
+  float t = texture(s,uv).z;
+  vec3 warm = vec3(smoothstep(.1,.45,t), smoothstep(.15,.8,t), smoothstep(.6,1.5,t));
+  vec3 cold = vec3(smoothstep(.7,2.,t), smoothstep(.25,1.2,t), smoothstep(.04,.45,t));
+  o = vec4(mix(warm, cold*.9, blue), 1.);
+}`,
+};
+
+let prog = {}, S, Pr, D;
+function build() {
+  for (const k in FS) {
+    const pr = gl.createProgram();
+    for (const [type, src] of [[gl.VERTEX_SHADER, VS], [gl.FRAGMENT_SHADER, HEAD + FS[k]]]) {
+      const sh = gl.createShader(type);
+      gl.shaderSource(sh, src); gl.compileShader(sh);
+      if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) throw new Error(k + ': ' + gl.getShaderInfoLog(sh));
+      gl.attachShader(pr, sh);
+    }
+    gl.bindAttribLocation(pr, 0, 'a'); gl.linkProgram(pr);
+    prog[k] = pr;
+  }
+  gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);  // one triangle covering the screen
+  gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+  const target = () => {
+    const tex = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, tex);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA16F, N, N, 0, gl.RGBA, gl.HALF_FLOAT, null);
+    for (const [k, v] of [[gl.TEXTURE_MIN_FILTER, gl.LINEAR], [gl.TEXTURE_MAG_FILTER, gl.LINEAR], [gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE], [gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE]]) gl.texParameteri(gl.TEXTURE_2D, k, v);
+    const fb = gl.createFramebuffer();
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, tex, 0);
+    return { tex, fb };
+  };
+  S = [target(), target()]; Pr = [target(), target()]; D = target();
+}
+// ponytail: uniform locations are looked up on every draw; cache them if profiling ever shows it matters.
+function draw(name, uniforms, dst) {
+  const pr = prog[name]; let unit = 0;
+  gl.useProgram(pr);
+  for (const k in uniforms) {
+    const loc = gl.getUniformLocation(pr, k), v = uniforms[k];
+    if (v instanceof WebGLTexture) { gl.activeTexture(gl.TEXTURE0 + unit); gl.bindTexture(gl.TEXTURE_2D, v); gl.uniform1i(loc, unit++); }
+    else if (Array.isArray(v)) gl.uniform2f(loc, v[0], v[1]);
+    else gl.uniform1f(loc, v);
+  }
+  gl.bindFramebuffer(gl.FRAMEBUFFER, dst ? dst.fb : null);
+  gl.viewport(0, 0, dst ? N : cv.width, dst ? N : cv.height);
+  gl.drawArrays(gl.TRIANGLES, 0, 3);
+}
+
+// ---- Current setting: one NASA row, or a manual one ----
+const cur = { row: null, o2: 21, psi: 14.7, g: 0, jet: false, t0: 0 };
+let clock = 0, paused = false, last = 0, statusText = '';
+
+function step(dt) {
+  const on = cur.g === 0 ? lit(clock - cur.t0, cur.row) : 1;
+  const p = flameParams(cur.o2, cur.psi, cur.g, cur.jet);
+  // A hair of sideways drift, like any real draught. Only gravity can amplify it into flicker.
+  const src = [p.src[0] + 0.0015 * Math.sin(clock * 9.1) + 0.001 * Math.sin(clock * 23.3), p.src[1]];
+  draw('advect', { s: S[0].tex, dt, diff: p.diff, fuel: p.fuel * on, rate: p.rate, q: p.q, expand: p.expand, jet: p.jet, grav: p.grav, src }, S[1]); S.reverse();
+  draw('vort', { s: S[0].tex, dt }, S[1]); S.reverse();
+  draw('diverge', { s: S[0].tex, expand: p.expand }, D);
+  for (let i = 0; i < 20; i++) { draw('jacobi', { p: Pr[0].tex, d: D.tex }, Pr[1]); Pr.reverse(); }
+  draw('grad', { s: S[0].tex, p: Pr[0].tex }, S[1]); S.reverse();
+}
+
+function status() {
+  const r = cur.row, t = clock - cur.t0;
+  if (!r) return '<b>Not a NASA test.</b> No test was run at this setting, so the flame is a guess and its real outcome is unknown.';
+  if (cur.g > 0) return '<b>Gravity added.</b> NASA ran this test at 0 g only. With gravity the outcome is unknown; the flame is shown burning.';
+  if (r.ignited === false) return '<b>Did not ignite.</b> NASA recorded that the igniter fired and no flame held.';
+  if (r.outcome === 'self_extinguished') return lit(t, r) ? '<b>Burning.</b> NASA recorded that this flame went out by itself.' : '<b>Out.</b> The flame went out by itself, as NASA recorded. Replaying.';
+  if (r.outcome === 'burned') return '<b>Burning.</b> NASA recorded that this flame kept burning to the end of the test.';
+  return '<b>Burning.</b> NASA\'s table does not record how this test ended.';
+}
+
+function frame(now) {
+  const dt = Math.min((now - last) / 1000 || 0, 1 / 30); last = now;
+  if (!paused && dt > 0) { clock += dt; step(dt); }
+  draw('show', { s: S[0].tex, blue: flameParams(cur.o2, cur.psi, cur.g, cur.jet).blue }, null);
+  const s = status();
+  if (s !== statusText) $('status').innerHTML = statusText = s;
+  requestAnimationFrame(frame);
+}
+
+// ---- Data and controls ----
+const OUTCOME = { self_extinguished: 'Went out by itself', burned: 'Kept burning', unknown: 'Not recorded' };
+let groups = new Map();
+
+function readout() {
+  const r = cur.row, dl = $('readout');
+  const pp = cur.o2 * cur.psi / 100;
+  const rows = [
+    ['Test', r ? r.test_id : 'Manual setting', r ? r.investigation : 'not a NASA test'],
+    ['Fuel', r ? r.fuel : 'as last test', r ? (r.fuel_phase === 'liquid' ? 'burning droplet' : (r.flame_type === 'inverse' ? 'gas, inverse flame (oxygen flows into fuel gas)' : 'gas flame')) : ''],
+    ['Oxygen', cur.o2.toFixed(1) + ' %', 'Earth air is 20.9 %'],
+    ['Pressure', cur.psi.toFixed(1) + ' psi', 'sea level is 14.7 psi'],
+    ['Oxygen pressure', pp.toFixed(2) + ' psi', 'sea-level air gives 3.07 psi'],
+    ['NASA outcome', r ? (r.ignited === false ? 'Did not ignite' : OUTCOME[r.outcome] || r.outcome) : 'none', ''],
+  ];
+  dl.textContent = '';
+  for (const [k, v, hint] of rows) {
+    const dt = document.createElement('dt'), dd = document.createElement('dd');
+    dt.textContent = k; dd.textContent = v;
+    if (hint) { const sm = document.createElement('small'); sm.textContent = hint; dd.append(sm); }
+    dl.append(dt, dd);
+  }
+  if (r) {
+    const dt = document.createElement('dt'), dd = document.createElement('dd'), a = document.createElement('a');
+    dt.textContent = 'Source'; a.href = r.source_url; a.target = '_blank'; a.rel = 'noopener';
+    a.textContent = r.accession + ', table line ' + r.source_line;
+    dd.append(a); dl.append(dt, dd);
+  }
+  $('o2Out').textContent = cur.o2.toFixed(1) + ' %';
+  $('psiOut').textContent = cur.psi.toFixed(1) + ' psi';
+}
+
+function pickTest() {
+  const list = groups.get($('inv').value), i = +$('test').value, r = list[i];
+  Object.assign(cur, { row: r, o2: r.o2_pct, psi: r.pressure_psi, jet: r.accession === 'PSI-159', t0: clock });
+  $('o2').value = r.o2_pct; $('psi').value = r.pressure_psi;
+  $('testNo').textContent = (i + 1) + ' of ' + list.length;
+  readout();
+}
+function pickInv() {
+  const list = groups.get($('inv').value);
+  $('test').max = list.length - 1;
+  // Open on a test inside the planned Moon Base range (8 to 12.5 psi, 24 to 40 % oxygen) when there is one.
+  const i = list.findIndex(r => r.pressure_psi >= 8 && r.pressure_psi <= 12.5 && r.o2_pct >= 24 && r.o2_pct <= 40);
+  $('test').value = Math.max(i, 0);
+  pickTest();
+}
+
+async function loadTests() {
+  for (const url of ['tests.json', '../../data/tests.json']) {
+    try { const r = await fetch(url); if (r.ok) return await r.json(); } catch (e) { /* try the next place */ }
+  }
+  throw new Error('tests.json not found');
+}
+
+async function main() {
+  if (!gpuOk) { $('status').textContent = 'This browser cannot run the flame (it needs WebGL 2 with float textures). Try a current Chrome, Firefox, Edge or Safari.'; return; }
+  build();
+  let all;
+  try { all = await loadTests(); }
+  catch (e) { $('status').textContent = 'Could not load tests.json. Open this page through a local web server started in the repo root (see README.md).'; return; }
+
+  const usable = all.filter(r => r.o2_pct != null && r.pressure_psi != null)
+    .sort((a, b) => a.o2_pct - b.o2_pct || a.pressure_psi - b.pressure_psi);
+  for (const r of usable) { if (!groups.has(r.investigation)) groups.set(r.investigation, []); groups.get(r.investigation).push(r); }
+  const order = [...groups.keys()].sort((a, b) => (b === 'FLEX') - (a === 'FLEX'));   // droplets first
+  for (const name of order) {
+    const list = groups.get(name), opt = document.createElement('option');
+    opt.value = name;
+    opt.textContent = name + ': ' + (list[0].fuel_phase === 'liquid' ? 'fuel droplets' : 'gas flames') + ' (' + list.length + ' tests)';
+    $('inv').append(opt);
+  }
+
+  $('inv').addEventListener('change', pickInv);
+  $('test').addEventListener('input', pickTest);
+  for (const id of ['o2', 'psi']) $(id).addEventListener('input', () => { cur.row = null; cur.o2 = +$('o2').value; cur.psi = +$('psi').value; readout(); });
+  for (const el of document.querySelectorAll('input[name=g]')) el.addEventListener('change', () => { cur.g = +el.value; cur.t0 = clock; });
+  $('pause').addEventListener('click', () => { paused = !paused; $('pause').textContent = paused ? 'Play' : 'Pause'; });
+  new ResizeObserver(() => { cv.width = cv.height = Math.min(1024, Math.round(cv.clientWidth * devicePixelRatio)) || N; }).observe(cv);
+
+  pickInv();
+  for (let i = 0; i < 150; i++) { clock += 1 / 60; step(1 / 60); }   // warm up so the first frame already shows a flame
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) { paused = true; $('pause').textContent = 'Play'; }
+  requestAnimationFrame(frame);
+}
+main();
+</script>

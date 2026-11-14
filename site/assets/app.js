@@ -1,5 +1,5 @@
-/* Flashpoint site script. Map, SI Assist and navigation from temp/design-master; Resources from temp/dashboard-draft;
-   the Sim page loads sim.html (from alanzim/flame-lab) in a frame. AI-assisted (Claude Code). */
+/* Flashpoint site script: the Analysis page (the map as Simple mode, investigations and test data as Advanced mode),
+   the assistant panel, and navigation. The Sim page loads sim.html in a frame. AI-assisted (Claude Code). */
 (function () {
   'use strict';
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -47,14 +47,6 @@
       if (h[3] === 'c') el('circle', { cx: x(h[1]), cy: y(h[2]), r: 6 }, g); else el('rect', { x: x(h[1]) - 6, y: y(h[2]) - 6, width: 12, height: 12 }, g);
       var tt = el('text', h[3] === 'r' ? { x: x(h[1]) + 13, y: y(h[2]) + 4 } : { x: x(h[1]) + 10, y: y(h[2]) - 11 }, g); tt.textContent = h[0];
     });
-    var msgG = el('g', { 'class': 'mapmsg' }, svg);
-    function message(title, sub) {
-      while (msgG.firstChild) msgG.removeChild(msgG.firstChild);
-      if (!title) return;
-      var mx = narrow ? (L + W - R) / 2 : x(10.4), my = y(narrow ? 86 : 88);
-      var t1 = el('text', { 'class': 'big', x: mx, y: my }, msgG); t1.textContent = title;
-      if (sub) { var t3 = el('text', { 'class': 'sub', x: mx, y: my + (narrow ? 24 : 20) }, msgG); t3.textContent = sub; }
-    }
     var probe = el('g', { 'class': 'probe' }, svg);
     var hx = el('line', { x1: L }, probe), vx = el('line', { y2: H - B }, probe);
     el('circle', { 'class': 'ring', r: 15 }, probe); el('circle', { 'class': 'dot', r: 4 }, probe);
@@ -81,15 +73,9 @@
       });
     }
     set(state.p, state.o);
-    return { set: set, moveTo: moveTo, state: state, root: svg.parentNode, dots: dots, message: message };
+    return { set: set, moveTo: moveTo, state: state, root: svg.parentNode, dots: dots };
   }
 
-  var GRAV_NOTE = {
-    '0': '',
-    lunar: 'No partial-gravity tests in PSI yet. Microgravity and Earth results bound the answer; the Moon experiments FM2 and LUCI will add data.',
-    mars: 'No partial-gravity tests in PSI yet. Microgravity and Earth results bound the answer.',
-    earth: 'Our data has no normal-gravity test rows: every test in data/tests.web.json ran in microgravity.'
-  };
   function segInit(seg, onPick) {
     seg.querySelectorAll('button').forEach(function (b) {
       b.addEventListener('click', function () { seg.querySelectorAll('button').forEach(function (x) { x.setAttribute('aria-pressed', x === b); }); onPick(b); });
@@ -116,28 +102,85 @@
     else c.textContent = text;
     tr.appendChild(c);
   }
-  var evPending = null, homeG = '0', lastEv = null;
-  var GRAV_LBL = { lunar: 'Moon gravity (0.17 g)', mars: 'Mars gravity (0.38 g)', earth: 'Earth gravity (1 g)' };
+  function esc(t) { return String(t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  var PSI_PAGE = 'https://psi.nasa.gov/physci/repo/data/investigations/';
+  var evPending = null, lastEv = null, lastCover = null, lastRank = null;
+  var RATE = { lit: 'Well tested', dim: 'Thin', dark: 'No tests' };
+  // Coverage is rated for each kind of fuel on its own: a point can be well tested with gas flames and untested with cabin materials.
+  var KINDS = [['gas', 'Gas flames'], ['liquid', 'Fuel droplets'], ['solid', 'Solid materials']];
+  // What each investigation is for, in the challenge statement's own terms (prevention, detection, suppression).
+  var ROLE = {
+    'PSI-25': 'Prevent: how solid materials burn', 'PSI-26': 'Prevent: how solid materials burn',
+    'PSI-98': 'Prevent: large-scale material fires', 'PSI-99': 'Prevent: large-scale material fires', 'PSI-100': 'Prevent: large-scale material fires',
+    'PSI-69': 'Suppress: droplets in diluted oxygen', 'PSI-39': 'Flame science: fuel droplets',
+    'PSI-159': 'Flame science: gas flames', 'PSI-10': 'Flame science: gas flames'
+  };
+  function nearText() { return 'within ' + OFF.O2_SCALE * OFF.NEAR_DISTANCE + ' points of oxygen or ' + OFF.P_SCALE * OFF.NEAR_DISTANCE + ' psi'; }
+  function nTests(n) { return n + (n === 1 ? ' test' : ' tests'); }
+  function solidSummary() {
+    if (solidSummary.v) return solidSummary.v;
+    var s = ROWS.filter(function (r) { return r.fuel_phase === 'solid'; }), o = s.filter(function (r) { return r.o2_pct != null; }).map(function (r) { return r.o2_pct; });
+    return (solidSummary.v = { n: s.length, withP: s.filter(function (r) { return r.pressure_psi != null; }).length, lo: Math.min.apply(null, o), hi: Math.max.apply(null, o) });
+  }
+  function coverAt(p, o) {
+    var s = solidSummary();
+    return KINDS.map(function (k) {
+      var ev = OFF.evidenceAt(ROWS, { o2_pct: o, pressure_psi: p }, { k: 1, fuelPhase: k[0] }), text = nTests(ev.nearCount) + ' near this point.';
+      if (k[0] === 'solid' && !s.withP) text = 'None of the ' + s.n + ' solid-material tests can be placed: NASA\'s tables give them no pressure. Their oxygen ran from ' +
+        s.lo.toFixed(1) + ' to ' + s.hi.toFixed(1) + '%' + (o > s.hi ? ', and this point is above all of them.' : '.');
+      return { kind: k[0], label: k[1], rating: ev.rating, n: ev.nearCount, text: text };
+    });
+  }
+  // Rank the investigations for a point: most tests near it first, then the closest test. No pressure in the table: cannot be placed.
+  function rankAt(p, o) {
+    var by = {}, placed = [], unplaced = [];
+    ROWS.forEach(function (r) { (by[r.accession] = by[r.accession] || []).push(r); });
+    Object.keys(by).forEach(function (acc) {
+      var rows = by[acc], ev = OFF.evidenceAt(rows, { o2_pct: o, pressure_psi: p }, { k: 1 }), n = ev.nearest[0];
+      var o2 = rows.filter(function (r) { return r.o2_pct != null; }).map(function (r) { return r.o2_pct; });
+      (n ? placed : unplaced).push({ acc: acc, name: rows[0].investigation, role: ROLE[acc] || '', total: rows.length, near: ev.nearCount, closest: n || null,
+        o2: o2.length ? [Math.min.apply(null, o2), Math.max.apply(null, o2)] : null });
+    });
+    placed.sort(function (a, b) { return b.near - a.near || a.closest.distance - b.closest.distance; });
+    unplaced.sort(function (a, b) { return b.total - a.total; });
+    return { placed: placed, unplaced: unplaced };
+  }
+  function drawRank(rank, o) {
+    var tb = $('homeRank'); tb.textContent = '';
+    rank.placed.concat(rank.unplaced).forEach(function (it, i) {
+      var tr = document.createElement('tr'), c = it.closest && it.closest.row;
+      td(tr, c ? String(i + 1) : 'Not ranked'); td(tr, it.name + ' (' + it.acc + ')', PSI_PAGE + it.acc); td(tr, it.role);
+      td(tr, c ? it.near + ' of ' + it.total : 'Cannot be placed: no pressure in NASA\'s table');
+      td(tr, c ? c.test_id + ': ' + c.o2_pct.toFixed(1) + '% oxygen, ' + c.pressure_psi.toFixed(1) + ' psi, ' + outcomeText(c).toLowerCase()
+        : it.o2 ? nTests(it.total) + ', oxygen ' + it.o2[0].toFixed(1) + (it.o2[1] > it.o2[0] ? ' to ' + it.o2[1].toFixed(1) : '') + '%' + (o > it.o2[1] ? ' (this point is above that)' : '') : nTests(it.total) + ', oxygen not recorded');
+      var last = document.createElement('td'), b = document.createElement('button'); b.className = 'linkbtn'; b.type = 'button'; b.textContent = 'See its tests';
+      b.addEventListener('click', function () { showTestsOf(it.acc); }); last.appendChild(b); tr.appendChild(last);
+      if (!c) tr.className = 'unplaced';
+      tb.appendChild(tr);
+    });
+  }
   function updateEvidence(p, o) {
     if (!ROWS || !OFF) return;
     evPending = [p, o];
     if (updateEvidence.raf) return;
     updateEvidence.raf = requestAnimationFrame(function () {
       updateEvidence.raf = 0;
-      var ev = OFF.evidenceAt(ROWS, { o2_pct: evPending[1], pressure_psi: evPending[0] }, { k: 5 });
-      lastEv = ev; updatePillars(evPending[0], evPending[1]);
-      // Every test in the data ran in microgravity, so any other gravity level has no tests of its own.
-      var rate = homeG === '0' ? ev.rating : 'dark';
-      $('homeRating').querySelectorAll('span').forEach(function (sp) { var on = sp.dataset.r === rate; sp.className = on ? 'on ' + rate : ''; });
-      $('homeNearH').textContent = homeG === '0' ? 'Nearest NASA tests' : 'Nearest NASA tests (all run in microgravity)';
-      if (homeG !== '0') $('homeRateNote').textContent = 'No test in our data ran at ' + GRAV_LBL[homeG] + ': every one ran in microgravity. For reference, ' + ev.nearCount + ' microgravity test' + (ev.nearCount === 1 ? ' sits' : 's sit') +
-        ' within ' + OFF.O2_SCALE * OFF.NEAR_DISTANCE + ' points of oxygen or ' + OFF.P_SCALE * OFF.NEAR_DISTANCE + ' psi of this point.';
-      else $('homeRateNote').textContent = ev.nearCount + ' microgravity test' + (ev.nearCount === 1 ? '' : 's') + ' within ' + OFF.O2_SCALE * OFF.NEAR_DISTANCE + ' points of oxygen or ' + OFF.P_SCALE * OFF.NEAR_DISTANCE +
-        ' psi. Well tested means ' + OFF.LIT_MIN_TESTS + ' or more, thin means 1 to ' + (OFF.LIT_MIN_TESTS - 1) + '. Inverse flames (oxygen from the burner) are left out.';
+      var p = evPending[0], o = evPending[1];
+      var ev = OFF.evidenceAt(ROWS, { o2_pct: o, pressure_psi: p }, { k: 5 });
+      lastEv = ev; lastCover = coverAt(p, o); lastRank = rankAt(p, o);
+      var box = $('homeCover'); box.textContent = '';
+      lastCover.forEach(function (c) {
+        var row = document.createElement('div'); row.className = 'cov';
+        row.innerHTML = '<b>' + c.label + '</b><span class="rate ' + c.rating + '">' + RATE[c.rating] + '</span><p>' + esc(c.text) + '</p>';
+        box.appendChild(row);
+      });
+      $('homeRateNote').textContent = 'Near means ' + nearText() + '. Well tested means ' + OFF.LIT_MIN_TESTS + ' or more tests, thin means 1 to ' + (OFF.LIT_MIN_TESTS - 1) +
+        '. Inverse flames (oxygen from the burner) are left out.';
+      drawRank(lastRank, o);
       var tb = $('homeNear'); tb.classList.remove('skel'); tb.textContent = '';
       ev.nearest.forEach(function (n) {
         var r = n.row, tr = document.createElement('tr');
-        td(tr, r.accession, 'https://psi.nasa.gov/physci/repo/data/investigations/' + r.accession);
+        td(tr, r.accession, PSI_PAGE + r.accession);
         td(tr, (r.investigation || '') + ' ' + (r.test_id || ''));
         td(tr, (r.fuel || '').replace(/\s+/g, ' ') + (r.fuel_phase === 'liquid' ? ' droplet' : ''));
         td(tr, r.o2_pct.toFixed(1)); td(tr, r.pressure_psi.toFixed(1)); td(tr, outcomeText(r));
@@ -146,48 +189,35 @@
     });
   }
 
-  /* Prevent, detect, suppress: what NASA's tests say about the point on the map. Counts and ranges come from the rows. */
-  function esc(t) { return String(t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
-  function solidSummary() {
-    if (solidSummary.v) return solidSummary.v;
-    var s = ROWS.filter(function (r) { return r.fuel_phase === 'solid'; }), o = s.filter(function (r) { return r.o2_pct != null; }).map(function (r) { return r.o2_pct; });
-    return (solidSummary.v = { n: s.length, withP: s.filter(function (r) { return r.pressure_psi != null; }).length, lo: Math.min.apply(null, o), hi: Math.max.apply(null, o) });
-  }
-  function updatePillars(p, o) {
-    var s = solidSummary(), pv = $('pPrevent'), above = o > s.hi;
-    pv.innerHTML = s.n + ' tests burned solid materials such as fabric and plastic. Where NASA recorded the oxygen, it ran from ' + s.lo.toFixed(1) + ' to ' + s.hi.toFixed(1) + '%. ' +
-      (above ? '<b>This point, at ' + o.toFixed(1) + '% oxygen, is above all of them.</b> ' : '') + 'NASA\'s tables give these tests no pressure, so they cannot be placed on the map.';
-    pv.classList.toggle('gap', above);
-    var flex = ROWS.filter(function (r) { return r.accession === 'PSI-69'; }), fe = OFF.evidenceAt(flex, { o2_pct: o, pressure_psi: p }, { k: 1 }), n = fe.nearest[0];
-    $('pSuppress').innerHTML = n ? 'Nearest FLEX test to this point: <b>' + esc(n.row.test_id) + '</b>, a ' + esc((n.row.fuel || '').toLowerCase()) + ' droplet in ' + n.row.o2_pct.toFixed(1) + '% oxygen at ' +
-      n.row.pressure_psi.toFixed(1) + ' psi. Outcome: ' + outcomeText(n.row).toLowerCase() + '. ' + fe.nearCount + ' of the ' + flex.length + ' FLEX tests sit near this point.' + (homeG !== '0' ? ' All ran in microgravity.' : '') : 'No FLEX test has both oxygen and pressure recorded.';
-  }
-
   /* Evidence brief: one printable page for the point on the map. Built from the rows and fixed rules; no AI writes it. */
   var briefFrom = null;
   function li(ul, html) { var x = document.createElement('li'); x.innerHTML = html; ul.appendChild(x); }
   function openBrief(print) {
     if (!ROWS || !OFF || !lastEv) return;
-    var p = home.state.p, o = home.state.o, pp = o / 100 * p, ev = lastEv, rate = homeG === '0' ? ev.rating : 'dark', s = solidSummary();
-    var RATE = { lit: 'Well tested', dim: 'Thin', dark: 'No tests' };
+    var p = home.state.p, o = home.state.o, pp = o / 100 * p, ev = lastEv, s = solidSummary();
     var b = $('briefBody'); b.textContent = '';
     b.innerHTML = '<span class="kind">Evidence brief</span><h2 id="briefTitle">' + o.toFixed(1) + '% oxygen at ' + p.toFixed(1) + ' psi</h2>' +
-      '<p class="lead">' + (homeG === '0' ? 'Microgravity' : GRAV_LBL[homeG]) + '. Oxygen partial pressure ' + pp.toFixed(2) + ' psi, ' + (pp / SEA_PPO2).toFixed(2) + ' times sea level.</p>' +
+      '<p class="lead">Oxygen partial pressure ' + pp.toFixed(2) + ' psi, ' + (pp / SEA_PPO2).toFixed(2) + ' times sea level. Every NASA test used here ran in microgravity.</p>' +
       '<dl class="facts"><div><dt>Oxygen</dt><dd>' + o.toFixed(1) + '%</dd></div><div><dt>Pressure</dt><dd>' + p.toFixed(1) + ' psi</dd></div><div><dt>Oxygen partial pressure</dt><dd>' + pp.toFixed(2) + ' psi</dd></div><div><dt>Compared with sea level</dt><dd>' + (pp / SEA_PPO2).toFixed(2) + '&times;</dd></div></dl>' +
-      '<h3>Evidence here</h3><p><span class="rate ' + rate + '">' + RATE[rate] + '</span> ' + esc($('homeRateNote').textContent) + '</p><h3>Nearest NASA tests</h3>';
+      '<h3>Evidence here, by what burned</h3>' +
+      lastCover.map(function (c) { return '<p><span class="rate ' + c.rating + '">' + RATE[c.rating] + '</span> <b>' + c.label + ':</b> ' + esc(c.text) + '</p>'; }).join('') +
+      '<p class="src">' + esc($('homeRateNote').textContent) + '</p>' +
+      '<h3>Investigations ranked for this point</h3><ol>' +
+      lastRank.placed.map(function (r) { return '<li><b>' + esc(r.name) + '</b> (' + r.acc + '): ' + r.near + ' of its ' + nTests(r.total) + ' sit near this point. ' + esc(r.role) + '.</li>'; }).join('') + '</ol>' +
+      '<p>Cannot be placed, because NASA\'s tables give no pressure: ' + lastRank.unplaced.map(function (r) { return esc(r.name); }).join(', ') + '.</p>' +
+      '<h3>Nearest NASA tests</h3>';
     var t = document.createElement('table'); t.innerHTML = '<thead><tr><th>Accession</th><th>Test</th><th>Fuel</th><th>O2 %</th><th>psi</th><th>Outcome</th></tr></thead>';
     var tb = document.createElement('tbody'); t.appendChild(tb);
     ev.nearest.forEach(function (n) { var r = n.row, tr = document.createElement('tr');
-      td(tr, r.accession, 'https://psi.nasa.gov/physci/repo/data/investigations/' + r.accession); td(tr, (r.investigation || '') + ' ' + (r.test_id || ''));
+      td(tr, r.accession, PSI_PAGE + r.accession); td(tr, (r.investigation || '') + ' ' + (r.test_id || ''));
       td(tr, (r.fuel || '').replace(/\s+/g, ' ')); td(tr, r.o2_pct.toFixed(1)); td(tr, r.pressure_psi.toFixed(1)); td(tr, outcomeText(r)); tb.appendChild(tr); });
     var tw = document.createElement('div'); tw.className = 'tablewrap'; tw.appendChild(t); b.appendChild(tw);
     var h = document.createElement('h3'); h.textContent = 'What NASA\'s tests do not cover here'; b.appendChild(h);
     var gaps = document.createElement('ul'); b.appendChild(gaps);
-    if (homeG !== '0') li(gaps, 'No test in PSI ran at ' + GRAV_LBL[homeG] + '. Every test ran in microgravity; microgravity and Earth results can only bound the answer.');
-    else li(gaps, 'Every test ran in microgravity. PSI has no partial-gravity tests yet, so the Moon and Mars are bounded by microgravity and Earth results.');
     li(gaps, 'Cabin materials: the ' + s.n + ' solid-material tests (BASS, BASS-II, SAFFIRE) have no pressure in NASA\'s tables, and their oxygen went no higher than ' + s.hi.toFixed(1) + '%.' + (o > s.hi ? ' <b>This point is above that.</b>' : ''));
-    if (rate === 'dark' && homeG === '0') li(gaps, 'No microgravity test within ' + OFF.O2_SCALE * OFF.NEAR_DISTANCE + ' points of oxygen and ' + OFF.P_SCALE * OFF.NEAR_DISTANCE + ' psi of this point.');
-    li(gaps, 'Inverse gas flames (oxygen from the burner, not the air around the flame) are left out of this count.');
+    li(gaps, 'Gravity: every test ran in microgravity. PSI has no partial-gravity tests yet, so the Moon and Mars are bounded by microgravity and Earth results.');
+    if (ev.rating === 'dark') li(gaps, 'No microgravity test of any fuel ' + nearText() + ' of this point.');
+    li(gaps, 'Inverse gas flames (oxygen from the burner, not the air around the flame) are left out of these counts.');
     h = document.createElement('h3'); h.textContent = 'NASA work that would close the gap (not in PSI yet)'; b.appendChild(h);
     var next = document.createElement('ul'); b.appendChild(next);
     li(next, '<b>FM2, Flammability of Materials on the Moon:</b> burning materials at lunar gravity, the first combustion experiment on another planetary body.');
@@ -218,110 +248,52 @@
     updateEvidence(p, o);
   } });
   $('homePresets').querySelectorAll('button').forEach(function (b) { b.addEventListener('click', function () { home.moveTo(+b.dataset.p, +b.dataset.o); }); });
-  segInit($('homeGrav'), function (b) {
-    var g = b.dataset.g, n = GRAV_NOTE[g];
-    homeG = g;
-    $('homeBanner').textContent = n; $('homeBanner').classList.toggle('show', !!n);
-    $('homeMap').classList.toggle('dim', g !== '0');
-    home.message(g === '0' ? null : 'No NASA tests at ' + GRAV_LBL[g], 'Faded marks: microgravity tests');
-    updateEvidence(home.state.p, home.state.o);
+  // Two ways to carry the point elsewhere: the same tests in Advanced mode, and the same air in the Sim.
+  $('homeAround').addEventListener('click', function () {
+    if (!OFF || !DATA.length) return;
+    var o = home.state.o, p = home.state.p, dO = OFF.O2_SCALE * OFF.NEAR_DISTANCE, dP = OFF.P_SCALE * OFF.NEAR_DISTANCE;
+    FS = freshFilters(); FS.o2min = +(o - dO).toFixed(1); FS.o2max = +(o + dO).toFixed(1); FS.pmin = +Math.max(0, p - dP).toFixed(1); FS.pmax = +(p + dP).toFixed(1);
+    syncFilters(); refresh(); showMode('advanced'); showResView('data'); $('page-analysis').scrollTop = 0;
+  });
+  $('homeBurn').addEventListener('click', function () {
+    simPoint(home.state.o, home.state.p, true);
+    window.history.pushState({}, '', '#sim'); open('sim', null);
   });
 
-  /* ---------- SI Assist: answers from the SI chat or the offline engine, and moves this page's controls ---------- */
-  var mini = makeMap($('siSvg'), {});
-  var ctl = { o: 21, p: 14.7, g: '0', fuels: ['gas', 'liquid', 'solid'] };
-  var history = [];
-  var GNAME = { '0': 'microgravity', lunar: 'Moon gravity', mars: 'Mars gravity', earth: 'Earth gravity' };
-  function render(animate) {
-    $('siO2').value = ctl.o; $('siP').value = ctl.p;
-    $('siO2o').textContent = (+ctl.o).toFixed(1).replace(/\.0$/, '') + '%';
-    $('siPo').textContent = (+ctl.p).toFixed(1) + ' psi';
-    segSet($('siGrav'), 'data-g', ctl.g);
-    $('siFuel').querySelectorAll('button').forEach(function (b) { b.setAttribute('aria-pressed', ctl.fuels.indexOf(b.dataset.f) >= 0); });
-    if (animate) mini.moveTo(ctl.p, ctl.o, 800); else mini.set(ctl.p, ctl.o);
-    $('siSvg').parentNode.classList.toggle('dim', ctl.g !== '0');
-    siMap();
-  }
-  // The small map shows only the chosen fuel types, and says so when a gravity level or a fuel has no tests to show.
-  var MAPROWS = [], siKey = '';
-  function siMap() {
-    var key = ctl.g + '|' + ctl.fuels.slice().sort().join(',');
-    if (!MAPROWS.length || key === siKey) return;
-    siKey = key;
-    var rows = MAPROWS.filter(function (r) { return ctl.fuels.indexOf(r.fuel_phase) >= 0; });
-    mini.dots(rows);
-    var names = ['gas', 'liquid', 'solid'].filter(function (f) { return ctl.fuels.indexOf(f) >= 0; });
-    var title = null, sub = '';
-    if (!names.length) title = 'No fuel type chosen';
-    else if (!rows.length) { title = 'No ' + names.join(' or ') + ' fuel test on this map'; sub = 'NASA gives these tests no pressure'; }
-    else if (ctl.g !== '0') { title = 'No NASA tests at ' + GRAV_LBL[ctl.g]; sub = 'Faded marks: microgravity tests'; }
-    mini.message(title, sub);
-    var note = rows.length + ' of ' + MAPROWS.length + ' tests shown' + (names.length ? ' (' + names.join(', ') + ')' : '') + '.';
-    if (ctl.fuels.indexOf('solid') >= 0) note += ' Solid-fuel tests (BASS, BASS-II, SAFFIRE) record no pressure, so none can be placed on this map.';
-    if (ctl.g !== '0') note += ' ' + GRAV_NOTE[ctl.g];
-    $('siMapNote').textContent = note;
-  }
-  function flash(id) { var f = $(id); f.classList.remove('flash'); void f.offsetWidth; f.classList.add('flash'); }
-  function snapshot() { return JSON.parse(JSON.stringify(ctl)); }
-  function animateTo(next, label) {
-    history.push({ state: snapshot(), label: label });
-    var o0 = ctl.o, p0 = ctl.p;
-    if (next.o !== undefined && next.o !== o0) flash('fO2');
-    if (next.p !== undefined && next.p !== p0) flash('fP');
-    if (next.g !== undefined && next.g !== ctl.g) flash('fG');
-    if (next.fuels) flash('fF');
-    if (next.g !== undefined) ctl.g = next.g;
-    if (next.fuels) ctl.fuels = next.fuels;
-    var o1 = next.o !== undefined ? next.o : o0, p1 = next.p !== undefined ? next.p : p0;
-    tween(0, 1, 800, function (k) { ctl.o = +(o0 + (o1 - o0) * k).toFixed(1); ctl.p = +(p0 + (p1 - p0) * k).toFixed(1); render(false); });
-    var li = document.createElement('li'); li.textContent = label;
-    var log = $('log'); var empty = log.querySelector('.empty'); if (empty) empty.remove();
-    log.prepend(li); $('undoBtn').disabled = false;
+  /* ---------- Assistant: one chat for every page. It answers from the SI chat or the offline engine, and moves the point on the map. ---------- */
+  var moves = [], chat = $('chat'), chatFrom = null;
+  function movePoint(o, p, label) {
+    moves.push({ o: home.state.o, p: home.state.p, label: label });
+    home.moveTo(p, o, 800); simPoint(o, p);
   }
   function undo() {
-    var h = history.pop(); if (!h) return 'There is nothing to undo.';
-    var s = h.state, o0 = ctl.o, p0 = ctl.p;
-    ctl.g = s.g; ctl.fuels = s.fuels;
-    tween(0, 1, 700, function (k) { ctl.o = +(o0 + (s.o - o0) * k).toFixed(1); ctl.p = +(p0 + (s.p - p0) * k).toFixed(1); render(false); });
-    var first = $('log').querySelector('li'); if (first) first.remove();
-    if (!history.length) { $('log').innerHTML = '<li class="empty">Nothing yet.</li>'; $('undoBtn').disabled = true; }
+    var h = moves.pop(); if (!h) return 'There is nothing to undo.';
+    home.moveTo(h.p, h.o, 700); simPoint(h.o, h.p);
     return 'Undone: ' + h.label.charAt(0).toLowerCase() + h.label.slice(1) + '.';
   }
   function interpret(text) {
     var t = text.toLowerCase(), next = {}, said = [];
     if (/\bundo\b/.test(t)) return { reply: undo() };
-    if (/\breset\b/.test(t)) { next = { o: 21, p: 14.7, g: '0', fuels: ['gas', 'liquid', 'solid'] }; said.push('Reset to ISS air in microgravity'); }
+    if (/\breset\b/.test(t)) { next = { o: 21, p: 14.7 }; said.push('Reset to ISS air'); }
     if (/moon\s*base|lunar\s*base|rover/.test(t)) { next.o = 30; next.p = 10.2; said.push('Moved to the Moon Base atmosphere (30% oxygen, 10.2 psi)'); }
     else if (/\biss\b|space station/.test(t)) { next.o = 21; next.p = 14.7; said.push('Moved to the ISS atmosphere (21% oxygen, 14.7 psi)'); }
     else if (/space\s*suit|\bsuit\b|\beva\b/.test(t)) { next.o = 100; next.p = 4.3; said.push('Moved to the spacesuit atmosphere (100% oxygen, 4.3 psi)'); }
-    // Numbers and gravity come from the offline engine's parser (units, "30% oxygen and 10.2 psi", "on the Moon");
-    // the simple patterns below are only used if that script did not load.
+    // Numbers come from the offline engine's parser (units, "30% oxygen and 10.2 psi"); the simple patterns are the backup if it did not load.
     var q = OFF ? OFF.parseQuestion(text) : null;
     var mo = q ? (q.o2_pct != null ? [0, q.o2_pct] : null) : (t.match(/(?:oxygen|o2)\D{0,12}(\d+(?:\.\d+)?)/) || t.match(/(\d+(?:\.\d+)?)\s*%/));
     if (mo) { next.o = clamp(+mo[1], 10, 100); said.push('Set oxygen to ' + next.o + '%'); }
     var mp = q ? (q.pressure_psi != null ? [0, q.pressure_psi] : null) : (t.match(/(\d+(?:\.\d+)?)\s*psi/) || t.match(/pressure\D{0,12}(\d+(?:\.\d+)?)/));
     if (mp) { next.p = clamp(+mp[1], 1, 16); said.push('Set pressure to ' + next.p + ' psi'); }
-    if (q && q.gravity) next.g = { '0g': '0', moon: 'lunar', mars: 'mars', '1g': 'earth' }[q.gravity];
-    else if (/mars|martian/.test(t)) next.g = 'mars';
-    else if (/moon gravity|lunar gravity|gravity.*(moon|lunar)|(moon|lunar).*gravity/.test(t)) next.g = 'lunar';
-    else if (/earth|normal gravity|\b1\s*g\b/.test(t)) next.g = 'earth';
-    else if (/micro|zero g|\b0\s*g\b|weightless/.test(t)) next.g = '0';
-    if (next.g !== undefined && !/reset/.test(t)) said.push('Set gravity to ' + GNAME[next.g]);
-    var only = t.match(/only\s+(solid|liquid|gas)/) || t.match(/(solid|liquid|gas)(?:es)?\s+only/);
-    if (only) { next.fuels = [only[1]]; said.push('Showing only ' + only[1] + ' fuels'); }
-    else if (/all fuels|every fuel/.test(t)) { next.fuels = ['gas', 'liquid', 'solid']; said.push('Showing all fuels'); }
-    if (!said.length) return { reply: 'In this demo I can only move the controls on this page: oxygen, pressure, gravity and fuel type, or jump to the ISS, the Moon Base or a spacesuit. Once the assistant is connected, answers about the research will come from the PSI catalogue with citations.' };
-    var label = said.join('; ');
-    animateTo(next, label);
-    var o = next.o !== undefined ? next.o : ctl.o, p = next.p !== undefined ? next.p : ctl.p, pp = o / 100 * p;
+    if (!said.length) return { reply: 'I can move the point on the map (oxygen and pressure, or the ISS, the Moon Base or a spacesuit) and answer from NASA\'s test data.' };
+    var o = next.o !== undefined ? next.o : home.state.o, p = next.p !== undefined ? next.p : home.state.p, pp = o / 100 * p, label = said.join('; ');
+    movePoint(o, p, label);
     var extra = ' Oxygen partial pressure is now ' + pp.toFixed(2) + ' psi, ' + (pp / SEA_PPO2).toFixed(2) + ' times sea level.';
-    if (next.g === 'lunar' || next.g === 'mars') extra += ' PSI has no partial-gravity tests yet, so microgravity and Earth results are the bounds.';
-    if (next.g === 'earth') extra += ' Note: every test in our data ran in microgravity.';
+    if (q && q.gravity && q.gravity !== '0g') extra += ' Every NASA test in the data ran in microgravity, so there is no test at another gravity level. The Sim shows what gravity would change.';
     return { reply: label + '.' + extra, did: label };
   }
   function addMsg(cls, text, did, why) {
     var m = document.createElement('div'); m.className = 'msg ' + cls; m.textContent = text;
-    if (did) { var s = document.createElement('span'); s.className = 'did'; s.textContent = 'Changed on this page'; m.appendChild(s); }
+    if (did) { var s = document.createElement('span'); s.className = 'did'; s.textContent = 'Moved the point on the map'; m.appendChild(s); }
     if (why) { var w = document.createElement('span'); w.className = 'why'; w.textContent = why; m.appendChild(w); }
     $('msgs').appendChild(m); $('msgs').scrollTop = $('msgs').scrollHeight;
   }
@@ -331,7 +303,7 @@
     var typing = document.createElement('div'); typing.className = 'typing'; typing.innerHTML = '<i></i><i></i><i></i>';
     $('msgs').appendChild(typing); $('msgs').scrollTop = $('msgs').scrollHeight;
     var r = interpret(text);
-    // Undo and reset only touch this page's controls; everything else also gets an answer from NASA's data.
+    // Undo and reset only move the point; everything else also gets an answer from NASA's data.
     if (/\b(undo|reset)\b/i.test(text) || !ROWS || !OFF) {
       setTimeout(function () { typing.remove(); addMsg('bot', r.reply, r.did); }, reduce ? 0 : 650);
       return;
@@ -340,30 +312,36 @@
       typing.remove();
       if (ans.mode === 'si') { var d = ans.data || {}; addMsg('bot', String(d.answer || d.text || JSON.stringify(d)), r.did); return; }
       var did = r.did;
-      // If the controls did not move yet, move them to the point the answer looked at (within the sliders' range).
+      // If the point did not move yet, move it to the point the answer looked at (within the map's range).
       if (!did && ans.probe) {
-        var G = { '0g': '0', moon: 'lunar', mars: 'mars', '1g': 'earth' };
-        var nx = { o: clamp(+ans.probe.o2_pct.toFixed(1), 10, 100), p: clamp(+ans.probe.pressure_psi.toFixed(1), 1, 16) };
-        if (ans.query.gravity) nx.g = G[ans.query.gravity];
-        did = 'Moved to the point in the answer (' + nx.o + '% oxygen, ' + nx.p + ' psi)';
-        animateTo(nx, did);
+        var no = clamp(+ans.probe.o2_pct.toFixed(1), 10, 100), np = clamp(+ans.probe.pressure_psi.toFixed(1), 1, 16);
+        did = 'Moved to the point in the answer (' + no + '% oxygen, ' + np + ' psi)';
+        movePoint(no, np, did);
       }
-      // The chat header already says answers are offline, so the engine's own opening line about it is left out here.
+      // The panel's header already says answers are offline, so the engine's own opening line about it is left out here.
       var paras = ans.paragraphs.filter(function (t, i) { return !(i === 0 && /^Offline answer/i.test(t)); });
+      // The engine counts every fuel together. Say what burned in those tests, so "well covered" is not read as "cabin materials were tested".
+      if (ans.probe) paras.push('By what burned: ' + coverAt(ans.probe.pressure_psi, ans.probe.o2_pct).map(function (c) {
+        return c.label.toLowerCase() + ', ' + RATE[c.rating].toLowerCase() + (c.kind === 'solid' ? ' (NASA\'s solid-material tests record no pressure, so none can be placed)' : c.n ? ' (' + nTests(c.n) + ')' : '');
+      }).join('; ') + '.');
       var body = (r.did ? r.reply + '\n\n' : '') + paras.join('\n\n');
       addMsg('bot', body, did, 'Answered offline from NASA\'s test data with fixed rules.');
     });
   }
-  addMsg('bot', 'Hi. Ask about a cabin atmosphere (oxygen, pressure, fuel, gravity) or tell me what to change. The SI assistant is not connected yet, so I answer from NASA\'s test data with fixed rules and move the controls on the right.');
+  function openChat() { if (chat.hidden) { chatFrom = document.activeElement; chat.hidden = false; } $('ask').focus(); }
+  function closeChat() { chat.hidden = true; if (chatFrom && chatFrom.focus) chatFrom.focus(); }
+  addMsg('bot', 'Hi. Ask about a cabin atmosphere (oxygen, pressure, fuel), or tell me where to move the point on the map. The SI assistant is not connected yet, so I answer from NASA\'s test data with fixed rules.');
   $('compose').addEventListener('submit', function (e) { e.preventDefault(); send($('ask').value); $('ask').value = ''; });
   $('starters').querySelectorAll('.chip').forEach(function (c) { c.addEventListener('click', function () { send(c.textContent); }); });
-  $('undoBtn').addEventListener('click', function () { addMsg('bot', undo()); });
-  $('siO2').addEventListener('input', function () { ctl.o = +this.value; render(false); });
-  $('siP').addEventListener('input', function () { ctl.p = +this.value; render(false); });
-  segInit($('siGrav'), function (b) { ctl.g = b.dataset.g; render(false); });
-  $('siFuel').querySelectorAll('button').forEach(function (b) { b.addEventListener('click', function () {
-    var i = ctl.fuels.indexOf(b.dataset.f); if (i >= 0) ctl.fuels.splice(i, 1); else ctl.fuels.push(b.dataset.f); render(false); }); });
-  render(false);
+  document.querySelectorAll('[data-ask]').forEach(function (b) { b.addEventListener('click', function () { if (chat.hidden) openChat(); else closeChat(); }); });
+  $('chatClose').addEventListener('click', closeChat);
+  // The box on the dashboard: open the Analysis page (where the point moves), open the panel, and ask.
+  $('homeAsk').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var v = $('homeAskIn').value; $('homeAskIn').value = '';
+    if (!document.querySelector('.page.open')) { window.history.pushState({}, '', '#analysis'); open('analysis', null); }
+    openChat(); send(v);
+  });
 
   /* ---------- Resources: the 24 PSI combustion records ---------- */
   // Accession, name and platform from the PSI catalogue (docs/challenge/resources.md).
@@ -402,7 +380,7 @@
     $('catCount').textContent = 'Showing ' + list.length + ' of ' + CAT.length + ' records.';
     list.forEach(function (r, i) {
         var tr = document.createElement('tr'); tr.tabIndex = 0;
-        tr.innerHTML = '<td>' + r[0] + '</td><td>' + r[1] + '</td><td>' + r[2] + '</td><td>' + (r[3] ? '<span class="phase">' + PH[r[3]] + '</span>' : '') + '</td><td class="rows num">' + (r[4] || '&ndash;') + '</td>';
+        tr.innerHTML = '<td>' + r[0] + '</td><td>' + r[1] + '</td><td>' + r[2] + '</td><td>' + (r[3] ? '<span class="phase">' + PH[r[3]] + '</span>' : '') + '</td><td class="rows num">' + (r[4] || 'none') + '</td>';
         tr.style.animation = reduce ? 'none' : 'pop 350ms ' + (i * 25) + 'ms var(--ease) backwards';
         function pick() { tb.querySelectorAll('tr').forEach(function (x) { x.removeAttribute('aria-selected'); }); tr.setAttribute('aria-selected', 'true'); showDetail(r); }
         tr.addEventListener('click', pick); tr.addEventListener('keydown', function (e) { if (e.key === 'Enter') pick(); });
@@ -458,6 +436,9 @@
     $('resCat').hidden = v !== 'cat'; $('resData').hidden = v !== 'data';
   }
   segInit($('resView'), function (b) { showResView(b.dataset.v); });
+  // Simple mode is the map and its answer for one point; Advanced mode is every investigation and every test row.
+  function showMode(m) { segSet($('anMode'), 'data-m', m); $('anSimple').hidden = m !== 'simple'; $('anAdvanced').hidden = m !== 'advanced'; }
+  segInit($('anMode'), function (b) { showMode(b.dataset.m); });
 
   /* ---------- Resources, test data view: filters, a graph builder and a readable table ---------- */
   // Every value is read from data/tests.web.json. The only computed column is oxygen partial pressure, and it says so.
@@ -916,8 +897,8 @@
   function showTestsOf(accession) {
     var name = null; DATA.some(function (d) { if (d.r.accession === accession) { name = d.v.inv; return true; } return false; });
     if (!name) return;
-    FS = freshFilters(); FS.inv[name] = true; syncFilters(); refresh(); showResView('data');
-    document.querySelector('#page-resources').scrollTop = 0;
+    FS = freshFilters(); FS.inv[name] = true; syncFilters(); refresh(); showMode('advanced'); showResView('data');
+    $('page-analysis').scrollTop = 0;
   }
   function dataInit(rows) {
     var fuels = {}, invs = {};
@@ -984,6 +965,17 @@
     });
     $('tPrev').addEventListener('click', function () { tPage--; drawTable(); });
     $('tNext').addEventListener('click', function () { tPage++; drawTable(); });
+    // Download what the table shows (the filtered tests, or the picked mark) with each row's source in NASA's files.
+    $('tCsv').addEventListener('click', function () {
+      var cols = ['accession', 'investigation', 'test_id', 'fuel', 'fuel_phase', 'flame_type', 'o2_pct', 'oxygen_from', 'pressure_psi', 'flow_cm_s', 'gravity', 'outcome', 'ignited', 'source', 'source_line'];
+      var cellOf = function (v) { v = v == null ? '' : String(v); return /[",\r\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
+      var lines = [cols.concat('psi_page').join(',')].concat((picked ? picked.rows : CUR).map(function (d) {
+        return cols.map(function (c) { return cellOf(d.r[c]); }).concat(PSI_PAGE + d.r.accession).join(',');
+      }));
+      var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([lines.join('\r\n')], { type: 'text/csv' }));
+      a.download = 'flashpoint-nasa-tests.csv'; document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
+    });
     if (window.innerWidth <= 860) $('filtBox').open = false;
     var wasNarrow = window.innerWidth < 620;
     window.addEventListener('resize', function () { var nw = window.innerWidth < 620; if (nw !== wasNarrow) { wasNarrow = nw; drawGraph(); } });
@@ -996,11 +988,16 @@
   function simPost(msg) { try { if (simFrame.contentWindow) simFrame.contentWindow.postMessage(msg, '*'); } catch (e) { /* frame not ready */ } }
   function startSim() { if (!simFrame.getAttribute('src')) simFrame.setAttribute('src', 'sim.html?embed'); }
   function stopSim() { }
+  var simWant = null;
+  function simPoint(o, p, go) {
+    if (!go && !$('page-sim').classList.contains('open')) return;
+    simWant = { type: 'fp-point', o2: o, psi: p }; simPost(simWant);
+  }
   window.addEventListener('message', function (e) {
     var d = e.data || {};
     if (e.source !== simFrame.contentWindow) return;
     if (d.type === 'fp-height' && d.h > 0) simFrame.style.height = Math.ceil(d.h) + 'px';
-    if (d.type === 'fp-ready') simPost({ type: 'fp-theme', dark: document.documentElement.dataset.theme === 'dark' });
+    if (d.type === 'fp-ready') { simPost({ type: 'fp-theme', dark: document.documentElement.dataset.theme === 'dark' }); if (simWant) simPost(simWant); }
   });
 
   document.querySelectorAll('.page').forEach(function (pg) { var f = $('siteFoot').cloneNode(true); f.removeAttribute('id'); pg.appendChild(f); });
@@ -1011,12 +1008,12 @@
     else setNotes(['Could not load data/tests.web.json. Open the site through a web server started in the repo root.']);
     if (!rows || !OFF) {
       var msg = !OFF ? 'The offline engine (public/offline/offline-answer.js) did not load.' : 'Could not load data/tests.web.json. Open the site through a web server started in the repo root.';
-      $('homeRateNote').textContent = msg; $('homeDotsNote').textContent = msg;
+      $('homeCover').textContent = msg; $('homeDotsNote').textContent = msg;
       return;
     }
     ROWS = rows;
     var onMap = rows.filter(function (r) { return r.o2_pct != null && r.pressure_psi != null && r.oxygen_from !== 'burner' && r.pressure_psi <= 16; });
-    home.dots(onMap); MAPROWS = onMap; siKey = ''; siMap();
+    home.dots(onMap);
     var note = $('homeDotsNote'); note.textContent = 'Each dot is a NASA microgravity test with chamber oxygen at 16 psi or less (' + onMap.length + ' tests):';
     [['b', 4, 'kept burning'], ['x', 3.6, 'went out or did not ignite'], ['u', 2.4, 'not recorded']].forEach(function (k) {
       var g = document.createElementNS(NS, 'svg'); g.setAttribute('class', 'lg'); g.setAttribute('viewBox', '0 0 12 12'); g.setAttribute('aria-hidden', 'true');
@@ -1051,7 +1048,11 @@
         { duration: 600, easing: 'cubic-bezier(.4, 0, .2, 1)' }).onfinish = function () { g.remove(); };
     });
   }
+  var ALIAS = { home: 'analysis', resources: 'analysis', si: 'analysis' };
   function open(name, card) {
+    if (name === 'resources') showMode('advanced');
+    if (name === 'si') openChat();
+    name = ALIAS[name] || name;
     var page = $('page-' + name); if (!page) return;
     openCard = card || cardOf(name);
     if (reduce || !card || document.querySelector('.page.open')) { show(page); return; }
@@ -1086,10 +1087,11 @@
   document.addEventListener('keydown', function (e) {
     if (e.key !== 'Escape') return;
     if (!$('brief').hidden) { closeBrief(); return; }
+    if (!chat.hidden && chat.contains(document.activeElement)) { closeChat(); return; }
     if (/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName)) return;
     if (document.querySelector('.page.open')) toDashboard();
   });
-  if (location.hash) { var p0 = $('page-' + location.hash.slice(1)); if (p0) { openCard = cardOf(location.hash.slice(1)); show(p0); } }
+  if (location.hash) open(location.hash.slice(1), null);
 
   /* ---------- Theme: light unless the visitor picked dark; the choice is remembered on this device ---------- */
   function setTheme(dark) {

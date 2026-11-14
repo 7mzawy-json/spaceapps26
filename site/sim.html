@@ -130,6 +130,8 @@ td { color: var(--t1); }
 .truth p { color: var(--t3); font-size: .9rem; }
 footer { font-size: .8rem; color: var(--t4); max-width: 80ch; }
 body.nogpu .gpu { display: none; }
+/* Extras switched off to keep the page to one job (a NASA test, then gravity). Remove the class "cut" from an element to bring it back. */
+.cut { display: none !important; }
 
 /* ---- Site look (tokens from assets/tokens.css) ---- */
 body { font: 400 var(--t-md)/1.55 var(--sans); color: var(--ink); -webkit-font-smoothing: antialiased; }
@@ -186,10 +188,10 @@ footer { color: var(--muted); font-size: var(--t-xs); }
 <main>
   <header>
     <p class="tag"><a href="./" style="color:inherit;text-decoration:none">&larr; Flashpoint</a> &middot; Sim</p>
-    <h1>Flame lab: one NASA test, then your own experiment</h1>
+    <h1>Flame lab: one NASA test, then add gravity</h1>
     <p class="lede">Pick a microgravity fire test from NASA's PSI database. Its oxygen, pressure and fuel set up the flame.
-      Then change gravity, add cabin airflow, blow on the flame, or look inside it: the chamber can show where the oxygen
-      is, where the heat is and how the gas moves.</p>
+      Then add gravity to see the same air burn on the Moon, on Mars or on Earth, or switch the chamber to show where the
+      oxygen is.</p>
   </header>
 
   <div class="grid">
@@ -198,8 +200,8 @@ footer { color: var(--muted); font-size: var(--t-xs); }
       <div class="tabs gpu" role="radiogroup" aria-label="What the chamber shows">
         <label><input type="radio" name="view" value="0" checked>Flame</label>
         <label><input type="radio" name="view" value="1">Oxygen</label>
-        <label><input type="radio" name="view" value="2">Heat</label>
-        <label><input type="radio" name="view" value="3">Flow</label>
+        <label class="cut"><input type="radio" name="view" value="2">Heat</label>
+        <label class="cut"><input type="radio" name="view" value="3">Flow</label>
       </div>
       <div class="window">
         <canvas id="flame" role="img" aria-label="Simulated flame for the selected test"></canvas>
@@ -216,15 +218,15 @@ footer { color: var(--muted); font-size: var(--t-xs); }
       <p id="status" aria-live="polite">Loading NASA test data.</p>
       <div class="row">
         <button id="pause" type="button">Pause</button>
-        <button id="ignite" type="button" class="gpu">Ignite</button>
-        <button id="reset" type="button" class="gpu">Clear the chamber</button>
+        <button id="ignite" type="button" class="gpu cut">Ignite</button>
+        <button id="reset" type="button" class="gpu cut">Clear the chamber</button>
         <button id="zoom" type="button" class="gpu" aria-pressed="true">Close-up</button>
       </div>
       <label class="tick"><input type="checkbox" id="loop"> Replay in a loop <span>(off: the test plays once and stays as NASA recorded it)</span></label>
       <p class="note gpu">Move the pointer over the chamber to read the model's values at that spot. Drag to blow on the flame.
         Close-up shows the 0 g flame larger; with gravity or airflow the whole chamber is shown.</p>
     </section>
-    <section class="live gpu">
+    <section class="live gpu cut">
     <h2>Measured from the model, live</h2>
     <div class="meters">
       <div class="meter"><b id="mState">.</b><span>model flame</span></div>
@@ -260,11 +262,11 @@ footer { color: var(--muted); font-size: var(--t-xs); }
           <label><input type="radio" name="g" value="0.38">Mars<small>0.38 g</small></label>
           <label><input type="radio" name="g" value="1">Earth<small>1 g</small></label>
         </div>
-        <input type="range" id="gSlide" class="gpu" min="0" max="2" step="0.01" value="0" aria-label="Gravity, any value from 0 to 2 g">
-        <p class="note">NASA ran every one of these tests at 0 g. Any other value is the same air with gravity added.</p>
+        <input type="range" id="gSlide" class="gpu cut" min="0" max="2" step="0.01" value="0" aria-label="Gravity, any value from 0 to 2 g">
+        <p class="note">NASA ran every one of these tests at 0 g. The other three are the same air with gravity added.</p>
       </fieldset>
 
-      <div class="field gpu">
+      <div class="field gpu cut">
         <label for="wind">Cabin airflow <output id="windOut" for="wind"></output></label>
         <input type="range" id="wind" min="0" max="100" step="1" value="0">
         <p class="note">Air moving across the chamber from the left, as a cabin fan would push it. A relative setting, not cm/s.
@@ -907,6 +909,13 @@ main();
   function setTheme(dark) { if (dark) document.documentElement.dataset.theme = 'dark'; else delete document.documentElement.dataset.theme; }
   window.addEventListener('message', function (e) { var d = e.data || {}; if (e.source === window.parent && d.type === 'fp-theme') setTheme(!!d.dark); });
   window.addEventListener('storage', function (e) { if (e.key === 'fp-theme') setTheme(e.newValue === 'dark'); });
+  // The site can hand over an atmosphere (oxygen %, pressure psi) from its map or its assistant. It is set the same way as
+  // moving the two sliders by hand, so the page labels it as the visitor's experiment, not a NASA test.
+  function setPoint(d) {
+    if (!document.getElementById('inv').options.length) { setTimeout(function () { setPoint(d); }, 150); return; }   // wait for the tests to load
+    [['o2', d.o2], ['psi', d.psi]].forEach(function (kv) { var el = document.getElementById(kv[0]); el.value = kv[1]; el.dispatchEvent(new Event('input')); });
+  }
+  window.addEventListener('message', function (e) { var d = e.data || {}; if (e.source === window.parent && d.type === 'fp-point') setPoint(d); });
   var main = document.querySelector('main');
   function tell() { window.parent.postMessage({ type: 'fp-height', h: main.getBoundingClientRect().bottom + window.scrollY + 16 }, '*'); }
   new ResizeObserver(tell).observe(main);

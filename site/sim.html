@@ -319,6 +319,10 @@ footer { color: var(--muted); font-size: var(--t-xs); }
 const $ = id => document.getElementById(id);
 const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
 
+// ---- The grid. The model was tuned on a 256 grid, with speeds in cells per second. G carries those numbers to a finer grid:
+// speeds and the forces that make them are multiplied by G, and spreading and the glow reach G cells instead of one.
+const N = 512, G = N / 256;
+
 // ---- The model's fixed numbers. Made-up units, the same for every fuel and every test. ----
 const K = {
   FUEL: 0.1,     // fuel leaving the droplet or burner per second, in still gas
@@ -331,7 +335,7 @@ const K = {
   STEFAN: 0.1,   // fuel vapour leaving the source pushes outward
   DX: 0.2,       // how fast gases mix at sea-level pressure
   PILOT: 1.44,   // igniter heat
-  GRAV: 80,      // buoyancy at 1 g
+  GRAV: 80,      // buoyancy at 1 g (on the 256 grid; see G)
   WIND: 1.2,     // airflow slider to cells per second
   TFLAME: 0.9,   // gas hotter than this counts as flame when measuring
   TMAX: 5,       // top of the heat scale
@@ -353,9 +357,9 @@ function flameParams(o2, psi, g, jet, wind = 0) {
     fuel: K.FUEL * Math.min(3, 1 + 1.5 * Math.sqrt(g) + 1.5 * Math.sqrt(wind / 30)),
     diff: Math.min(0.24, 0.07 / atm),         // real direction: heat and motion spread faster at low pressure
     dx: Math.min(0.24, K.DX / atm),           // real direction: oxygen and fuel mix faster at low pressure
-    grav: K.GRAV * g,                         // real: buoyancy is the only term gravity touches
+    grav: K.GRAV * G * g,                       // real: buoyancy is the only term gravity touches
     blue: Math.exp(-12 * g),                  // colour only: 0 g flames carry little soot and glow blue
-    jet: jet ? 350 : 0,
+    jet: jet ? 350 * G : 0,
     src: jet ? [0.5, 0.2] : [0.5, 0.42],
   };
 }
@@ -389,7 +393,7 @@ const glslRamp = (name, stops) => `vec3 ${name}(float t){ t = clamp(t,0.,1.)*4.;
 // State S: xy = velocity in cells per second, z = temperature, w = unburnt fuel.
 // State A: x = oxygen used up, as a share of the chamber's own level (0 = untouched gas), y = burning rate.
 // The used-up share is stored, not the oxygen itself, so rounding in the 16-bit textures cannot slowly drain a full chamber.
-const N = 256, VDAMP = 0.4, SRCR = 0.05, CURL = 5;
+const VDAMP = 0.4, SRCR = 0.05, CURL = 5 * G;
 const cv = $('flame');
 const gl = cv.getContext('webgl2', { alpha: false, antialias: false });
 const gpuOk = gl && (gl.getExtension('EXT_color_buffer_float') || gl.getExtension('EXT_color_buffer_half_float'));
@@ -398,7 +402,7 @@ const VS = `#version 300 es
 in vec2 a; out vec2 uv; void main(){ uv = a*.5+.5; gl_Position = vec4(a,0.,1.); }`;
 const HEAD = `#version 300 es
 precision highp float; precision highp sampler2D;
-in vec2 uv; out vec4 o; const vec2 px = vec2(${1 / N});
+in vec2 uv; out vec4 o; const vec2 px = vec2(${1 / N}); const vec2 wx = px*${G.toFixed(1)};   // wx: one cell of the 256 grid the model was tuned on
 const float VDAMP=${VDAMP.toFixed(3)}, SRCR=${SRCR.toFixed(3)}, CURL=${CURL.toFixed(3)};
 bool outside(vec2 c){ return c.x<0.||c.x>1.||c.y<0.||c.y>1.; }
 `;
@@ -409,11 +413,11 @@ uniform vec2 src, pushAt, push;
 vec4 core(out float X, out float R){
   vec2 b = uv - dt*(texture(s,uv).xy + vec2(wind,0.))*px;          // where this gas came from
   vec4 c = texture(s,b);
-  vec4 n = texture(s,b+vec2(px.x,0.))+texture(s,b-vec2(px.x,0.))+texture(s,b+vec2(0.,px.y))+texture(s,b-vec2(0.,px.y));
+  vec4 n = texture(s,b+vec2(wx.x,0.))+texture(s,b-vec2(wx.x,0.))+texture(s,b+vec2(0.,wx.y))+texture(s,b-vec2(0.,wx.y));
   c.xyz += diff*(n.xyz-4.*c.xyz);
   c.w += dx*(n.w-4.*c.w);
   float ua = texture(a,b).x;
-  float un = texture(a,b+vec2(px.x,0.)).x+texture(a,b-vec2(px.x,0.)).x+texture(a,b+vec2(0.,px.y)).x+texture(a,b-vec2(0.,px.y)).x;
+  float un = texture(a,b+vec2(wx.x,0.)).x+texture(a,b-vec2(wx.x,0.)).x+texture(a,b+vec2(0.,wx.y)).x+texture(a,b-vec2(0.,wx.y)).x;
   X = 1. - (ua + dx*(un-4.*ua));                                   // oxygen left, as a share of the chamber's level
   if (outside(b)) { c.zw = vec2(0.); X = 1.; }                     // fresh chamber gas comes in at the edges
   c.xy /= 1.+VDAMP*dt; c.z /= 1.+cool*(1.+.5*c.z*c.z)*dt;         // hot gas radiates much faster
@@ -440,7 +444,7 @@ void main(){
   float L=curl(uv-vec2(px.x,0.)), R=curl(uv+vec2(px.x,0.)), B=curl(uv-vec2(0.,px.y)), T=curl(uv+vec2(0.,px.y)), C=curl(uv);
   vec2 f = .5*vec2(abs(T)-abs(B), abs(R)-abs(L));
   f = f/(length(f)+1e-4)*CURL*C; f.y = -f.y;
-  vec4 c = texture(s,uv); c.xy = clamp(c.xy+f*dt, -2000., 2000.); o = c;
+  vec4 c = texture(s,uv); c.xy = clamp(c.xy+f*dt, -${2000 * G}., ${2000 * G}.); o = c;
 }`,
   // Divergence of the flow, minus the expansion of gas where fuel burns and where fuel vapour leaves the source.
   diverge: `uniform sampler2D s, a; uniform float expand, stefan; uniform vec2 src;
@@ -469,8 +473,8 @@ void main(){
   if (view < .5) {
     float tb = 0., rb = 0.;                                        // soft glow around the hot gas
     for (int i = 0; i < 8; i++) {
-      tb += .5*(texture(s,m+RING[i]*px*5.).z + texture(s,m+RING[i]*px*12.).z + .6*texture(s,m+RING[i]*px*24.).z);
-      rb += texture(a,m+RING[i]*px*3.).y + texture(a,m+RING[i]*px*7.).y;
+      tb += .5*(texture(s,m+RING[i]*wx*5.).z + texture(s,m+RING[i]*wx*12.).z + .6*texture(s,m+RING[i]*wx*24.).z);
+      rb += texture(a,m+RING[i]*wx*3.).y + texture(a,m+RING[i]*wx*7.).y;
     }
     tb /= 20.8; rb /= 16.;
     vec3 warm = vec3(smoothstep(.12,.55,T), smoothstep(.22,1.,T), smoothstep(.8,1.8,T));       // sooty flame: red, orange, yellow, white
@@ -497,7 +501,7 @@ void main(){
       col = mix(col, vec3(.30,.32,.36)*(.6+.4*smoothstep(-.012,.012,d.x)), tube);
     } else {
       float r = length(d)/.016;
-      vec3 drop = mix(vec3(.55,.42,.22), vec3(.10,.08,.05), smoothstep(.0,1.,r)) + vec3(.9)*smoothstep(.35,.0,length(d-vec2(-.005,.006))/.016);
+      vec3 drop = vec3(.13,.11,.09);                                   // the fuel: a plain dark ball, no shine
       col = mix(col, drop, smoothstep(1.,.85,r));
     }
   } else {
@@ -609,12 +613,12 @@ function step(dt) {
   // A hair of sideways drift, like any real draught. Only gravity can amplify it into flicker.
   const src = [p.src[0] + 0.0015 * Math.sin(clock * 9.1) + 0.001 * Math.sin(clock * 23.3), p.src[1]];
   const u = { s: S[0].tex, a: A[0].tex, dt, diff: p.diff, dx: p.dx, fuel, rate: K.RATE, heat: p.heat, stoich: K.STOICH, tign: K.TIGN,
-    cool: K.COOL, x0: p.x0, spark, wind: cur.wind * K.WIND, jet: p.jet, grav: p.grav, src, pushAt: push.at, push: push.v };
+    cool: K.COOL, x0: p.x0, spark, wind: cur.wind * K.WIND * G, jet: p.jet, grav: p.grav, src, pushAt: push.at, push: push.v };
   draw('advect', u, S[1]); draw('species', u, A[1]); S.reverse(); A.reverse();
   push.v = [0, 0];
   draw('vort', { s: S[0].tex, dt }, S[1]); S.reverse();
   draw('diverge', { s: S[0].tex, a: A[0].tex, expand: K.EXPAND, stefan: K.STEFAN * (fuel > 0 ? 1 : 0), src }, D);
-  for (let i = 0; i < 20; i++) { draw('jacobi', { p: Pr[0].tex, d: D.tex }, Pr[1]); Pr.reverse(); }
+  for (let i = 0; i < 20 * G; i++) { draw('jacobi', { p: Pr[0].tex, d: D.tex }, Pr[1]); Pr.reverse(); }
   draw('grad', { s: S[0].tex, p: Pr[0].tex }, S[1]); S.reverse();
 }
 
@@ -637,7 +641,7 @@ function readback() {
     if (T > K.TFLAME) { if (i < x0) x0 = i; if (i > x1) x1 = i; if (j < y0) y0 = j; if (j > y1) y1 = j; if (bufA[k] > used) used = bufA[k]; }
   }
   const has = x1 >= x0, w = has ? x1 - x0 + 1 : 0, h = has ? y1 - y0 + 1 : 0;
-  m.rate = rate / N;
+  m.rate = rate / (N * G);   // the same number on any grid
   m.burning = m.rate > 0.02 && has;
   m.shape = has ? h / w : 0;
   m.width = w / (2 * SRCR * N);
@@ -678,7 +682,7 @@ function show(dt) {
   if (Math.abs(zoomNow - want) < 0.003) zoomNow = want;
   const k = (zoomNow - 1) / (ZOOM - 1);
   viewCtr = [0.5 + (p.src[0] - 0.5) * k, 0.5 + (p.src[1] - 0.5) * k];
-  draw('show', { s: S[0].tex, a: A[0].tex, blue: p.blue, view, wind: cur.wind * K.WIND, jet: p.jet ? 1 : 0, tflame: K.TFLAME, tmax: K.TMAX, vmax: K.VMAX, shellk: K.SHELL, src: p.src, ctr: viewCtr, zoom: zoomNow }, null);
+  draw('show', { s: S[0].tex, a: A[0].tex, blue: p.blue, view, wind: cur.wind * K.WIND * G, jet: p.jet ? 1 : 0, tflame: K.TFLAME, tmax: K.TMAX, vmax: K.VMAX * G, shellk: K.SHELL, src: p.src, ctr: viewCtr, zoom: zoomNow }, null);
 }
 function overlay() {
   const c = $('over'), w = c.width = cv.width, h = c.height = cv.height, g = c.getContext('2d');
@@ -686,12 +690,12 @@ function overlay() {
   if (!haveRead) return;
   if (view === 3) {
     g.strokeStyle = 'rgba(255,255,255,.75)'; g.lineWidth = Math.max(1, w / 520);
-    const wind = cur.wind * K.WIND;
-    for (let j = 8; j < N; j += 16) for (let i = 8; i < N; i += 16) {
+    const wind = cur.wind * K.WIND * G;
+    for (let j = 8 * G; j < N; j += 16 * G) for (let i = 8 * G; i < N; i += 16 * G) {
       const k = (j * N + i) * 4, vx = bufS[k] + wind, vy = bufS[k + 1], sp = Math.hypot(vx, vy);
-      if (sp < 2) continue;
+      if (sp < 2 * G) continue;
       const q = toScreen((i + .5) / N, (j + .5) / N); if (q[0] < 0 || q[0] > 1 || q[1] < 0 || q[1] > 1) continue;
-      const len = Math.min(1, sp / K.VMAX) * (w / 16) * 0.9 + w / 90, x = q[0] * w, y = (1 - q[1]) * h;
+      const len = Math.min(1, sp / (K.VMAX * G)) * (w / 16) * 0.9 + w / 90, x = q[0] * w, y = (1 - q[1]) * h;
       const dx = vx / sp * len, dy = -vy / sp * len;
       g.beginPath(); g.moveTo(x - dx / 2, y - dy / 2); g.lineTo(x + dx / 2, y + dy / 2);
       g.lineTo(x + dx / 2 - dx * .3 + dy * .2, y + dy / 2 - dy * .3 - dx * .2);
@@ -888,7 +892,7 @@ async function main() {
   const at = e => { const r = cv.getBoundingClientRect(), q = toChamber((e.clientX - r.left) / r.width, 1 - (e.clientY - r.top) / r.height); return [clamp(q[0], 0, 1), clamp(q[1], 0, 1)]; };
   cv.addEventListener('pointermove', e => {
     const [u, v] = at(e); probe.on = true; probe.u = u; probe.v = v;
-    if (drag) { push.at = [u, v]; push.v = [clamp((u - drag[0]) * N * 14, -600, 600), clamp((v - drag[1]) * N * 14, -600, 600)]; drag = [u, v]; }
+    if (drag) { push.at = [u, v]; push.v = [clamp((u - drag[0]) * N * 14, -600 * G, 600 * G), clamp((v - drag[1]) * N * 14, -600 * G, 600 * G)]; drag = [u, v]; }
   });
   cv.addEventListener('pointerdown', e => { drag = at(e); try { cv.setPointerCapture(e.pointerId); } catch (x) { /* older browsers */ } });
   for (const ev of ['pointerup', 'pointercancel']) cv.addEventListener(ev, () => { drag = null; });

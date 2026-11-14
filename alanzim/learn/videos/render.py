@@ -22,7 +22,7 @@ from browser import ROOT, serve  # noqa: E402
 
 NARRATION = HERE / "narration"
 DRAFT = HERE / "narration-draft"
-OUT = HERE / "out"
+OUT = ROOT / "site" / "videos"   # finished videos go straight into the website
 FPS = 60          # smoother motion; render time and file size roughly double
 SIZE = (1920, 1080)
 TAIL = 0.6          # seconds held after the last word
@@ -54,7 +54,6 @@ def sources(vid, draft, narration_dir=NARRATION, draft_dir=DRAFT):
 def render(page, audio, out, seconds, fps=FPS, poster=None):
     """Render `page` (a path under the repo root, with its query) for `seconds` with `audio` into `out` (MP4).
     poster: optional (time, jpg path) for a still frame."""
-    from playwright.sync_api import sync_playwright
     out.parent.mkdir(parents=True, exist_ok=True)
     n = math.ceil(seconds * fps)
     ff = [imageio_ffmpeg.get_ffmpeg_exe(), "-y", "-loglevel", "error", "-f", "image2pipe", "-framerate", str(fps),
@@ -62,7 +61,26 @@ def render(page, audio, out, seconds, fps=FPS, poster=None):
           # JPEG frames are full range; convert to the standard (TV) range so every player shows the same colours
           "-vf", "scale=in_range=pc:out_range=tv:out_color_matrix=bt709,format=yuv420p",
           "-color_range", "tv", "-colorspace", "bt709", "-color_primaries", "bt709", "-color_trc", "bt709", "-crf", "23", "-preset", "medium", "-c:a", "aac", "-b:a", "128k", "-af", "apad", "-shortest",
-          "-movflags", "+faststart", str(out)]
+          "-movflags", "+faststart", None]
+    # Render into .part files and swap them in only when everything succeeded: the website serves these files while
+    # videos render, so a half-written MP4 must never sit at the real path.
+    part, pposter = out.with_name(out.stem + ".part.mp4"), (poster[1].with_name(poster[1].stem + ".part.jpg") if poster else None)
+    ff[-1] = str(part)
+    try:
+        _render_to(page, ff, n, fps, part, poster and (poster[0], pposter))
+    except BaseException:
+        for f in (part, pposter):
+            if f and f.exists():
+                f.unlink()
+        raise
+    part.replace(out)
+    if poster:
+        pposter.replace(poster[1])
+    return out
+
+
+def _render_to(page, ff, n, fps, part, poster):
+    from playwright.sync_api import sync_playwright
     srv, base = serve(ROOT)
     try:
         with sync_playwright() as pw:
@@ -88,12 +106,17 @@ def render(page, audio, out, seconds, fps=FPS, poster=None):
     finally:
         srv.shutdown()
         srv.server_close()
-    if out.stat().st_size > MAX_BYTES:
-        smaller = out.with_name(out.stem + ".small.mp4")
-        subprocess.run([imageio_ffmpeg.get_ffmpeg_exe(), "-y", "-loglevel", "error", "-i", str(out), "-c:v", "libx264",
-                        "-pix_fmt", "yuv420p", "-crf", "27", "-c:a", "copy", "-movflags", "+faststart", str(smaller)], check=True)
-        smaller.replace(out)
-    return out
+    if part.stat().st_size > MAX_BYTES:
+        smaller = part.with_name(part.stem + ".small.mp4")
+        try:
+            subprocess.run([imageio_ffmpeg.get_ffmpeg_exe(), "-y", "-loglevel", "error", "-i", str(part), "-c:v", "libx264",
+                            "-pix_fmt", "yuv420p", "-color_range", "tv", "-colorspace", "bt709", "-color_primaries", "bt709",
+                            "-color_trc", "bt709", "-crf", "27", "-c:a", "copy", "-movflags", "+faststart", str(smaller)], check=True)
+        except BaseException:
+            if smaller.exists():
+                smaller.unlink()
+            raise
+        smaller.replace(part)
 
 
 def _facts_check():
@@ -126,7 +149,7 @@ def main(argv=None, narration_dir=NARRATION, draft_dir=DRAFT, out_dir=OUT, check
     renderer(f"alanzim/learn/videos/scenes/{a.id}.html?timing=../{rel}", audio, mp4, timing["duration"] + TAIL,
              poster=(poster_t, out_dir / f"{a.id}.jpg"))
     (out_dir / f"{a.id}.vtt").write_text(vtt(timing), encoding="utf-8")
-    print(f"Wrote {mp4.relative_to(HERE)} ({mp4.stat().st_size / 1e6:.1f} MB), {a.id}.vtt, {a.id}.jpg")
+    print(f"Wrote {mp4.relative_to(ROOT).as_posix()} ({mp4.stat().st_size / 1e6:.1f} MB), {a.id}.vtt, {a.id}.jpg")
     return 0
 
 

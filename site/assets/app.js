@@ -1038,7 +1038,8 @@
     if (name === 'sim') startSim();
   }
   function morph(card) {
-    document.querySelectorAll('.card').forEach(function (c) {
+    // Only cards that open a page inside this file shrink into the bar; the Learn card is a plain link to learn.html.
+    document.querySelectorAll('.card[data-page]').forEach(function (c) {
       if (c === card) return;
       var from = c.getBoundingClientRect(), to = bar.querySelector('.tab[data-page="' + c.dataset.page + '"]').getBoundingClientRect();
       var g = document.createElement('div'); g.className = 'morph'; g.style.cssText = rect(from); document.body.appendChild(g);
@@ -1074,7 +1075,7 @@
     setTimeout(function () { ex.remove(); card.focus({ preventScroll: true }); }, 700);
   }
   function toDashboard() { if (location.hash) window.history.pushState({}, '', location.pathname + location.search); close(); }
-  document.querySelectorAll('.card, .bar .tab').forEach(function (a) {
+  document.querySelectorAll('.card[data-page], .bar .tab[data-page]').forEach(function (a) {
     a.addEventListener('click', function (e) {
       e.preventDefault();
       if (location.hash.slice(1) === a.dataset.page && document.querySelector('.page.open')) return;

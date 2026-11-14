@@ -1,6 +1,7 @@
 # Learners page videos: design
 
-Draft, Sat Nov 14 (evening). Owner: AlanziM2. Lives in `alanzim/` (drafts, not deployed) like the learners page itself.
+Draft, Sat Nov 14 (evening). Owner: AlanziM2. The video sources live in `alanzim/learn/videos/` (not deployed); the
+finished videos are written to `site/videos/` and play on the learners page, `site/learn.html` (moved there on Nov 14, night).
 
 ## Intent
 

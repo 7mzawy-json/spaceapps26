@@ -51,6 +51,25 @@ class Guards(unittest.TestCase):
         self.assertEqual(calls, [])
 
 
+class Atomic(unittest.TestCase):
+    def test_failed_render_keeps_previous_video(self):
+        # The page is served while videos render, so a render must never leave a half-written file in place.
+        (HERE / "frames").mkdir(exist_ok=True)
+        (HERE / "frames" / "test-short.timing.json").write_text(json.dumps({"id": "short", "voice": "t", "script_hash": "t",
+            "duration": 2.0, "sentences": [{"beat": "a", "show": "a", "start": 0, "end": 2.0}]}))
+        with tempfile.TemporaryDirectory() as d:
+            out = Path(d) / "1-9.mp4"
+            out.write_bytes(b"previous good video")
+            wav = Path(d) / "s.wav"
+            with wave.open(str(wav), "wb") as w:
+                w.setnchannels(1); w.setsampwidth(2); w.setframerate(22050); w.writeframes(b"\0\0" * 2205)
+            with self.assertRaises(Exception):
+                render.render("alanzim/learn/videos/tests/fixtures/breaks.html?timing=../../frames/test-short.timing.json", wav, out, seconds=0.5,
+                              poster=(0.0, Path(d) / "1-9.jpg"))
+            self.assertEqual(out.read_bytes(), b"previous good video")
+            self.assertEqual(sorted(p.name for p in Path(d).iterdir()), ["1-9.mp4", "s.wav"])
+
+
 class ShortRender(unittest.TestCase):
     def test_short_render(self):
         frames = HERE / "frames"

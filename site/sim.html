@@ -150,6 +150,9 @@ output { font-family: var(--mono); color: var(--brand); }
 .col { display: flex; flex-direction: column; gap: 1.4rem; min-width: 0; }
 .col > :last-child { flex: 1; }
 body.nogpu .col > .chamber { flex: 1; }
+.tick { display: flex; gap: .5rem; align-items: baseline; font: 500 var(--t-sm) var(--sans); letter-spacing: 0; text-transform: none; color: var(--ink); cursor: pointer; }
+.tick span { color: var(--muted); font-weight: 400; }
+.tick input { accent-color: var(--brand-fill); }
 .live { background: var(--surface); border: 1px solid var(--line); border-radius: var(--corner); padding: 1.25rem 1.35rem; min-width: 0; }
 .results { grid-template-columns: minmax(0, 1fr); }
 .truth { border-top: 0; padding-top: 0; gap: 1.4rem; }
@@ -215,8 +218,11 @@ footer { color: var(--muted); font-size: var(--t-xs); }
         <button id="pause" type="button">Pause</button>
         <button id="ignite" type="button" class="gpu">Ignite</button>
         <button id="reset" type="button" class="gpu">Clear the chamber</button>
+        <button id="zoom" type="button" class="gpu" aria-pressed="true">Close-up</button>
       </div>
-      <p class="note gpu">Move the pointer over the chamber to read the model's values at that spot. Drag to blow on the flame.</p>
+      <label class="tick"><input type="checkbox" id="loop"> Replay in a loop <span>(off: the test plays once and stays as NASA recorded it)</span></label>
+      <p class="note gpu">Move the pointer over the chamber to read the model's values at that spot. Drag to blow on the flame.
+        Close-up shows the 0 g flame larger; with gravity or airflow the whole chamber is shown.</p>
     </section>
     <section class="live gpu">
     <h2>Measured from the model, live</h2>
@@ -359,10 +365,12 @@ console.assert(Math.abs(flameParams(21, 14.7, 0, false).heat - K.HEAT) < 1e-9, '
 console.assert(flameParams(21, 8, 0, false).dx > flameParams(21, 14.7, 0, false).dx, 'lower pressure, faster mixing');
 
 // Is the NASA flame lit, t seconds after the test was picked? Only real outcomes switch it off.
+// By default the test plays once and then stays as NASA recorded it. With "Replay in a loop" on, it starts again.
+let loop = false;
 function lit(t, row) {
   if (!row) return 1;
-  if (row.ignited === false) return t % 6 < 0.25 ? 1 : 0;             // igniter fires, no flame holds
-  if (row.outcome === 'self_extinguished') return t % 12 < 7 ? 1 : 0;  // burns, goes out, replays
+  if (row.ignited === false) return (loop ? t % 6 : t) < 0.25 ? 1 : 0;             // igniter fires, no flame holds
+  if (row.outcome === 'self_extinguished') return (loop ? t % 12 : t) < 7 ? 1 : 0;  // burns, then goes out
   return 1;
 }
 
@@ -448,29 +456,40 @@ float P(vec2 c){ return outside(c) ? 0. : texture(p,c).x; }
 void main(){ vec4 c = texture(s,uv); c.xy -= .5*vec2(P(uv+vec2(px.x,0.))-P(uv-vec2(px.x,0.)), P(uv+vec2(0.,px.y))-P(uv-vec2(0.,px.y))); o = c; }`,
   // What the visitor sees. view 0: the flame as light. 1: oxygen. 2: heat. 3: flow speed.
   show: glslRamp('rampO', RAMPS.oxygen) + glslRamp('rampH', RAMPS.heat) + glslRamp('rampF', RAMPS.flow) + `
-uniform sampler2D s, a; uniform float blue, view, wind, jet, tflame, tmax, vmax, shellk; uniform vec2 src;
+uniform sampler2D s, a; uniform float blue, view, wind, jet, tflame, tmax, vmax, shellk, zoom; uniform vec2 src, ctr;
 const vec2 RING[8] = vec2[8](vec2(1.,0.),vec2(.707,.707),vec2(0.,1.),vec2(-.707,.707),vec2(-1.,0.),vec2(-.707,-.707),vec2(0.,-1.),vec2(.707,-.707));
 void main(){
-  vec4 S = texture(s,uv), A = texture(a,uv);
+  vec2 m = ctr + (uv-.5)/zoom;                                     // close-up: which point of the chamber this pixel shows
+  if (outside(m)) { o = vec4(.004,.005,.010,1.); return; }
+  vec4 S = texture(s,m), A = texture(a,m);
   float T = S.z*.5, R = A.y;   // T here is on the palette's scale (half the model's)
   vec3 col;
   if (view < .5) {
     float tb = 0., rb = 0.;                                        // soft glow around the hot gas
     for (int i = 0; i < 8; i++) {
-      tb += .5*(texture(s,uv+RING[i]*px*5.).z + texture(s,uv+RING[i]*px*12.).z + .6*texture(s,uv+RING[i]*px*24.).z);
-      rb += texture(a,uv+RING[i]*px*3.).y + texture(a,uv+RING[i]*px*7.).y;
+      tb += .5*(texture(s,m+RING[i]*px*5.).z + texture(s,m+RING[i]*px*12.).z + .6*texture(s,m+RING[i]*px*24.).z);
+      rb += texture(a,m+RING[i]*px*3.).y + texture(a,m+RING[i]*px*7.).y;
     }
     tb /= 20.8; rb /= 16.;
     vec3 warm = vec3(smoothstep(.12,.55,T), smoothstep(.22,1.,T), smoothstep(.8,1.8,T));       // sooty flame: red, orange, yellow, white
-    vec3 cold = vec3(smoothstep(.9,2.1,T)*.7, smoothstep(.3,1.4,T)*.8, smoothstep(.05,.55,T)); // soot-free flame: blue to pale
+    // The 0 g flame, painted after NASA's photographs of microgravity flames: a thin blue shell at the flame's
+    // edge, a warm glow inside it (yellow just inside the shell, orange and rose toward the fuel), dark outside.
+    // Colour only: the shape and size are the model's, the tints are an illustration.
+    float z = S.z;                                                    // the model's own heat scale; the flame edge is near 0.9
+    float core = smoothstep(.80,.97,A.x)*(1.-smoothstep(.90,1.20,z)); // near the fuel, where the oxygen is used up and the gas is cooler
+    float rim = smoothstep(.42,.80,z)*(1.-smoothstep(.88,1.10,z))*(1.-smoothstep(.80,.97,A.x));   // the band at the edge
+    float inner = smoothstep(.92,1.22,z);                             // inside the shell
+    vec3 glow = mix(vec3(1.,.80,.30), vec3(1.,.46,.15), smoothstep(1.12,1.60,z));
+    glow = mix(glow, vec3(.78,.24,.30), smoothstep(1.55,2.20,z));
+    vec3 cold = vec3(.10,.32,1.)*rim*1.7 + glow*inner*mix(1.35,.80,smoothstep(1.5,2.3,z)) + vec3(.70,.24,.26)*core*.5;
     vec3 body = mix(warm, cold, blue);
-    vec3 shell = vec3(.30,.55,1.)*(1.-exp(-(R+rb)*shellk));           // the thin zone where fuel meets oxygen glows blue
-    vec3 halo = mix(vec3(1.,.42,.10), vec3(.12,.30,1.), blue)*tb*.55;
-    col = body*.95 + shell*mix(.30,.85,blue) + halo;
+    vec3 shell = vec3(.30,.55,1.)*(1.-exp(-(R+rb)*shellk));           // with gravity: the zone where fuel meets oxygen glows blue
+    vec3 halo = mix(vec3(1.,.42,.10), vec3(.10,.24,.95), blue)*tb*mix(.55,.30,blue);
+    col = body*.95 + shell*mix(.30,.0,blue) + halo;
     col = 1.-exp(-col*1.5);
     vec2 q = uv-.5; col += vec3(.010,.012,.020)*(1.-dot(q,q)*1.6);   // the dark chamber
     // the fuel source: a droplet or porous ball, or the tip of a gas burner
-    vec2 d = uv-src;
+    vec2 d = m-src;
     if (jet > .5) {
       float tube = step(abs(d.x), .012)*step(d.y, .0)*step(-.2, d.y);
       col = mix(col, vec3(.30,.32,.36)*(.6+.4*smoothstep(-.012,.012,d.x)), tube);
@@ -481,12 +500,12 @@ void main(){
     }
   } else {
     float edge;
-    if (view < 1.5) col = rampO(1.-A.x);
+    if (view < 1.5) col = rampO(1.-A.x);   // A and S were read at the chamber point m
     else if (view < 2.5) col = rampH(S.z/tmax);
     else col = rampF(length(S.xy+vec2(wind,0.))/vmax);
     edge = 1.-smoothstep(.8,1.8,abs(S.z-tflame)/max(fwidth(S.z),1e-4));   // outline of the flame
     col = mix(col, vec3(1.), edge*.8);
-    float r = length(uv-src)/.016;
+    float r = length(m-src)/.016;
     if (jet < .5) col = mix(col, vec3(.95), (1.-smoothstep(.8,1.,r))*.9);
   }
   o = vec4(col, 1.);
@@ -549,6 +568,7 @@ const cur = { row: null, o2: 21, psi: 14.7, g: 0, wind: 0, jet: false, t0: 0 };
 let clock = 0, paused = false, last = 0, statusText = '', view = 0;
 let sparkUntil = 0;                                   // the igniter is on until this time
 let wasOn = 0, aliveAt = 0;                           // NASA replay: was the flame on last step, when did the model last burn
+let held = false;                                     // the model alone could not hold this flame, so the igniter stays on
 const push = { at: [0.5, 0.5], v: [0, 0] };           // the visitor blowing on the flame
 // The flame follows NASA's record only at the test's own conditions. Anything else is the model's own result.
 const following = () => !!cur.row && cur.g === 0 && cur.wind === 0;
@@ -576,11 +596,14 @@ function step(dt) {
   if (following()) {                                   // NASA's record decides whether there is a flame
     const on = lit(t, cur.row);
     if (on && !wasOn) sparkUntil = clock + (cur.row.ignited === false ? 0.25 : 1.5);   // the igniter fires as the test starts
-    // If the model flame dies while NASA's record says it burned, clear the chamber and light it again.
+    // NASA's record decides. If the model flame dies while the record says it was burning, the igniter is kept on
+    // at the fuel source (and the page says so) instead of clearing the chamber and lighting it over and over.
+    if (on && !wasOn) { held = false; aliveAt = clock; }
     if (on && m.burning) aliveAt = clock;
-    if (on && cur.row.ignited !== false && clock > sparkUntil + 2 && clock - aliveAt > 2) { clearChamber(); sparkUntil = clock + 1.5; aliveAt = clock; }
+    if (on && cur.row.ignited !== false && clock > sparkUntil + 2 && clock - aliveAt > 2) held = true;
+    if (on && held) spark = Math.max(spark, K.PILOT * 0.8);
     wasOn = on; fuel *= on; if (!on) spark = 0;
-  } else wasOn = 0;
+  } else { wasOn = 0; held = false; }
   // A hair of sideways drift, like any real draught. Only gravity can amplify it into flicker.
   const src = [p.src[0] + 0.0015 * Math.sin(clock * 9.1) + 0.001 * Math.sin(clock * 23.3), p.src[1]];
   const u = { s: S[0].tex, a: A[0].tex, dt, diff: p.diff, dx: p.dx, fuel, rate: K.RATE, heat: p.heat, stoich: K.STOICH, tign: K.TIGN,
@@ -640,7 +663,21 @@ function meters() {
 }
 
 // ---- Overlay: flow arrows and the probe marker ----
-const probe = { on: false, u: 0.5, v: 0.5 };
+const probe = { on: false, u: 0.5, v: 0.5 };   // in chamber coordinates (0 to 1), whatever the zoom
+// Close-up: the 0 g flame is small in the chamber, so the view can zoom in on the fuel source. Display only.
+const ZOOM = 2.3;
+let closeUp = true, zoomNow = 1, viewCtr = [0.5, 0.5];
+const toChamber = (u, v) => [viewCtr[0] + (u - 0.5) / zoomNow, viewCtr[1] + (v - 0.5) / zoomNow];
+const toScreen = (u, v) => [0.5 + (u - viewCtr[0]) * zoomNow, 0.5 + (v - viewCtr[1]) * zoomNow];
+function show(dt) {
+  const p = flameParams(cur.o2, cur.psi, cur.g, cur.jet, cur.wind);
+  const want = closeUp && cur.g === 0 && cur.wind === 0 ? ZOOM : 1;
+  zoomNow = dt == null ? want : zoomNow + (want - zoomNow) * Math.min(1, dt * 5);
+  if (Math.abs(zoomNow - want) < 0.003) zoomNow = want;
+  const k = (zoomNow - 1) / (ZOOM - 1);
+  viewCtr = [0.5 + (p.src[0] - 0.5) * k, 0.5 + (p.src[1] - 0.5) * k];
+  draw('show', { s: S[0].tex, a: A[0].tex, blue: p.blue, view, wind: cur.wind * K.WIND, jet: p.jet ? 1 : 0, tflame: K.TFLAME, tmax: K.TMAX, vmax: K.VMAX, shellk: K.SHELL, src: p.src, ctr: viewCtr, zoom: zoomNow }, null);
+}
 function overlay() {
   const c = $('over'), w = c.width = cv.width, h = c.height = cv.height, g = c.getContext('2d');
   g.clearRect(0, 0, w, h);
@@ -651,7 +688,8 @@ function overlay() {
     for (let j = 8; j < N; j += 16) for (let i = 8; i < N; i += 16) {
       const k = (j * N + i) * 4, vx = bufS[k] + wind, vy = bufS[k + 1], sp = Math.hypot(vx, vy);
       if (sp < 2) continue;
-      const len = Math.min(1, sp / K.VMAX) * (w / 16) * 0.9 + w / 90, x = (i + .5) / N * w, y = (1 - (j + .5) / N) * h;
+      const q = toScreen((i + .5) / N, (j + .5) / N); if (q[0] < 0 || q[0] > 1 || q[1] < 0 || q[1] > 1) continue;
+      const len = Math.min(1, sp / K.VMAX) * (w / 16) * 0.9 + w / 90, x = q[0] * w, y = (1 - q[1]) * h;
       const dx = vx / sp * len, dy = -vy / sp * len;
       g.beginPath(); g.moveTo(x - dx / 2, y - dy / 2); g.lineTo(x + dx / 2, y + dy / 2);
       g.lineTo(x + dx / 2 - dx * .3 + dy * .2, y + dy / 2 - dy * .3 - dx * .2);
@@ -659,7 +697,7 @@ function overlay() {
     }
   }
   if (probe.on) {
-    const x = probe.u * w, y = (1 - probe.v) * h, r = w / 60;
+    const ps = toScreen(probe.u, probe.v), x = ps[0] * w, y = (1 - ps[1]) * h, r = w / 60;
     g.strokeStyle = 'rgba(255,255,255,.9)'; g.lineWidth = Math.max(1, w / 520);
     g.beginPath(); g.arc(x, y, r, 0, 7); g.moveTo(x - r * 1.8, y); g.lineTo(x - r, y); g.moveTo(x + r, y); g.lineTo(x + r * 1.8, y);
     g.moveTo(x, y - r * 1.8); g.lineTo(x, y - r); g.moveTo(x, y + r); g.lineTo(x, y + r * 1.8); g.stroke();
@@ -713,18 +751,19 @@ function status() {
     const what = css ? 'The backup flame only illustrates the setting.' : clock < sparkUntil ? 'The igniter is on.' : (m.burning ? 'The model flame is burning.' : 'The model flame is out. Press Ignite to try again.');
     return '<b>Your experiment.</b> ' + why + ' ' + what + ' The real outcome is unknown.';
   }
-  if (r.ignited === false) return '<b>Did not ignite.</b> NASA recorded that the igniter fired and no flame held.';
-  if (r.outcome === 'self_extinguished') return lit(t, r) ? '<b>Burning.</b> NASA recorded that this flame went out by itself.' : '<b>Out.</b> The flame went out by itself, as NASA recorded. Replaying.';
-  if (r.outcome === 'burned') return '<b>Burning.</b> NASA recorded that this flame kept burning to the end of the test.';
-  return '<b>Burning.</b> NASA\'s table does not record how this test ended.';
+  const again = loop ? ' Replaying.' : ' Press Ignite to watch it again.';
+  const hold = held && !css ? ' The model alone cannot hold a flame at this setting, so its igniter is kept on to follow the record.' : '';
+  if (r.ignited === false) return '<b>Did not ignite.</b> NASA recorded that the igniter fired and no flame held.' + (lit(t, r) ? '' : again);
+  if (r.outcome === 'self_extinguished') return lit(t, r) ? '<b>Burning.</b> NASA recorded that this flame went out by itself.' + hold : '<b>Out.</b> The flame went out by itself, as NASA recorded.' + again;
+  if (r.outcome === 'burned') return '<b>Burning.</b> NASA recorded that this flame kept burning to the end of the test.' + hold;
+  return '<b>Burning.</b> NASA\'s table does not record how this test ended.' + hold;
 }
 
 function frame(now) {
   const dt = Math.min((now - last) / 1000 || 0, 1 / 30); last = now;
   if (!paused && dt > 0) { clock += dt; if (!css) step(dt); }
   if (!css) {
-    const p = flameParams(cur.o2, cur.psi, cur.g, cur.jet, cur.wind);
-    draw('show', { s: S[0].tex, a: A[0].tex, blue: p.blue, view, wind: cur.wind * K.WIND, jet: p.jet ? 1 : 0, tflame: K.TFLAME, tmax: K.TMAX, vmax: K.VMAX, shellk: K.SHELL, src: p.src }, null);
+    show(dt || 1 / 60);
     if (clock - lastRead > 0.1 || paused && !haveRead) { lastRead = clock; readback(); meters(); }
     overlay();
   }
@@ -837,12 +876,14 @@ async function main() {
   $('wind').addEventListener('input', () => { cur.wind = +$('wind').value; cur.t0 = clock; if (!following()) sparkUntil = clock + 1.5; readout(); });
   for (const el of document.querySelectorAll('input[name=view]')) el.addEventListener('change', () => { view = +el.value; legend(); });
   $('pause').addEventListener('click', () => { paused = !paused; $('pause').textContent = paused ? 'Play' : 'Pause'; if (css) css.pause(paused); });
+  $('loop').addEventListener('change', () => { loop = $('loop').checked; cur.t0 = clock; wasOn = 0; if (css) syncCss(); });
+  $('zoom').addEventListener('click', () => { closeUp = !closeUp; $('zoom').setAttribute('aria-pressed', closeUp); });
   $('ignite').addEventListener('click', () => { sparkUntil = clock + 1.5; if (following()) cur.t0 = clock; });
   $('reset').addEventListener('click', () => { if (!css) { clearChamber(); hist.length = 0; heights.length = 0; cur.t0 = clock; sparkUntil = clock + 1.5; } });
 
   // Pointer: hover reads the model's values, drag blows on the flame.
   let drag = null;
-  const at = e => { const r = cv.getBoundingClientRect(); return [clamp((e.clientX - r.left) / r.width, 0, 1), clamp(1 - (e.clientY - r.top) / r.height, 0, 1)]; };
+  const at = e => { const r = cv.getBoundingClientRect(), q = toChamber((e.clientX - r.left) / r.width, 1 - (e.clientY - r.top) / r.height); return [clamp(q[0], 0, 1), clamp(q[1], 0, 1)]; };
   cv.addEventListener('pointermove', e => {
     const [u, v] = at(e); probe.on = true; probe.u = u; probe.v = v;
     if (drag) { push.at = [u, v]; push.v = [clamp((u - drag[0]) * N * 14, -600, 600), clamp((v - drag[1]) * N * 14, -600, 600)]; drag = [u, v]; }

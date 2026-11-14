@@ -51,6 +51,19 @@ Finishing pass (Sat Nov 14, evening): nothing on the site is a placeholder any m
   on phones instead of the whole page; the relationship charts say "No tests match the filters" instead of calling an
   empty filter a gap in the data; comments in the code no longer describe the drafts.
 
+Flame lab changes after a teammate's review (Sat Nov 14, later):
+
+- **Replay.** A NASA test now plays once and then stays as NASA recorded it (for example FLEX test 59 goes out and
+  stays out). Tick "Replay in a loop" for the old behaviour, or press Ignite to watch it once more.
+- **No more relighting loop.** When the model could not hold a flame that NASA recorded as burning, the page used to
+  clear the chamber and light it again, over and over. Now the model's igniter stays on and the status line says so.
+- **The 0 g picture.** Painted after NASA's photographs of microgravity flames: a thin blue shell at the flame's edge
+  and a warm glow inside it. Only the colours changed. The shape and size are still the model's, and the tints are an
+  illustration, not a measurement.
+- **Close-up.** The 0 g flame is small in the chamber, so the view zooms in on the fuel source (button "Close-up").
+  With gravity or airflow the whole chamber is shown. Display only: the model is untouched.
+- The CSS backup flame (`public/flames/`) still replays in a loop; it was not changed.
+
 ## Files
 
 ```

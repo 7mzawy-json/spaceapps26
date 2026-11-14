@@ -23,7 +23,7 @@ What changed, and why:
 | "Download these tests (CSV)" in Advanced | The challenge asks for data extraction; there was no export. Each row keeps its source file, line and PSI page |
 | "See the tests around it" and "Burn this air in the Sim" | The point is now carried between the map, the test data and the Sim instead of being set again on each page |
 | Free graph builder folded behind "Build your own graph" | The four named graphs answer real questions; the 440 free combinations mostly do not |
-| Sim extras hidden: airflow, live measurements, heat and flow views, Ignite, Clear, the 0 to 2 g slider | None of NASA's placeable tests records airflow, and numbers from an illustrative model read as measurements. They carry the class `cut` in `sim.html`; remove the class to bring one back |
+| Sim extras hidden: airflow, live measurements, heat and flow views, the 0 to 2 g slider (Ignite and Clear were hidden too, then restored at 7mzawy-json's request) | None of NASA's placeable tests records airflow, and numbers from an illustrative model read as measurements. They carry the class `cut` in `sim.html`; remove the class to bring one back |
 
 Old links still work: `#home` opens Analysis, `#resources` opens Advanced mode, `#si` opens the assistant.
 

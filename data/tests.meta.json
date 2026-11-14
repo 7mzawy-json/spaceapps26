@@ -1,0 +1,68 @@
+{
+  "what": "Per-test rows from NASA Physical Science Informatics (PSI) combustion investigations, one row per test.",
+  "source": "NASA Physical Science Informatics, https://psi.nasa.gov/ (NASA open data). Each row names its file (source), its line in that file (source_line), the investigation page (source_url) and the raw cells used (raw).",
+  "retrieved": "2026-11-14",
+  "how_to_reproduce": "python scripts/build_tests.py --download",
+  "download_method": [
+    "GET https://psi.nasa.gov/geode-py/ws/repo/investigations/PSI-<n> lists files; the per-test tables are under 'experimentalTable'.",
+    "GET https://psi.nasa.gov/geode-py/ws/studies/PSI-<n>/download?file=<file_name>&redirect=false returns a short-lived link to the CSV."
+  ],
+  "generated_by": "scripts/build_tests.py, written with an AI coding assistant (Claude Code). Values are copied or unit-converted from NASA's tables by code; no value was typed or estimated by AI.",
+  "built_at": "2026-11-14T07:40:35Z",
+  "conversions": {
+    "atm_to_psi": 14.696,
+    "bar_to_psi": 14.504,
+    "mmHg_to_psi": 0.019337,
+    "oxygen": "mole fractions multiplied by 100 to give o2_pct"
+  },
+  "field_notes": {
+    "pressure_from": "'test' when the table gives pressure for the test; null when no pressure is stated. No investigation text states a cabin pressure for BASS, BASS-II or SAFFIRE, so those rows have pressure_psi null and are not plotted.",
+    "oxygen_from": "'chamber' is the surrounding atmosphere. 'burner' is the oxygen stream of an inverse flame (fuel fills the chamber), which is not a cabin atmosphere: keep these off the cabin map or mark them.",
+    "outcome": "CFI-G: ignited and SE gives self_extinguished, ignited and FT (flow terminated) gives burned, no ignition gives unknown with ignited=false. FLEX: Extinction gives self_extinguished, Completion gives burned, Disruption gives unknown. SAFFIRE: a burn time in seconds gives burned. All other rows: unknown (the table records no outcome).",
+    "pressure_psi": "A pressure of 0 in a table (FLEX test C11M201 lists 0 mmHg) is read as not recorded and gives null.",
+    "o2_pct": "Ranges such as '21.5 - 21.7' or '22.1 to 22.0' give null; approximate values such as '~ 21.5' are kept.",
+    "gravity": "All tests ran in microgravity (ISS or the Cygnus spacecraft).",
+    "flow_cm_s": "Given only by SAFFIRE. BASS-II records a fan display setting, not a speed, so flow is null."
+  },
+  "included": {
+    "PSI-159": "ACME CFI-G",
+    "PSI-10": "ACME Flame Design",
+    "PSI-69": "FLEX",
+    "PSI-39": "CFI",
+    "PSI-25": "BASS-II",
+    "PSI-26": "BASS",
+    "PSI-98": "SAFFIRE-I",
+    "PSI-99": "SAFFIRE-II",
+    "PSI-100": "SAFFIRE-III"
+  },
+  "excluded": {
+    "PSI-20": "ACME BRE: one row per test day, several oxygen values in one cell, no per-test pressure",
+    "PSI-21": "ACME CLD Flame: one row per test day, fuel concentration ranges only",
+    "PSI-22": "ACME E-FIELD Flames: one row per test day, no oxygen or pressure",
+    "PSI-23": "ACME s-Flame: one row per test day, atmosphere as text (~21% O2)",
+    "PSI-68": "FLEX-2: one row per fuel with ranges of oxygen and pressure, not per test",
+    "PSI-101": "SAME-R: smoke measurement, nothing burned in a flame test",
+    "PSI-102": "SAME: smoke measurement, nothing burned in a flame test",
+    "PSI-47": "DAFT: dust measurement",
+    "PSI-106": "SLICE: test date and fuel only",
+    "PSI-107": "SPICE: soot of gas jets in air; the table gives no oxygen or pressure",
+    "PSI-142": "Cool flame study: list of figures in publications, not tests",
+    "PSI-60, PSI-62, PSI-115, PSI-117": "analysis or ground studies with no per-test table"
+  },
+  "counts": {
+    "rows": 1285,
+    "plottable_rows": 989,
+    "plottable_chamber_oxygen_rows": 726,
+    "by_investigation": {
+      "ACME CFI-G": 333,
+      "ACME Flame Design": 327,
+      "FLEX": 274,
+      "CFI": 87,
+      "BASS-II": 129,
+      "BASS": 122,
+      "SAFFIRE-I": 2,
+      "SAFFIRE-II": 9,
+      "SAFFIRE-III": 2
+    }
+  }
+}

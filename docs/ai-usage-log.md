@@ -17,6 +17,7 @@ played in planning, research and drafting the roadmap.
 | When | Who | Tool and model | What the AI did | What a human checked |
 |---|---|---|---|---|
 | Thu Nov 12 to Sat Nov 14, before kickoff | team | Claude Code | Read the challenge page, Resources tab links, Project Submission Guide and Judging and Awards Guide into `docs/challenge/`; drafted `ROADMAP.md` and `AGENTS.md` from the team's plan | (team to fill in) |
+| Sat Nov 14, 10:30 | team | Claude Code | Wrote `scripts/build_tests.py`, which downloads the PSI per-test tables and writes `data/tests.json` (1,285 rows, each with its source file, line and raw cells) and `data/tests.meta.json`. Values are copied or unit-converted by code, none typed by the AI | (team to fill in) |
 
 ## References (every library, image and dataset)
 

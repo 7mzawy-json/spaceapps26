@@ -6,7 +6,7 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="generator" content="AI-assisted: Claude Code and OpenAI Codex for team BrayTech Pyrotechnics">
 <!--
-  The Sim page of the Flashpoint site, from alanzim/flame-lab (the simulation code is unchanged). AI-assisted (Claude Code).
+  The Flashpoint flame lab, derived from the team prototype and refined with Claude Code and OpenAI Codex. AI-assisted code.
   index.html loads this page in a frame with ?embed; it can also be opened on its own.
   A refined copy of temp/flame-sim/ (the team's prototype, left untouched). What is new here:
   the model carries oxygen as its own field, so the flame sits where fuel meets oxygen and can go out by itself;
@@ -186,17 +186,12 @@ footer { color: var(--muted); font-size: var(--t-xs); }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
 <link rel="stylesheet" href="assets/refinement.css">
+<link rel="stylesheet" href="assets/flame-lab.css">
 
-<main>
-  <div class="lab-intro"><span class="eyebrow">A CONTROLLED COMPARISON</span><h2>One atmosphere. Change the gravity.</h2><p>Start from a NASA test, then compare gravity levels. The flame is an illustration built with simplified equations. Replay timings are illustrative, not NASA's measured burn durations.</p><div class="lab-presets"><button type="button" data-lab-preset="record">NASA test</button><button type="button" data-lab-preset="iss">ISS air</button><button type="button" data-lab-preset="moon">Moon Base air</button><button type="button" data-lab-preset="suit">Spacesuit air</button></div></div>
-  <header>
-    <p class="tag"><a href="./" style="color:inherit;text-decoration:none">&larr; Flashpoint</a> &middot; Sim</p>
-    <h1>Flame lab: one NASA test, then add gravity</h1>
-    <p class="lede">Pick a microgravity fire test from NASA's PSI database. Its oxygen, pressure and fuel set up the flame.
-      Then add gravity to see the same air burn on the Moon, on Mars or on Earth, or switch the chamber to show where the
-      oxygen is.</p>
-  </header>
-
+<a class="skip" href="#mainContent">Skip to flame lab</a>
+<main id="mainContent" tabindex="-1">
+  <header class="lab-header"><p class="tag"><a href="index.html#sim">Flashpoint / Flame lab</a></p><h1>Explore a flame, one change at a time.</h1><p class="lede">NASA supplies the selected test's conditions and recorded outcome. The chamber below is an illustration, with simplified equations and no calibrated time or length scale.</p></header>
+  <section class="demo-guide" aria-label="Guided flame demonstration"><div class="demo-guide-top"><span id="demoStep">GUIDED DEMO / 1 OF 4</span><button id="demoRestart" type="button">Restart demo</button></div><div class="demo-guide-body"><div><h2 id="demoTitle">Start from a recorded test</h2><p id="demoText">Choose a NASA record and identify its conditions before changing the model.</p></div><div class="demo-actions"><button id="demoPrev" type="button">Back</button><button id="demoNext" type="button">Next: add gravity</button></div></div><div class="demo-track"><button type="button" data-demo="0" aria-current="step">NASA record</button><button type="button" data-demo="1">Gravity</button><button type="button" data-demo="2">Ventilation</button><button type="button" data-demo="3">Extinction</button></div></section>
   <div class="grid">
     <div class="col">
     <section class="chamber">
@@ -204,30 +199,35 @@ footer { color: var(--muted); font-size: var(--t-xs); }
         <label><input type="radio" name="view" value="0" checked>Flame</label>
         <label><input type="radio" name="view" value="1">Oxygen</label>
         <label class="cut"><input type="radio" name="view" value="2">Heat</label>
-        <label class="cut"><input type="radio" name="view" value="3">Flow</label>
+        <label><input type="radio" name="view" value="3">Gas flow</label>
       </div>
+      <div class="mobile-lab-controls" aria-label="Quick flame controls"><button type="button" data-quick-g="0">0 g</button><button type="button" data-quick-g="0.166">Moon</button><button type="button" data-quick-g="0.38">Mars</button><button type="button" data-quick-g="1">Earth</button><button type="button" id="quickFan" aria-pressed="false">Fan off</button></div>
+      <div class="chamber-compare" id="chamberCompare"><div class="live-view"><div class="view-label">LIVE ILLUSTRATION <span id="liveConditions">0 g</span></div>
       <div class="window">
         <canvas id="flame" role="img" aria-label="Simulated flame for the selected test"></canvas>
         <canvas id="over" class="gpu" aria-hidden="true"></canvas>
         <div id="probe" class="gpu" hidden></div>
       </div>
       <div id="cssFlame" hidden></div>
+      </div><figure class="pinned-view" id="pinnedView" hidden><figcaption>PINNED ILLUSTRATION <button id="unpin" type="button" aria-label="Remove pinned comparison">Remove</button></figcaption><img id="pinnedImage" alt="Pinned frame of the illustrative flame"><div id="pinnedFallback" hidden>Reference settings pinned. The CSS fallback has no image capture.</div><p id="pinnedCaption"></p></figure></div>
       <p id="fallbackNote" hidden></p>
       <div class="legend gpu" id="legend" hidden>
         <div class="bar" id="legBar"></div>
         <div class="ticks"><span id="leg0"></span><span id="leg1"></span><span id="leg2"></span></div>
         <p class="cap" id="legCap"></p>
       </div>
-      <p id="status" aria-live="polite">Loading NASA test data.</p>
+      <p class="view-explanation" id="viewExplanation">Flame colours and dimensions are illustrative.</p>
+      <div class="playback"><div class="playback-head"><span id="sequenceLabel">Illustration sequence</span><span id="sequencePhase" role="status">Starting</span></div><div class="sequence-track"><i id="sequenceProgress"></i></div><p id="status" aria-live="polite">Loading NASA test data.</p></div>
       <div class="row">
         <button id="pause" type="button">Pause</button>
-        <button id="ignite" type="button" class="gpu">Ignite</button>
-        <button id="reset" type="button" class="gpu">Clear the chamber</button>
+        <button id="ignite" type="button">Replay / ignite</button>
+        <button id="reset" type="button">Restart chamber</button>
+        <button id="pinView" type="button">Pin current view</button>
         <button id="zoom" type="button" class="gpu" aria-pressed="true">Close-up</button>
       </div>
       <label class="tick"><input type="checkbox" id="loop"> Loop the illustration <span>Replay timing is illustrative.</span></label>
-      <p class="note gpu">Move the pointer over the chamber to read the model's values at that spot. Drag to blow on the flame.
-        Close-up shows the 0 g flame larger; with gravity or airflow the whole chamber is shown.</p>
+      <div class="interaction-options"><label class="gpu"><input id="stirMode" type="checkbox"> Stir gas by dragging <span>(changes the model)</span></label><button class="gpu" type="button" id="pulseGas">Pulse the gas</button><label class="gpu"><input id="inspectModel" type="checkbox"> Inspect model values</label></div><p class="note" id="interactionHint">Use the controls to change one variable. Pinning uses the same full-chamber camera for both views.</p>
+      <div class="insight" id="labInsight" role="status">Loading the selected record.</div>
     </section>
     <section class="live gpu cut">
     <h2>Measured from the model, live</h2>
@@ -244,50 +244,15 @@ footer { color: var(--muted); font-size: var(--t-xs); }
     </section>
     </div>
 
-    <section class="panel">
+    <section class="panel lab-controls" aria-label="Flame settings">
       <span class="lab-mode" id="labMode">RECORDED CONDITIONS / ILLUSTRATIVE REPLAY</span>
-      <div class="field">
-        <label for="inv">Experiment</label>
-        <select id="inv"></select>
-        <p class="note">Only tests with chamber oxygen and pressure are included. Inverse flames with oxygen supplied by the burner stay in Research tools.</p>
-      </div>
-      <div class="field">
-        <label for="test">Test <output id="testNo" for="test"></output></label>
-        <input type="range" id="test" min="0" max="0" value="0">
-        <p class="note">Tests are sorted from low to high oxygen. Drag to move through them.</p>
-      </div>
-
-      <dl id="readout"></dl>
-
-      <fieldset>
-        <legend>Gravity <output id="gOut"></output></legend>
-        <div class="seg">
-          <label><input type="radio" name="g" value="0" checked>Space<small>0 g, as tested</small></label>
-          <label><input type="radio" name="g" value="0.166">Moon<small>0.17 g</small></label>
-          <label><input type="radio" name="g" value="0.38">Mars<small>0.38 g</small></label>
-          <label><input type="radio" name="g" value="1">Earth<small>1 g</small></label>
-        </div>
-        <input type="range" id="gSlide" class="gpu cut" min="0" max="2" step="0.01" value="0" aria-label="Gravity, any value from 0 to 2 g">
-        <p class="note">NASA ran every one of these tests at 0 g. The other three are the same air with gravity added.</p>
-      </fieldset>
-
-      <div class="field gpu cut">
-        <label for="wind">Cabin airflow <output id="windOut" for="wind"></output></label>
-        <input type="range" id="wind" min="0" max="100" step="1" value="0">
-        <p class="note">Air moving across the chamber from the left, as a cabin fan would push it. A relative setting, not cm/s.
-          Only SAFFIRE records airflow in NASA's tables, so this is your experiment, not a NASA test.</p>
-      </div>
-
-      <div class="field">
-        <label for="o2">Oxygen <output id="o2Out" for="o2"></output></label>
-        <input type="range" id="o2" min="5" max="100" step="0.5" value="21">
-      </div>
-      <div class="field">
-        <label for="psi">Pressure <output id="psiOut" for="psi"></output></label>
-        <input type="range" id="psi" min="4" max="75" step="0.1" value="14.7">
-        <p class="note">Moving oxygen or pressure leaves the NASA data. The flame is then the model's own result, and the page says so.</p>
-      </div>
-
+      <div class="current-air"><div><span>Oxygen</span><b id="currentO2">...</b></div><div><span>Pressure</span><b id="currentP">...</b></div><div><span>Dry oxygen p</span><b id="currentPP">...</b></div></div>
+      <fieldset><legend>Gravity <output id="gOut"></output></legend><div class="seg"><label><input type="radio" name="g" value="0" checked>Space<small>0 g</small></label><label><input type="radio" name="g" value="0.166">Moon<small>0.166 g</small></label><label><input type="radio" name="g" value="0.38">Mars<small>0.38 g</small></label><label><input type="radio" name="g" value="1">Earth<small>1 g</small></label></div><details class="fine-control"><summary>Set another gravity</summary><input type="range" id="gSlide" min="0" max="1" step="0.001" value="0" aria-label="Gravity in Earth gravities"></details></fieldset>
+      <div class="field"><label for="wind">Ventilation <output id="windOut" for="wind"></output></label><input type="range" id="wind" min="0" max="100" step="1" value="0"><p class="note">Relative model setting, not a measured speed in cm/s.</p></div>
+      <details class="settings-details" id="atmosphereSettings"><summary>Change oxygen and pressure</summary><div class="lab-presets"><button type="button" data-lab-preset="record">NASA record</button><button type="button" data-lab-preset="iss">ISS</button><button type="button" data-lab-preset="moon">Moon Base</button><button type="button" data-lab-preset="suit">Spacesuit</button></div><div class="field"><label for="o2">Oxygen <output id="o2Out" for="o2"></output></label><input type="range" id="o2" min="5" max="100" step="0.5" value="21"></div><div class="field"><label for="psi">Pressure <output id="psiOut" for="psi"></output></label><input type="range" id="psi" min="1" max="75" step="0.1" value="14.7"></div><p class="note">These settings change the illustration. The reaction coefficients are shared across fuels, not fitted to each material.</p></details>
+      <section class="source-card" aria-label="NASA reference record"><div class="source-head"><h2>NASA reference</h2><span id="sourceRelation">Selected conditions</span></div><div id="sourceSummary">Loading NASA record...</div><button id="restoreRecord" type="button">Restore recorded conditions</button><details id="recordPicker"><summary>Choose another NASA test</summary><div class="field"><label for="inv">Investigation</label><select id="inv"></select></div><div class="field"><label for="test">Test <output id="testNo" for="test"></output></label><div class="test-navigate"><button id="previousTest" type="button" aria-label="Previous NASA test">Previous</button><input type="range" id="test" min="0" max="0" value="0" aria-label="NASA test position"><button id="nextTest" type="button" aria-label="Next NASA test">Next</button></div></div><p class="note">Only chamber-oxygen records with pressure. Inverse burner-oxygen tests remain in Analysis.</p><dl id="readout"></dl></details></section>
+      <details class="settings-details"><summary>Compare or share this setup</summary><div id="comparisonChanges">Pin a view, then change a setting to compare.</div><button id="restorePinned" type="button" disabled>Restore pinned settings</button><button id="shareSetup" type="button">Copy setup link</button><input id="setupLink" readonly hidden aria-label="Setup link"><p class="note" id="shareStatus" role="status"></p></details>
+      <p class="lab-limits">All flames on this page are model illustrations. NASA's outcome applies only to its original test. <a href="learn.html#l2" target="_blank" rel="noopener">Learn about gravity and flow</a>.</p>
     </section>
   </div>
 
@@ -305,16 +270,16 @@ footer { color: var(--muted); font-size: var(--t-xs); }
     </div>
   </details>
 
-  <section class="truth">
+  <details class="model-method"><summary>How the model works and what it cannot tell you</summary><section class="truth">
     <div><h2>Real physics</h2><p>Fuel only burns where it meets oxygen, and each bit of fuel uses up a fixed share of oxygen. Hot gas rises only when there is gravity. Gases spread faster at low pressure. A flame goes out when it loses heat faster than it makes it. These rules are in the equations.</p></div>
     <div><h2>From NASA's table</h2><p>Oxygen, pressure, fuel, and whether the flame lit and went out. These come from the test's own row and are never filled in or estimated. At 0 g with no airflow, the flame follows NASA's record of the test.</p></div>
     <div><h2>Simplified, not a prediction</h2><p>The chamber is flat (two dimensions), every fuel burns with the same made-up strength, and sizes, speeds and heat are in the model's own units. Use it to see directions and compare settings. Colours in the Flame view are an illustration.</p></div>
-  </section>
+  </section></details>
 
   <footer>
     Data: NASA Physical Science Informatics (psi.nasa.gov). Fluid method: Jos Stam, "Stable Fluids" (1999), with the
     vorticity step as used in Pavel Dobryakov's WebGL-Fluid-Simulation (MIT licence). Based on the team's prototype in
-    temp/flame-sim/. This page was written with an AI coding assistant (Claude Code) for team BrayTech Pyrotechnics,
+    temp/flame-sim/. This page was written with AI coding assistance (Claude Code and OpenAI Codex) for team BrayTech Pyrotechnics,
     NASA Space Apps 2026.
   </footer>
 </main>
@@ -353,7 +318,7 @@ const K = {
 
 // ---- From a test's numbers to simulation settings. o2 in percent, psi in psi, g in Earth gravities. ----
 function flameParams(o2, psi, g, jet, wind = 0) {
-  const atm = clamp(psi / 14.696, 0.3, 5), x0 = clamp(o2 / 100, 0.05, 1);
+  const atm = clamp(psi / 14.696, 0.05, 5), x0 = clamp(o2 / 100, 0.05, 1);
   return {
     x0,                                        // real: oxygen share of the gas, straight from the test
     // real: the less oxygen, the more nitrogen each bit of burning has to heat, so the flame is cooler.
@@ -576,7 +541,8 @@ function draw(name, uniforms, dst) {
 }
 
 // ---- Current setting: one NASA row, or the visitor's own experiment ----
-const cur = { row: null, o2: 21, psi: 14.7, g: 0, wind: 0, jet: false, t0: 0 };
+const cur = { row: null, o2: 21, psi: 14.7, g: 0, wind: 0, jet: false, disturbed: false, t0: 0 };
+let referenceRow = null, captureRequest = null, uiTime = 0;
 let clock = 0, paused = false, last = 0, statusText = '', view = 0, pageActive = true;
 document.body.dataset.lab = '';
 function setActivity(active) {
@@ -592,7 +558,7 @@ let wasOn = 0, aliveAt = 0;                           // NASA replay: was the fl
 let held = false;                                     // the model alone could not hold this flame, so the igniter stays on
 const push = { at: [0.5, 0.5], v: [0, 0] };           // the visitor blowing on the flame
 // The flame follows NASA's record only at the test's own conditions. Anything else is the model's own result.
-const following = () => !!cur.row && cur.g === 0 && cur.wind === 0;
+const following = () => !!cur.row && cur.g === 0 && cur.wind === 0 && !cur.disturbed;
 
 // ---- Backup: the CSS flame (public/flames/) takes over when WebGL 2 cannot run. Add ?css to the address to test it. ----
 let css = null;
@@ -611,7 +577,7 @@ function useCss(reason) {
 }
 function syncCss() {
   if (!css) return;
-  css.set({ row: cur.row, o2: cur.o2, psi: cur.psi, g: cur.g, jet: cur.jet });
+  css.set({ row: following() ? cur.row : null, o2: cur.o2, psi: cur.psi, g: cur.g, jet: cur.jet, state: following() && !lit(clock-cur.t0,cur.row) ? 'out' : 'burning' });
   css.el.classList.toggle('single-play', !loop);
   css.pause(paused || !pageActive || document.hidden);
 }
@@ -729,7 +695,7 @@ function overlay() {
     g.moveTo(x, y - r * 1.8); g.lineTo(x, y - r); g.moveTo(x, y + r); g.lineTo(x, y + r * 1.8); g.stroke();
     const i = clamp(Math.floor(probe.u * N), 0, N - 1), j = clamp(Math.floor(probe.v * N), 0, N - 1), k = (j * N + i) * 4;
     const sp = Math.hypot(bufS[k] + cur.wind * K.WIND, bufS[k + 1]);
-    $('probe').textContent = 'oxygen ' + (clamp(1 - bufA[k], 0, 1) * cur.o2).toFixed(1).padStart(5) + ' %\nheat   ' + String(Math.round(clamp(bufS[k + 2] / K.TMAX, 0, 9.99) * 100)).padStart(5) + ' %\nflow   ' + String(Math.round(clamp(sp / K.VMAX, 0, 9.99) * 100)).padStart(5) + ' %';
+    $('probe').textContent = 'MODEL SAMPLE (illustrative)\noxygen ' + (clamp(1 - bufA[k], 0, 1) * cur.o2).toFixed(1).padStart(5) + ' %\nheat   ' + String(Math.round(clamp(bufS[k + 2] / K.TMAX, 0, 9.99) * 100)).padStart(5) + ' %\nflow   ' + String(Math.round(clamp(sp / K.VMAX, 0, 9.99) * 100)).padStart(5) + ' %';
   }
   $('probe').hidden = !probe.on;
 }
@@ -773,16 +739,16 @@ function record() {
 function status() {
   const r = cur.row, t = clock - cur.t0;
   if (!following()) {
-    const why = !r ? 'NASA ran no test at this setting.' : (cur.g > 0 ? 'NASA ran this test at 0 g only.' : 'NASA\'s table records no airflow for this test.');
-    const what = css ? 'The backup flame only illustrates the setting.' : clock < sparkUntil ? 'The igniter is on.' : (m.burning ? 'The model flame is burning.' : 'The model flame is out. Press Ignite to try again.');
+    const why = cur.disturbed ? 'You disturbed the model gas.' : !r ? 'These are custom model conditions, not a selected NASA test.' : (cur.g > 0 ? 'The reference test ran at 0 g.' : 'Ventilation is a model setting, not recorded for this reference.');
+    const what = css ? 'The backup flame is a schematic.' : clock < sparkUntil ? 'The igniter is on.' : (m.burning ? 'The model flame is burning.' : 'The model flame is out. Press Ignite to try again.');
     return '<b>Your experiment.</b> ' + why + ' ' + what + ' The real outcome is unknown.';
   }
   const again = loop ? ' Replaying.' : ' Press Ignite to watch it again.';
   const hold = held && !css ? ' The model alone cannot hold a flame at this setting, so its igniter is kept on to follow the record.' : '';
   if (r.ignited === false) return '<b>Did not ignite.</b> NASA recorded that the igniter fired and no flame held.' + (lit(t, r) ? '' : again);
-  if (r.outcome === 'self_extinguished') return lit(t, r) ? '<b>Burning.</b> NASA recorded that this flame went out by itself.' + hold : '<b>Out.</b> The flame went out by itself, as NASA recorded.' + again;
-  if (r.outcome === 'burned') return '<b>Burning.</b> NASA recorded that this flame kept burning to the end of the test.' + hold;
-  return '<b>Burning.</b> NASA\'s table does not record how this test ended.' + hold;
+  if (r.outcome === 'self_extinguished') return lit(t, r) ? '<b>Illustrating a recorded outcome.</b> This selected NASA test went out by itself.' + hold : '<b>Recorded outcome: went out.</b> This animation compresses the sequence into an illustrative timeline.' + again;
+  if (r.outcome === 'burned') return '<b>Recorded outcome: kept burning.</b> The illustration follows that record.' + hold;
+  return '<b>Illustration only.</b> NASA\'s table does not record an outcome for this test.' + hold;
 }
 
 function frame(now) {
@@ -791,9 +757,15 @@ function frame(now) {
   if (!paused && dt > 0) { clock += dt; if (!css) step(dt); }
   if (!css) {
     show(dt || 1 / 60);
-    if (clock - lastRead > 0.1 || paused && !haveRead) { lastRead = clock; readback(); meters(); }
+    if (clock - lastRead > 0.2 || paused && !haveRead) { lastRead = clock; readback(); meters(); }
     overlay();
+  } else syncCss();
+  if (captureRequest) {
+    const callback=captureRequest;captureRequest=null;let image=null;
+    if(!css){const snapshot=document.createElement('canvas');snapshot.width=cv.width;snapshot.height=cv.height;const context=snapshot.getContext('2d');context.drawImage(cv,0,0);context.drawImage($('over'),0,0);image=snapshot.toDataURL('image/png');}
+    callback({state:labState(),image});
   }
+  if (now-uiTime>150) {uiTime=now;document.dispatchEvent(new Event('lab-tick'));}
   const s = status();
   if (s !== statusText) $('status').innerHTML = statusText = s;
   requestAnimationFrame(frame);
@@ -804,16 +776,18 @@ const OUTCOME = { self_extinguished: 'Went out by itself', burned: 'Kept burning
 let groups = new Map();
 
 function readout() {
+  // Compute one static illustration after an explicit settings change without advancing the paused replay clock.
+  if (paused && !css) { for (let i=0;i<40;i++) step(1/60); readback(); }
   const r = cur.row, dl = $('readout');
   const pp = cur.o2 * cur.psi / 100;
   $('labMode').textContent = following() ? 'RECORDED CONDITIONS / ILLUSTRATIVE REPLAY' : 'HYPOTHETICAL CONDITIONS / OUTCOME UNKNOWN';
   const rows = [
     ['Test', r ? r.test_id : 'Your own setting', r ? r.investigation : 'not a NASA test'],
-    ['Fuel', r ? r.fuel : 'as last test', r ? (r.fuel_phase === 'liquid' ? 'burning droplet' : (r.flame_type === 'inverse' ? 'gas, inverse flame (oxygen flows into fuel gas)' : 'gas flame')) : ''],
+    ['Fuel context', r ? r.fuel : referenceRow ? referenceRow.fuel : 'generic reaction', r ? (r.fuel_phase === 'liquid' ? 'burning droplet' : (r.flame_type === 'inverse' ? 'gas, inverse flame (oxygen flows into fuel gas)' : 'gas flame')) : ''],
     ['Oxygen', cur.o2.toFixed(1) + ' %', 'Earth air is 20.9 %'],
     ['Pressure', cur.psi.toFixed(1) + ' psi', 'sea level is 14.7 psi'],
     ['Oxygen pressure', pp.toFixed(2) + ' psi', 'sea-level air gives 3.07 psi'],
-    ['NASA outcome', r ? (r.ignited === false ? 'Did not ignite' : OUTCOME[r.outcome] || r.outcome) : 'none', ''],
+    ['Reference outcome', r ? (r.ignited === false ? 'Did not ignite' : OUTCOME[r.outcome] || r.outcome) : 'none', ''],
   ];
   dl.textContent = '';
   for (const [k, v, hint] of rows) {
@@ -832,12 +806,13 @@ function readout() {
   $('psiOut').textContent = cur.psi.toFixed(1) + ' psi';
   $('gOut').textContent = cur.g.toFixed(2) + ' g';
   $('windOut').textContent = cur.wind ? cur.wind + ' of 100' : 'none';
-  legend(); record(); syncCss();
+  legend(); record(); syncCss();document.dispatchEvent(new Event('lab-change'));
 }
 
 function pickTest() {
   const list = groups.get($('inv').value), i = +$('test').value, r = list[i];
-  Object.assign(cur, { row: r, o2: r.o2_pct, psi: r.pressure_psi, jet: false, t0: clock });   // every usable test burns on a round source: a droplet, or a porous ball burner (ACME, including CFI-G)
+  referenceRow = r;
+  Object.assign(cur, { row: r, disturbed: false, o2: r.o2_pct, psi: r.pressure_psi, jet: false, t0: clock });   // every usable test burns on a round source: a droplet, or a porous ball burner (ACME, including CFI-G)
   if (!css) { clearChamber(); hist.length = 0; heights.length = 0; }
   wasOn = 0; held = false; sparkUntil = clock + 1.5;
   $('o2').value = r.o2_pct; $('psi').value = r.pressure_psi;
@@ -848,13 +823,14 @@ function pickTest() {
 function pickInv() {
   const list = groups.get($('inv').value);
   $('test').max = list.length - 1;
-  // Open on a test inside the planned Moon Base range (8 to 12.5 psi, 24 to 40 % oxygen) when there is one.
-  const i = list.findIndex(r => r.pressure_psi >= 8 && r.pressure_psi <= 12.5 && r.o2_pct >= 24 && r.o2_pct <= 40);
+  // Prefer a known sustained outcome near ordinary cabin air for an explainable starting point.
+  const known=list.filter(r=>r.outcome==='burned').sort((a,b)=>Math.abs(a.o2_pct-21)+Math.abs(a.pressure_psi-14.7)-Math.abs(b.o2_pct-21)-Math.abs(b.pressure_psi-14.7))[0];
+  const i=known ? list.indexOf(known) : 0;
   $('test').value = Math.max(i, 0);
   pickTest();
 }
 function setGravity(g) {
-  cur.g = g; cur.t0 = clock;
+  cur.g = g; labRestart();
   $('gSlide').value = g;
   for (const el of document.querySelectorAll('input[name=g]')) el.checked = Math.abs(+el.value - g) < 0.005;
   if (!following()) sparkUntil = clock + 1.5;   // the igniter fires again, so the model starts each setting from a lit flame
@@ -881,7 +857,7 @@ async function main() {
   cv.addEventListener('webglcontextlost', (e) => { e.preventDefault(); useCss('the graphics card stopped the simulation.'); });
   let all;
   try { all = await loadTests(); }
-  catch (e) { $('status').textContent = 'Could not load tests.web.json. Open this page through a local web server started in the repo root (see README.md).'; return; }
+  catch (e) { window.FlameLab.failed=true;$('status').textContent = 'NASA test data could not be loaded. Retry loading the data.'; document.dispatchEvent(new Event('lab-failed'));return; }
 
   const usable = all.filter(r => r.o2_pct != null && r.pressure_psi != null && r.oxygen_from !== 'burner')
     .sort((a, b) => a.o2_pct - b.o2_pct || a.pressure_psi - b.pressure_psi);
@@ -897,45 +873,59 @@ async function main() {
   $('inv').addEventListener('change', pickInv);
   $('test').addEventListener('input', pickTest);
   for (const id of ['o2', 'psi']) $(id).addEventListener('input', () => {
-    const was = following(); cur.row = null; cur.o2 = +$('o2').value; cur.psi = +$('psi').value;
+    const was = following(); cur.row = null; cur[id === 'o2' ? 'o2' : 'psi'] = +$(id).value;
     if (was && !m.burning) sparkUntil = clock + 1.5;
     readout();
   });
   for (const el of document.querySelectorAll('input[name=g]')) el.addEventListener('change', () => setGravity(+el.value));
   $('gSlide').addEventListener('input', () => setGravity(+$('gSlide').value));
   $('wind').addEventListener('input', () => { cur.wind = +$('wind').value; cur.t0 = clock; if (!following()) sparkUntil = clock + 1.5; readout(); });
-  for (const el of document.querySelectorAll('input[name=view]')) el.addEventListener('change', () => { view = +el.value; legend(); });
+  for (const el of document.querySelectorAll('input[name=view]')) el.addEventListener('change', () => { view = +el.value; legend(); document.dispatchEvent(new Event('lab-change')); });
   $('pause').addEventListener('click', () => { paused = !paused; $('pause').textContent = paused ? 'Play' : 'Pause'; $('pause').setAttribute('aria-pressed', paused); if (css) css.pause(paused || !pageActive); });
   $('loop').addEventListener('change', () => { loop = $('loop').checked; cur.t0 = clock; wasOn = 0; if (css) syncCss(); });
   $('zoom').addEventListener('click', () => { closeUp = !closeUp; $('zoom').setAttribute('aria-pressed', closeUp); });
-  $('ignite').addEventListener('click', () => { sparkUntil = clock + 1.5; if (following()) cur.t0 = clock; });
-  $('reset').addEventListener('click', () => { if (!css) { clearChamber(); hist.length = 0; heights.length = 0; cur.t0 = clock; sparkUntil = clock + 1.5; } });
+  $('ignite').addEventListener('click', () => { sparkUntil = clock + 1.5; if (following()) cur.t0 = clock; if (css) syncCss(); });
+  $('reset').addEventListener('click', () => { labRestart(); readout(); });
 
   // Pointer: hover reads the model's values, drag blows on the flame.
   let drag = null;
   const at = e => { const r = cv.getBoundingClientRect(), q = toChamber((e.clientX - r.left) / r.width, 1 - (e.clientY - r.top) / r.height); return [clamp(q[0], 0, 1), clamp(q[1], 0, 1)]; };
   cv.addEventListener('pointermove', e => {
-    const [u, v] = at(e); probe.on = true; probe.u = u; probe.v = v;
+    const [u, v] = at(e); probe.on = $('inspectModel').checked; probe.u = u; probe.v = v;
     if (drag) { push.at = [u, v]; push.v = [clamp((u - drag[0]) * N * 14, -600 * G, 600 * G), clamp((v - drag[1]) * N * 14, -600 * G, 600 * G)]; drag = [u, v]; }
   });
-  cv.addEventListener('pointerdown', e => { drag = at(e); try { cv.setPointerCapture(e.pointerId); } catch (x) { /* older browsers */ } });
+  cv.addEventListener('pointerdown', e => { if (!$('stirMode').checked) return;cur.disturbed=true;readout();drag = at(e); try { cv.setPointerCapture(e.pointerId); } catch (x) { /* older browsers */ } });
   for (const ev of ['pointerup', 'pointercancel']) cv.addEventListener(ev, () => { drag = null; });
   cv.addEventListener('pointerleave', () => { if (!drag) probe.on = false; });
   new ResizeObserver(() => { cv.width = cv.height = Math.min(1024, Math.round(cv.clientWidth * devicePixelRatio)) || N; }).observe(cv);
 
   document.querySelectorAll('[data-lab-preset]').forEach(b => b.addEventListener('click', () => {
     document.querySelectorAll('[data-lab-preset]').forEach(x => x.setAttribute('aria-pressed', x === b));
-    if (b.dataset.labPreset === 'record') { setGravity(0); pickInv(); return; }
+    if (b.dataset.labPreset === 'record') { window.FlameLab.restore(); return; }
     const point = { iss:[21,14.7], moon:[30,10.2], suit:[100,4.3] }[b.dataset.labPreset];
-    cur.row = null; cur.o2 = point[0]; cur.psi = point[1]; cur.t0 = clock;
+    cur.row = null; cur.disturbed=false;cur.o2 = point[0]; cur.psi = point[1]; cur.t0 = clock;
     $('o2').value = cur.o2; $('psi').value = cur.psi; sparkUntil = clock + 1.5;
     if (!css) clearChamber(); readout();
   }));
   pickInv();
   if (!css) for (let i = 0; i < 40; i++) { clock += 1 / 60; step(1 / 60); }
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) { paused = true; $('pause').textContent = 'Play'; if (css) css.pause(true); }
+  window.FlameLab.ready=true;document.dispatchEvent(new Event('lab-ready'));
   requestAnimationFrame(frame);
 }
+function labState(){return{row:cur.row,reference:referenceRow,o2:cur.o2,psi:cur.psi,g:cur.g,wind:cur.wind,view:view,disturbed:cur.disturbed,following:following(),paused:paused,css:!!css,time:clock-cur.t0,loop:loop,closeUp:closeUp};}
+function labRestart(){if(!css){clearChamber();hist.length=0;heights.length=0;haveRead=false;}wasOn=0;held=false;cur.t0=clock;sparkUntil=clock+1.5;syncCss();}
+function labApply(o){
+ if(o.record){const list=groups.get(o.record.investigation);if(!list)return; $('inv').value=o.record.investigation;$('test').max=list.length-1;$('test').value=list.findIndex(r=>r.source===o.record.source&&r.source_line===o.record.source_line);cur.g=0;cur.wind=0;pickTest();}
+ if(o.o2!=null&&Number.isFinite(+o.o2)){cur.o2=clamp(+o.o2,5,100);if(!cur.row||Math.abs(cur.o2-cur.row.o2_pct)>.001)cur.row=null;}
+ if(o.psi!=null&&Number.isFinite(+o.psi)){cur.psi=clamp(+o.psi,1,75);if(!cur.row||Math.abs(cur.psi-cur.row.pressure_psi)>.001)cur.row=null;}
+ if(o.g!=null)cur.g=clamp(+o.g,0,1);if(o.wind!=null)cur.wind=clamp(+o.wind,0,100);if(o.view!=null)view=[0,1,3].includes(+o.view)?+o.view:0;
+ if(o.custom)cur.row=null;
+ cur.disturbed=!!o.disturbed;$('o2').value=cur.o2;$('psi').value=cur.psi;$('wind').value=cur.wind;$('gSlide').value=cur.g;
+ document.querySelectorAll('input[name=g]').forEach(e=>e.checked=Math.abs(+e.value-cur.g)<.0001);document.querySelectorAll('input[name=view]').forEach(e=>e.checked=+e.value===view);
+ labRestart();readout();
+}
+window.FlameLab={ready:false,state:labState,apply:labApply,records:()=>[...groups.values()].flat(),restart:()=>{labRestart();readout();},pulse:()=>{if(css)return;cur.disturbed=true;push.at=flameParams(cur.o2,cur.psi,cur.g,cur.jet,cur.wind).src;push.v=[80*G,30*G];readout();},pin:callback=>{closeUp=false;zoomNow=1;viewCtr=[.5,.5];$('zoom').setAttribute('aria-pressed',false);captureRequest=callback;},restore:()=>{if(referenceRow)labApply({record:referenceRow,g:0,wind:0});}};
 main();
 </script>
 <script>
@@ -947,10 +937,14 @@ main();
   window.addEventListener('storage', function (e) { if (e.key === 'fp-theme') setTheme(e.newValue === 'dark'); });
   // The site can hand over an atmosphere (oxygen %, pressure psi) from its map or its assistant. It is set the same way as
   // moving the two sliders by hand, so the page labels it as the visitor's experiment, not a NASA test.
+  let pendingPoint=null;
   function setPoint(d) {
-    if (!document.getElementById('inv').options.length) { setTimeout(function () { setPoint(d); }, 150); return; }   // wait for the tests to load
-    [['o2', d.o2], ['psi', d.psi]].forEach(function (kv) { var el = document.getElementById(kv[0]); el.value = kv[1]; el.dispatchEvent(new Event('input')); });
+    pendingPoint=d;
+    if (!window.FlameLab.uiReady) return;
+    pendingPoint=null;window.FlameLab.apply({o2:d.o2,psi:d.psi,g:0,wind:0});
+    document.dispatchEvent(new Event('lab-explore'));
   }
+  document.addEventListener('lab-ui-ready',()=>{if(pendingPoint)setPoint(pendingPoint);});
   window.addEventListener('message', function (e) { var d = e.data || {}; if (e.source === window.parent && e.origin === location.origin && d.type === 'fp-point') setPoint(d); });
   var main = document.querySelector('main');
   function tell() { window.parent.postMessage({ type: 'fp-height', h: main.getBoundingClientRect().bottom + window.scrollY + 16 }, '*'); }
@@ -959,3 +953,5 @@ main();
   tell();
 })();
 </script>
+
+<script src="assets/flame-lab.js"></script>

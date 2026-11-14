@@ -4,14 +4,16 @@
 
 This clone includes interactive science lessons, original soundtrack mixes, a theme-aware gravity/ventilation study and revised plain-language copy. The Learn page opens an Experiment view by default, with separate Watch lesson and Explanation tabs. Videos release resources when hidden and restore the playhead when reopened. Clean narration recordings are linked beside each video.
 
+The flame lab now opens with a four-step demonstration: read one NASA record, add gravity at the same atmosphere, add ventilation, then illustrate a recorded extinction. Pin a model image for comparison, inspect Oxygen or Gas flow, and copy a setup link. The NASA source card preserves original conditions and outcomes while modified settings remain explicitly illustrative. Method details and less-used controls are collapsed. Analysis neighborhood drill-down and CSV export use the same metric as the evidence count.
+
 For local review use `python scripts/preview.py` from this clone's root. The standard-library server supports the byte ranges required for reliable video seeking. Open `http://127.0.0.1:8766/site/`.
 
-Validation: 146 learning/media checks and 50 application checks passed in installed Chrome. Detailed scope and limitations are in `docs/learning-refinement.md`. Earlier project notes follow.
+Validation: 99 flame-lab checks, 146 learning/media checks and 50 application checks passed in installed Chrome, plus the existing offline-engine checks. Detailed scope and limitations are in `docs/flame-lab-refinement.md` and `docs/learning-refinement.md`. Earlier project notes follow.
 
 The website itself: plain HTML, CSS and JavaScript, no build step. Everything runs in the visitor's browser, including
 the flame simulation (WebGL 2, with a CSS backup flame). Open to change by the team like everything else in the repo.
 
-## What the site is now (Sat Nov 14, afternoon)
+## Earlier implementation (before Codex refinement)
 
 Two pages and one assistant, after a redundancy pass agreed with 7mzawy-json (their notes, then an audit):
 
@@ -108,14 +110,16 @@ are copied here. The narration was recorded once with ElevenLabs; do not regener
 ## Files
 
 ```
-index.html          the dashboard and the Map, SI Assist, Resources and Sim pages
+index.html          the landing page, guided Analysis, research tools and embedded flame lab
 sim.html            the flame lab; index.html loads it with ?embed (header hidden), and it also works on its own
-learn.html          the learners page: six flame-science lessons (each opens with a narrated video) and five site guides,
+learn.html          the learners page: six interactive flame-science lessons and five site guides,
                     a formula sheet and a glossary; opened from the dashboard's Learn card and the bar
 videos/            the six lesson videos (MP4, captions, posters), made by alanzim/learn/videos/render.py
 assets/tokens.css   every colour, size and radius, light and dark (shared by both pages)
 assets/site.css     styles for index.html
 assets/app.js       script for index.html
+assets/flame-lab.js the guided lab, source context, comparisons and setup links
+assets/flame-lab.css presentation and responsive lab styles
 ```
 
 It also reads, from outside this folder: `../data/tests.web.json` (NASA test rows), `../public/offline/offline-answer.js`
@@ -125,10 +129,10 @@ It also reads, from outside this folder: `../data/tests.web.json` (NASA test row
 
 Start a web server in the **repo root** (the pages read `../data/`), then open `/site/`:
 
-- macOS: `python3 -m http.server 8765`
-- Windows (PowerShell): `python -m http.server 8765`
+- macOS: `python3 scripts/preview.py`
+- Windows (PowerShell): `python scripts/preview.py`
 
-then http://localhost:8765/site/
+then http://127.0.0.1:8766/site/
 
 ## Deploy
 

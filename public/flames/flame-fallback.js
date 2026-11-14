@@ -60,7 +60,7 @@
         var row = o.row || null;
         var o2 = row ? row.o2_pct : o.o2, psi = row ? row.pressure_psi : o.psi;
         var g = o.g || 0;
-        var jet = row ? row.accession === 'PSI-159' : !!o.jet;
+        var jet = o.jet != null ? !!o.jet : !!(row && row.accession === 'PSI-159');
         var p = params(o2 == null ? 21 : o2, psi == null ? 14.7 : psi);
         var state = o.state || stateFor(row, g);
         var gname = gravityName(g);

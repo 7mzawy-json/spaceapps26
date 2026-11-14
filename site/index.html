@@ -31,7 +31,7 @@
   <a class="mark" href="#" id="barHome" aria-label="Flashpoint, back to the dashboard"><svg class="logo" viewBox="10 14 178 372" aria-hidden="true"><use href="#fpLogo"/></svg><span>Flashpoint</span></a>
   <div class="tabs">
     <a class="tab" href="#analysis" data-page="analysis">Analysis</a>
-    <a class="tab" href="#sim" data-page="sim">Sim</a>
+    <a class="tab" href="#sim" data-page="sim">Flame lab</a>
     <a class="tab" href="learn.html">Learn</a>
   </div>
   <button class="btn ghost sm" type="button" data-ask>Ask</button>
@@ -277,6 +277,7 @@
             <div class="facet"><span class="lbl">Oxygen (%)</span><div class="range"><input type="number" id="fO2min" step="any" placeholder="from" aria-label="Oxygen from"><span>to</span><input type="number" id="fO2max" step="any" placeholder="to" aria-label="Oxygen to"></div></div>
             <div class="facet"><span class="lbl">Total pressure (psi)</span><div class="range"><input type="number" id="fPmin" step="any" placeholder="from" aria-label="Pressure from"><span>to</span><input type="number" id="fPmax" step="any" placeholder="to" aria-label="Pressure to"></div></div>
             <div class="facet"><label class="check"><input type="checkbox" id="fBoth"> Only tests with both oxygen and pressure</label></div>
+            <p class="note" id="nearFilterNote" hidden></p>
             <div class="facet"><button class="btn ghost sm" id="fReset">Clear all filters</button></div>
             <p class="note">Nothing picked in a group means every value is shown. The number on each button is how many of the 1,276 tests have that value. A range leaves out tests where NASA's table does not give the value.</p>
           </details>

@@ -196,6 +196,7 @@ footer { border-top: 1px solid var(--line); padding: 24px 0 40px; color: var(--m
 <link rel="stylesheet" href="assets/learning-labs.css">
 </head>
 <body>
+<a class="skip" href="#mainContent">Skip to lesson content</a>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="fpLogo" viewBox="10 14 178 372"><polygon points="100,178 73,150 47,117 50,63 87,115 113,22 122,117 168,70 134,122 156,126 131,143 108,173"/><polygon points="100,178 142,245 150,264 169,272 154,278 179,346 122,277 102,378 85,281 18,352 72,285 40,268 60,250"/><polygon points="100.4,126.2 107.8,141.7 95.6,153.8 88.2,138.3"/><polygon points="103.1,236.1 114.9,248.6 106.9,263.9 95.1,251.4"/></symbol></svg>
 
 <nav class="bar" aria-label="Pages">
@@ -203,18 +204,18 @@ footer { border-top: 1px solid var(--line); padding: 24px 0 40px; color: var(--m
   <span class="here">/ Learn</span>
   <span class="sp"></span>
   <a class="btn ghost sm" href="index.html#analysis">Analysis</a>
-  <a class="btn ghost sm" href="index.html#sim">Sim</a>
+  <a class="btn ghost sm" href="index.html#sim">Flame lab</a>
   <button class="btn ghost sm" type="button" id="theme">Dark</button>
 </nav>
 
-<main class="wrap">
+<main class="wrap" id="mainContent" tabindex="-1">
   <section class="hero">
     <div class="kicker">LEARN</div>
     <h1>Learn how fire behaves<br><span>in space.</span></h1>
     <p class="lede">Start with an experiment. Change a condition, compare what happens, then check the explanation and NASA records. Each science lesson also has a short video.</p>
     <div class="paths">
       <a class="path" href="#track-science"><span class="n">TRACK 1 &middot; 6 LESSONS</span><h2>Flame science</h2><p>Fuel and oxygen, gravity, oxygen pressure, nitrogen, low pressure, and how flames go out.</p></a>
-      <a class="path" href="#track-site"><span class="n">TRACK 2 &middot; 5 GUIDES</span><h2>Using Flashpoint</h2><p>Read the map, understand the evidence rating, rank investigations, dig into the data, run the Sim.</p></a>
+      <a class="path" href="#track-site"><span class="n">TRACK 2 &middot; 5 GUIDES</span><h2>Using Flashpoint</h2><p>Read the map, understand the evidence rating, rank investigations, dig into the data, use the flame lab.</p></a>
       <a class="path" href="#sheet"><span class="n">REFERENCE</span><h2>Formula sheet</h2><p>Every calculation the site does, in one table, with the file it lives in. Plus a glossary.</p></a>
     </div>
     <p class="how">Every lesson has the same parts: <b>The idea</b>, <b>The formula</b>, <b>In NASA's data</b> (counted live from the
@@ -235,7 +236,7 @@ footer { border-top: 1px solid var(--line); padding: 24px 0 40px; color: var(--m
       <a href="#g2"><span class="k">2.2</span>The evidence rating</a>
       <a href="#g3"><span class="k">2.3</span>Ranking investigations</a>
       <a href="#g4"><span class="k">2.4</span>Advanced mode and the raw data</a>
-      <a href="#g5"><span class="k">2.5</span>The Sim: real and illustrated</a>
+      <a href="#g5"><span class="k">2.5</span>The flame lab: sources and illustration</a>
       <h3>REFERENCE</h3>
       <a href="#sheet"><span class="k">R</span>Formula sheet</a>
       <a href="#glossary"><span class="k">G</span>Glossary</a>
@@ -246,7 +247,7 @@ footer { border-top: 1px solid var(--line); padding: 24px 0 40px; color: var(--m
       <div class="track" id="track-science">
         <div class="kicker">TRACK 1</div>
         <h2>Flame science</h2>
-        <p>Six ideas that explain everything the map and the Sim show. Start here if you have never studied combustion.</p>
+        <p>Six ideas that explain everything the map and flame lab show. Start here if you have never studied combustion.</p>
       </div>
 
       <article class="lesson" id="l1">
@@ -318,7 +319,7 @@ footer { border-top: 1px solid var(--line); padding: 24px 0 40px; color: var(--m
               <p class="where">F<sub>b</sub> is the upward push on each cubic metre of hot gas (N/m&sup3;). &rho; is density, g is
                 gravity. Hot gas is lighter because at the same pressure density falls as temperature rises:
                 &rho;<sub>hot</sub> = &rho;<sub>air</sub> &times; T<sub>air</sub> / T<sub>hot</sub>.</p>
-              <p class="where"><b>Set g = 0 and the push is zero.</b> That one term is the only thing gravity changes in the Sim.</p>
+              <p class="where"><b>Set g = 0 and the push is zero.</b> The model scales buoyancy with gravity and also approximates how flow changes fuel release. Those reaction and transport coefficients are illustrative.</p>
               <p class="src">Textbook values used here: &rho;<sub>air</sub> = 1.18 kg/m&sup3; at 300 K, T<sub>hot</sub> = 1800 K. Rounded, not from NASA's tables.</p>
             </div>
           </div>
@@ -360,7 +361,7 @@ footer { border-top: 1px solid var(--line); padding: 24px 0 40px; color: var(--m
           <p class="fb" hidden>Right. With no buoyancy, burnt gas stays around the flame and fresh oxygen has to diffuse in. A flame that cannot get
             oxygen fast enough can smother itself. Fans on a spacecraft change this, which is why airflow matters so much in orbit.</p>
         </div>
-        <div class="try">Try it: <a class="btn ghost sm" href="index.html#sim">Open the Sim and press the gravity buttons</a></div>
+        <div class="try">Try it: <a class="btn ghost sm" href="index.html#sim">Open the flame lab and compare gravity</a></div>
       </article>
 
       <article class="lesson" id="l3">
@@ -552,7 +553,7 @@ footer { border-top: 1px solid var(--line); padding: 24px 0 40px; color: var(--m
           <div class="opts"><button type="button">It rises</button><button type="button">It stays the same</button><button type="button">It falls</button></div>
           <p class="fb" hidden>The share generally falls in these grouped FLEX rows. Fuel, pressure and diluent also varied, so this chart cannot isolate the effect of oxygen or establish a limit for cabin materials.</p>
         </div>
-        <div class="try">Try it: <a class="btn ghost sm" href="index.html#sim">In the Sim, pick FLEX and step through the tests</a></div>
+        <div class="try">Try it: <a class="btn ghost sm" href="index.html#sim">In the flame lab, choose NASA tests from the reference card</a></div>
       </article>
 
       <!-- ===================== TRACK 2 ===================== -->
@@ -682,18 +683,18 @@ footer { border-top: 1px solid var(--line); padding: 24px 0 40px; color: var(--m
       </article>
 
       <article class="lesson" id="g5">
-        <header><span class="k">2.5</span><h3>The Sim: what is real and what is illustration</h3><span class="time">3 min</span></header>
+        <header><span class="k">2.5</span><h3>The flame lab: what comes from NASA</h3><span class="time">3 min</span></header>
         <div class="cols">
           <div>
             <h4>REAL, FROM NASA'S TEST</h4>
             <ul>
               <li>The oxygen, pressure and fuel of the test you pick.</li>
-              <li>Whether NASA's flame lit and whether it went out. At 0 g the Sim follows NASA's record.</li>
+              <li>Whether NASA's flame lit and whether it went out. At the original atmosphere, 0 g and no added ventilation, the illustration follows that outcome when it is recorded.</li>
             </ul>
             <h4>REAL PHYSICS, IN THE EQUATIONS</h4>
             <ul>
               <li>Fuel burns only where it meets oxygen (lesson 1.1).</li>
-              <li>Gravity only adds buoyancy, F<sub>b</sub> &prop; g (lesson 1.2).</li>
+              <li>Buoyancy scales with gravity, F<sub>b</sub> &prop; g (lesson 1.2). The model also approximates how flow changes fuel release.</li>
               <li>Less oxygen, more nitrogen to heat, cooler flame (lesson 1.4).</li>
               <li>Lower pressure, faster mixing (lesson 1.5).</li>
             </ul>
@@ -705,10 +706,10 @@ footer { border-top: 1px solid var(--line); padding: 24px 0 40px; color: var(--m
               <li>The colours of the 0 g flame are painted after NASA photographs.</li>
               <li>Moon, Mars and Earth gravity: NASA ran every test at 0 g, so these show the same air with gravity added, not a measured result.</li>
             </ul>
-            <div class="why"><b>How to use it:</b> to build intuition about why a flame looks and behaves the way it does. Not to read off numbers for a design.</div>
+            <div class="why"><b>Try the four-step demo:</b> start from a recorded test, add gravity, add ventilation, then replay a recorded extinction. Pin a view before changing one variable. The source card keeps NASA's original conditions visible, while the live label identifies modified settings.</div>
           </div>
         </div>
-        <div class="try">Try it: <a class="btn ghost sm" href="index.html#sim">Open the Sim</a></div>
+        <div class="try">Try it: <a class="btn ghost sm" href="index.html#sim">Open the flame lab</a></div>
       </article>
 
       <!-- ===================== REFERENCE ===================== -->

@@ -17,7 +17,7 @@
   /* ---------- Shared map: pressure (x) against oxygen (y) ---------- */
   function makeMap(svg, opts) {
     // A small map (a phone, or the side panel) gets its own proportions so the text stays readable.
-    var narrow = (svg.getBoundingClientRect().width || 680) < 520;
+    var narrow = window.innerWidth <= 860 || (svg.getBoundingClientRect().width || 680) < 520;
     var W = narrow ? 440 : 680, H = narrow ? 460 : 420, L = narrow ? 46 : 56, R = 18, T = 32, B = narrow ? 52 : 44;
     svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H); svg.classList.toggle('narrow', narrow);
     var x = function (p) { return L + p / 16 * (W - L - R); };
@@ -52,7 +52,7 @@
     el('circle', { 'class': 'ring', r: 15 }, probe); el('circle', { 'class': 'dot', r: 4 }, probe);
     var state = { p: 10.2, o: 30 };
     function set(p, o) {
-      state.p = clamp(p, 0, 16); state.o = clamp(o, 10, 100);
+      state.p = clamp(p, 1, 16); state.o = clamp(o, 10, 100);
       var px = x(state.p), py = y(state.o);
       probe.querySelectorAll('circle').forEach(function (c) { c.setAttribute('cx', px); c.setAttribute('cy', py); });
       hx.setAttribute('x2', px); hx.setAttribute('y1', py); hx.setAttribute('y2', py);
@@ -62,10 +62,10 @@
     function moveTo(p, o, ms) { var p0 = state.p, o0 = state.o; tween(0, 1, ms || 700, function (k) { set(p0 + (p - p0) * k, o0 + (o - o0) * k); }); }
     if (opts.drag) {
       var drag = false;
-      function toData(e) { var r = svg.getBoundingClientRect(), sx = (e.clientX - r.left) / r.width * W, sy = (e.clientY - r.top) / r.height * H; return { p: (sx - L) / (W - L - R) * 16, o: 10 + (H - B - sy) / (H - T - B) * 90 }; }
+      function toData(e) { var pt = new DOMPoint(e.clientX, e.clientY).matrixTransform(svg.getScreenCTM().inverse()); return { p: (pt.x - L) / (W - L - R) * 16, o: 10 + (H - B - pt.y) / (H - T - B) * 90 }; }
       svg.addEventListener('pointerdown', function (e) { drag = true; svg.setPointerCapture(e.pointerId); var d0 = toData(e); set(d0.p, d0.o); });
       svg.addEventListener('pointermove', function (e) { if (drag) { var d1 = toData(e); set(d1.p, d1.o); } });
-      svg.addEventListener('pointerup', function () { drag = false; });
+      ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(function (name) { svg.addEventListener(name, function () { drag = false; }); });
       svg.setAttribute('tabindex', '0');
       svg.addEventListener('keydown', function (e) {
         var k = { ArrowLeft: [-0.2, 0], ArrowRight: [0.2, 0], ArrowUp: [0, 1], ArrowDown: [0, -1] }[e.key];
@@ -86,7 +86,7 @@
   /* ---------- NASA test rows (data/tests.web.json) and the offline answer engine (public/offline) ---------- */
   var ROWS = null;
   var OFF = window.FlashpointOffline || null;
-  var CHAT_ENDPOINT = '/api/chat';   // the SI chat route in ROADMAP.md; until it exists every question uses the offline mode
+  var CHAT_ENDPOINT = null;   // Explicit local rule-based mode; do not request a nonexistent endpoint.
   function loadRows(done) {
     var urls = ['../data/tests.web.json'];
     (function next(i) {
@@ -105,7 +105,7 @@
   function esc(t) { return String(t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   var PSI_PAGE = 'https://psi.nasa.gov/physci/repo/data/investigations/';
   var evPending = null, lastEv = null, lastCover = null, lastRank = null;
-  var RATE = { lit: 'Well tested', dim: 'Thin', dark: 'No tests' };
+  var RATE = { lit: '10+ nearby', dim: '1 to 9 nearby', dark: 'None nearby' };
   // Coverage is rated for each kind of fuel on its own: a point can be well tested with gas flames and untested with cabin materials.
   var KINDS = [['gas', 'Gas flames'], ['liquid', 'Fuel droplets'], ['solid', 'Solid materials']];
   // What each investigation is for, in the challenge statement's own terms (prevention, detection, suppression).
@@ -115,7 +115,7 @@
     'PSI-69': 'Suppress: droplets in diluted oxygen', 'PSI-39': 'Flame science: fuel droplets',
     'PSI-159': 'Flame science: gas flames', 'PSI-10': 'Flame science: gas flames'
   };
-  function nearText() { return 'within ' + OFF.O2_SCALE * OFF.NEAR_DISTANCE + ' points of oxygen or ' + OFF.P_SCALE * OFF.NEAR_DISTANCE + ' psi'; }
+  function nearText() { return 'normalized distance 1: sqrt((oxygen difference / 10)^2 + (pressure difference / 2)^2) <= 1'; }
   function nTests(n) { return n + (n === 1 ? ' test' : ' tests'); }
   function solidSummary() {
     if (solidSummary.v) return solidSummary.v;
@@ -171,11 +171,10 @@
       var box = $('homeCover'); box.textContent = '';
       lastCover.forEach(function (c) {
         var row = document.createElement('div'); row.className = 'cov';
-        row.innerHTML = '<b>' + c.label + '</b><span class="rate ' + c.rating + '">' + RATE[c.rating] + '</span><p>' + esc(c.text) + '</p>';
+        row.innerHTML = '<b>' + c.label + '</b><span class="rate ' + c.rating + '">' + (c.kind === 'solid' && !solidSummary().withP ? 'Not placeable' : RATE[c.rating]) + '</span><p>' + esc(c.text) + '</p>';
         box.appendChild(row);
       });
-      $('homeRateNote').textContent = 'Near means ' + nearText() + '. Well tested means ' + OFF.LIT_MIN_TESTS + ' or more tests, thin means 1 to ' + (OFF.LIT_MIN_TESTS - 1) +
-        '. Inverse flames (oxygen from the burner) are left out.';
+      $('homeRateNote').textContent = 'A nearby row has ' + nearText() + '. Counts include only chamber oxygen; inverse flames are left out.';
       drawRank(lastRank, o);
       var tb = $('homeNear'); tb.classList.remove('skel'); tb.textContent = '';
       ev.nearest.forEach(function (n) {
@@ -194,13 +193,16 @@
   function li(ul, html) { var x = document.createElement('li'); x.innerHTML = html; ul.appendChild(x); }
   function openBrief(print) {
     if (!ROWS || !OFF || !lastEv) return;
-    var p = home.state.p, o = home.state.o, pp = o / 100 * p, ev = lastEv, s = solidSummary();
+    var p = home.state.p, o = home.state.o, pp = o / 100 * p, s = solidSummary();
+    // Snapshot this exact point, including when opened before the next animation frame.
+    var ev = OFF.evidenceAt(ROWS, { o2_pct: o, pressure_psi: p }, { k: 5 });
+    lastCover = coverAt(p, o); lastRank = rankAt(p, o);
     var b = $('briefBody'); b.textContent = '';
     b.innerHTML = '<span class="kind">Evidence brief</span><h2 id="briefTitle">' + o.toFixed(1) + '% oxygen at ' + p.toFixed(1) + ' psi</h2>' +
       '<p class="lead">Oxygen partial pressure ' + pp.toFixed(2) + ' psi, ' + (pp / SEA_PPO2).toFixed(2) + ' times sea level. Every NASA test used here ran in microgravity.</p>' +
       '<dl class="facts"><div><dt>Oxygen</dt><dd>' + o.toFixed(1) + '%</dd></div><div><dt>Pressure</dt><dd>' + p.toFixed(1) + ' psi</dd></div><div><dt>Oxygen partial pressure</dt><dd>' + pp.toFixed(2) + ' psi</dd></div><div><dt>Compared with sea level</dt><dd>' + (pp / SEA_PPO2).toFixed(2) + '&times;</dd></div></dl>' +
       '<h3>Evidence here, by what burned</h3>' +
-      lastCover.map(function (c) { return '<p><span class="rate ' + c.rating + '">' + RATE[c.rating] + '</span> <b>' + c.label + ':</b> ' + esc(c.text) + '</p>'; }).join('') +
+      lastCover.map(function (c) { return '<p><span class="rate ' + c.rating + '">' + (c.kind === 'solid' && !solidSummary().withP ? 'Not placeable' : RATE[c.rating]) + '</span> <b>' + c.label + ':</b> ' + esc(c.text) + '</p>'; }).join('') +
       '<p class="src">' + esc($('homeRateNote').textContent) + '</p>' +
       '<h3>Investigations ranked for this point</h3><ol>' +
       lastRank.placed.map(function (r) { return '<li><b>' + esc(r.name) + '</b> (' + r.acc + '): ' + r.near + ' of its ' + nTests(r.total) + ' sit near this point. ' + esc(r.role) + '.</li>'; }).join('') + '</ol>' +
@@ -224,7 +226,7 @@
     li(next, '<b>SoFIE, Solid Fuel Ignition and Extinction:</b> tests whether NASA\'s ground flammability test for flight materials is conservative enough in low gravity.');
     li(next, '<b>FLARE, Flammability Limits At Reduced-g Experiment:</b> a way to estimate microgravity flammability limits from ground tests (JAXA, NASA, ESA, CNES, DLR).');
     var src = document.createElement('p'); src.className = 'src';
-    src.textContent = 'Flashpoint, team BrayTech Pyrotechnics. Built ' + new Date().toISOString().slice(0, 10) + ' from data/tests.web.json (NASA Physical Science Informatics) with the rating rule in lib/evidence.ts. Upcoming experiments from NASA Glenn Research Center. No AI wrote this text.';
+    src.textContent = 'Flashpoint, team BrayTech Pyrotechnics. Built ' + new Date().toISOString().slice(0, 10) + ' from data/tests.web.json (NASA Physical Science Informatics) with the rating rule in lib/evidence.ts. Upcoming experiments from NASA Glenn Research Center. AI-assisted templates; numbers computed from NASA rows. Coverage is not a safety certification.';
     b.appendChild(src);
     briefFrom = document.activeElement; $('brief').hidden = false; $('briefClose').focus();
     if (print) setTimeout(printBrief, 50);
@@ -295,7 +297,7 @@
     var m = document.createElement('div'); m.className = 'msg ' + cls; m.textContent = text;
     if (did) { var s = document.createElement('span'); s.className = 'did'; s.textContent = 'Moved the point on the map'; m.appendChild(s); }
     if (why) { var w = document.createElement('span'); w.className = 'why'; w.textContent = why; m.appendChild(w); }
-    $('msgs').appendChild(m); $('msgs').scrollTop = $('msgs').scrollHeight;
+    $('msgs').appendChild(m); $('msgs').scrollTop = $('msgs').scrollHeight; return m;
   }
   function send(text) {
     text = text.trim(); if (!text) return;
@@ -308,7 +310,7 @@
       setTimeout(function () { typing.remove(); addMsg('bot', r.reply, r.did); }, reduce ? 0 : 650);
       return;
     }
-    OFF.askWithFallback(text, ROWS, { endpoint: CHAT_ENDPOINT, timeoutMs: 8000 }).then(function (ans) {
+    (CHAT_ENDPOINT ? OFF.askWithFallback(text, ROWS, { endpoint: CHAT_ENDPOINT, timeoutMs: 8000 }) : Promise.resolve(OFF.answerOffline(text, ROWS))).then(function (ans) {
       typing.remove();
       if (ans.mode === 'si') { var d = ans.data || {}; addMsg('bot', String(d.answer || d.text || JSON.stringify(d)), r.did); return; }
       var did = r.did;
@@ -325,7 +327,11 @@
         return c.label.toLowerCase() + ', ' + RATE[c.rating].toLowerCase() + (c.kind === 'solid' ? ' (NASA\'s solid-material tests record no pressure, so none can be placed)' : c.n ? ' (' + nTests(c.n) + ')' : '');
       }).join('; ') + '.');
       var body = (r.did ? r.reply + '\n\n' : '') + paras.join('\n\n');
-      addMsg('bot', body, did, 'Answered offline from NASA\'s test data with fixed rules.');
+      var msg = addMsg('bot', body, did, 'Rule-based answer. Coverage is not a safety rating.');
+      var sources = document.createElement('div'); sources.className = 'answer-sources';
+      (ans.citations || []).filter(function(c) { return c.url; }).forEach(function(c) {
+        var a = document.createElement('a'); a.href = c.url; a.target = '_blank'; a.rel = 'noopener'; a.textContent = c.label; sources.appendChild(a);
+      }); msg.appendChild(sources);
     });
   }
   function openChat() { if (chat.hidden) { chatFrom = document.activeElement; chat.hidden = false; } $('ask').focus(); }
@@ -985,9 +991,9 @@
 
   /* ---------- Sim: the flame lab (sim.html) in a frame. It loads the first time the page opens. ---------- */
   var simFrame = $('simFrame');
-  function simPost(msg) { try { if (simFrame.contentWindow) simFrame.contentWindow.postMessage(msg, '*'); } catch (e) { /* frame not ready */ } }
-  function startSim() { if (!simFrame.getAttribute('src')) simFrame.setAttribute('src', 'sim.html?embed'); }
-  function stopSim() { }
+  function simPost(msg) { try { if (simFrame.contentWindow) simFrame.contentWindow.postMessage(msg, location.origin); } catch (e) { /* frame not ready */ } }
+  function startSim() { if (!simFrame.getAttribute('src')) simFrame.setAttribute('src', 'sim.html?embed'); simPost({ type: 'fp-active', active: true }); }
+  function stopSim() { simPost({ type: 'fp-active', active: false }); }
   var simWant = null;
   function simPoint(o, p, go) {
     if (!go && !$('page-sim').classList.contains('open')) return;
@@ -995,9 +1001,9 @@
   }
   window.addEventListener('message', function (e) {
     var d = e.data || {};
-    if (e.source !== simFrame.contentWindow) return;
+    if (e.source !== simFrame.contentWindow || e.origin !== location.origin) return;
     if (d.type === 'fp-height' && d.h > 0) simFrame.style.height = Math.ceil(d.h) + 'px';
-    if (d.type === 'fp-ready') { simPost({ type: 'fp-theme', dark: document.documentElement.dataset.theme === 'dark' }); if (simWant) simPost(simWant); }
+    if (d.type === 'fp-ready') { simPost({ type: 'fp-active', active: $('page-sim').classList.contains('open') }); simPost({ type: 'fp-theme', dark: document.documentElement.dataset.theme === 'dark' }); if (simWant) simPost(simWant); }
   });
 
   document.querySelectorAll('.page').forEach(function (pg) { var f = $('siteFoot').cloneNode(true); f.removeAttribute('id'); pg.appendChild(f); });
@@ -1021,33 +1027,20 @@
       note.appendChild(g); note.appendChild(document.createTextNode(k[2]));
     });
     note.appendChild(document.createTextNode('. Source: NASA PSI. The curve and habitat points use the values in the challenge statement.'));
-    updateEvidence(home.state.p, home.state.o);
+    updateEvidence(home.state.p, home.state.o); document.dispatchEvent(new CustomEvent('fp-data', { detail: rows }));
   });
 
   /* ---------- Navigation: a card opens its page; the other cards shrink into the bar ---------- */
-  var openCard = null, bar = $('bar'), BAR_H = 56;
+  var openCard = null, bar = $('bar');
   function cardOf(n) { return document.querySelector('.card[data-page="' + n + '"]'); }
-  function rect(r) { return 'top:' + r.top + 'px;left:' + r.left + 'px;width:' + r.width + 'px;height:' + r.height + 'px'; }
   function show(page) {
     var name = page.id.slice(5);
     document.querySelectorAll('.page.open').forEach(function (p) { if (p !== page) p.classList.remove('open'); });
     stopSim();
-    page.classList.add('open'); page.scrollTop = 0; document.body.classList.add('in-page');
+    page.classList.add('open'); document.querySelector('main').inert = true; document.querySelectorAll('.page').forEach(function (p) { p.inert = p !== page; }); page.scrollTop = 0; document.body.classList.add('in-page');
     bar.querySelectorAll('.tab').forEach(function (t) { if (t.dataset.page === name) t.setAttribute('aria-current', 'page'); else t.removeAttribute('aria-current'); });
     page.querySelector('h1').focus({ preventScroll: true });
     if (name === 'sim') startSim();
-  }
-  function morph(card) {
-    // Only cards that open a page inside this file shrink into the bar; the Learn card is a plain link to learn.html.
-    document.querySelectorAll('.card[data-page]').forEach(function (c) {
-      if (c === card) return;
-      var from = c.getBoundingClientRect(), to = bar.querySelector('.tab[data-page="' + c.dataset.page + '"]').getBoundingClientRect();
-      var g = document.createElement('div'); g.className = 'morph'; g.style.cssText = rect(from); document.body.appendChild(g);
-      var end = 'translate(' + (to.left - from.left) + 'px,' + (to.top - from.top) + 'px) scale(' + to.width / from.width + ',' + to.height / from.height + ')';
-      // travel for three quarters of the time, then fade out on top of the tab that is fading in
-      g.animate([{ transform: 'none', opacity: 1 }, { transform: end, opacity: 1, offset: .75 }, { transform: end, opacity: 0 }],
-        { duration: 600, easing: 'cubic-bezier(.4, 0, .2, 1)' }).onfinish = function () { g.remove(); };
-    });
   }
   var ALIAS = { home: 'analysis', resources: 'analysis', si: 'analysis' };
   function open(name, card) {
@@ -1056,23 +1049,12 @@
     name = ALIAS[name] || name;
     var page = $('page-' + name); if (!page) return;
     openCard = card || cardOf(name);
-    if (reduce || !card || document.querySelector('.page.open')) { show(page); return; }
-    document.body.classList.add('in-page'); morph(card);
-    var ex = document.createElement('div'); ex.className = 'expander'; ex.style.cssText = rect(card.getBoundingClientRect());
-    document.body.appendChild(ex); ex.getBoundingClientRect();
-    ex.style.cssText = 'top:' + BAR_H + 'px;left:0;width:100vw;height:calc(100dvh - ' + BAR_H + 'px);border-radius:0';
-    setTimeout(function () { show(page); setTimeout(function () { ex.remove(); }, 240); }, 460);
+    show(page);
   }
   function close() {
     var page = document.querySelector('.page.open'); if (!page) return;
-    var card = openCard; stopSim(); document.body.classList.remove('in-page');
-    if (reduce || !card) { page.classList.remove('open'); if (card) card.focus(); return; }
-    var ex = document.createElement('div'); ex.className = 'expander';
-    ex.style.cssText = 'top:' + BAR_H + 'px;left:0;width:100vw;height:calc(100dvh - ' + BAR_H + 'px);border-radius:0;transition:none';
-    document.body.appendChild(ex); page.classList.remove('open'); ex.getBoundingClientRect();
-    ex.style.transition = ''; ex.style.cssText = rect(card.getBoundingClientRect());
-    setTimeout(function () { ex.style.transition = 'opacity 220ms'; ex.style.opacity = '0'; }, 470);
-    setTimeout(function () { ex.remove(); card.focus({ preventScroll: true }); }, 700);
+    var card = openCard; document.querySelector('main').inert = false; page.inert = true; stopSim(); document.body.classList.remove('in-page');
+    page.classList.remove('open'); if (card) card.focus();
   }
   function toDashboard() { if (location.hash) window.history.pushState({}, '', location.pathname + location.search); close(); }
   document.querySelectorAll('.card[data-page], .bar .tab[data-page]').forEach(function (a) {
@@ -1092,6 +1074,13 @@
     if (/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName)) return;
     if (document.querySelector('.page.open')) toDashboard();
   });
+  document.querySelectorAll('.page').forEach(function (p) { p.inert = true; });
+  window.Flashpoint = {
+    go: function (name) { if (location.hash !== '#' + name) history.pushState({}, '', '#' + name); open(name, null); },
+    probe: function (p, o) { home.set(p, o); },
+    brief: function () { openBrief(false); },
+    mapFuel: function (fuel) { if (!ROWS) return; var a = ROWS.filter(function (r) { return r.o2_pct != null && r.pressure_psi != null && r.oxygen_from !== 'burner' && r.pressure_psi <= 16 && (!fuel || r.fuel_phase === fuel); }); home.dots(a); return a.length; }
+  };
   if (location.hash) open(location.hash.slice(1), null);
 
   /* ---------- Theme: light unless the visitor picked dark; the choice is remembered on this device ---------- */

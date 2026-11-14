@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Learn Flashpoint</title>
-<meta name="generator" content="AI-assisted: written with Claude Code for team BrayTech Pyrotechnics">
+<meta name="generator" content="AI-assisted: Claude Code and OpenAI Codex for team BrayTech Pyrotechnics">
 <!--
   Flashpoint learners page (site/learn.html), linked from the dashboard's Learn card and the bar.
   Two tracks: why flames behave the way they do (six lessons) and how to use the site (five guides), then a formula
@@ -18,7 +18,7 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20400%20400%22%3E%3Crect%20width%3D%22400%22%20height%3D%22400%22%20fill%3D%22%230B3D91%22%2F%3E%3Cg%20transform%3D%22translate%28100%200%29%22%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-width%3D%2216%22%20stroke-linejoin%3D%22round%22%3E%3Cpolygon%20points%3D%22100%2C178%2073%2C150%2047%2C117%2050%2C63%2087%2C115%20113%2C22%20122%2C117%20168%2C70%20134%2C122%20156%2C126%20131%2C143%20108%2C173%22%2F%3E%3Cpolygon%20points%3D%22100%2C178%20142%2C245%20150%2C264%20169%2C272%20154%2C278%20179%2C346%20122%2C277%20102%2C378%2085%2C281%2018%2C352%2072%2C285%2040%2C268%2060%2C250%22%2F%3E%3Cpolygon%20points%3D%22100.4%2C126.2%20107.8%2C141.7%2095.6%2C153.8%2088.2%2C138.3%22%2F%3E%3Cpolygon%20points%3D%22103.1%2C236.1%20114.9%2C248.6%20106.9%2C263.9%2095.1%2C251.4%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E">
 <link rel="stylesheet" href="assets/tokens.css">
 <script src="../public/offline/offline-answer.js"></script>
-<script>try { if (localStorage.getItem('fp-theme') === 'dark') document.documentElement.dataset.theme = 'dark'; } catch (e) {}</script>
+<script>try { if (localStorage.getItem('fp-theme') === 'light') delete document.documentElement.dataset.theme; } catch (e) {}</script>
 <style>
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
@@ -192,6 +192,7 @@ footer { border-top: 1px solid var(--line); padding: 24px 0 40px; color: var(--m
   .bar { gap: 8px; padding: 0 12px; }
 }
 </style>
+<link rel="stylesheet" href="assets/refinement.css">
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="fpLogo" viewBox="10 14 178 372"><polygon points="100,178 73,150 47,117 50,63 87,115 113,22 122,117 168,70 134,122 156,126 131,143 108,173"/><polygon points="100,178 142,245 150,264 169,272 154,278 179,346 122,277 102,378 85,281 18,352 72,285 40,268 60,250"/><polygon points="100.4,126.2 107.8,141.7 95.6,153.8 88.2,138.3"/><polygon points="103.1,236.1 114.9,248.6 106.9,263.9 95.1,251.4"/></symbol></svg>
@@ -208,9 +209,8 @@ footer { border-top: 1px solid var(--line); padding: 24px 0 40px; color: var(--m
 <main class="wrap">
   <section class="hero">
     <div class="kicker">LEARN</div>
-    <h1>Why fire behaves differently <span>off Earth</span>, and how to read the evidence.</h1>
-    <p class="lede">Short lessons for students and anyone new to combustion. Each one explains one idea, shows the formula behind it,
-      checks it against NASA's own test data, and ends with where to try it in Flashpoint.</p>
+    <h1>How fire changes<br><span>off Earth.</span></h1>
+    <p class="lede">Six science lessons and five field guides. Watch, explore, then test your understanding against NASA's data.</p>
     <div class="paths">
       <a class="path" href="#track-science"><span class="n">TRACK 1 &middot; 6 LESSONS</span><h2>Flame science</h2><p>Fuel and oxygen, gravity, oxygen pressure, nitrogen, low pressure, and how flames go out.</p></a>
       <a class="path" href="#track-site"><span class="n">TRACK 2 &middot; 5 GUIDES</span><h2>Using Flashpoint</h2><p>Read the map, understand the evidence rating, rank investigations, dig into the data, run the Sim.</p></a>
@@ -263,7 +263,7 @@ footer { border-top: 1px solid var(--line); padding: 24px 0 40px; color: var(--m
               Take any one away and it goes out. Fire safety is built on this: <b>prevent</b> (keep heat sources and fuel apart,
               pick materials that resist burning), <b>detect</b> (notice smoke early) and <b>suppress</b> (remove oxygen or heat).</p>
             <p>Most fires in a cabin are <b>diffusion flames</b>: fuel and oxygen start apart and only burn where they meet, in a thin
-              glowing zone. A candle, a burning droplet and a smouldering fabric all work this way.</p>
+              glowing zone. A candle and a burning fuel droplet are examples. Smouldering is a separate form of combustion without a flame.</p>
             <h4>THE FORMULA</h4>
             <div class="formula">
               <div class="eq">C<sub>3</sub>H<sub>8</sub> + 5 O<sub>2</sub> &rarr; 3 CO<sub>2</sub> + 4 H<sub>2</sub>O + heat</div>
@@ -622,13 +622,13 @@ footer { border-top: 1px solid var(--line); padding: 24px 0 40px; color: var(--m
             <table class="t">
               <thead><tr><th>Tests near the point</th><th>Rating</th></tr></thead>
               <tbody>
-                <tr><td class="num">10 or more</td><td><span class="rate lit">Well tested</span></td></tr>
-                <tr><td class="num">1 to 9</td><td><span class="rate dim">Thin</span></td></tr>
-                <tr><td class="num">0</td><td><span class="rate dark">No tests</span></td></tr>
+                <tr><td class="num">10 or more</td><td><span class="rate lit">10+ nearby</span></td></tr>
+                <tr><td class="num">1 to 9</td><td><span class="rate dim">1 to 9 nearby</span></td></tr>
+                <tr><td class="num">0</td><td><span class="rate dark">None nearby</span></td></tr>
               </tbody>
             </table>
             <h4>WHY RATE EACH FUEL ON ITS OWN</h4>
-            <p>A point can be well tested with droplets and completely untested with gas flames or cabin materials. One rating would
+            <p>A point can have many nearby droplet tests and completely untested with gas flames or cabin materials. One rating would
               hide that, so the site rates gas flames, droplets and solids separately. Click the Moon Base on the map in 2.1 to see
               exactly this: many droplet tests, no gas flames, no solids.</p>
           </div>
@@ -730,7 +730,7 @@ footer { border-top: 1px solid var(--line); padding: 24px 0 40px; color: var(--m
               <tr><td>Sea-level breathing curve</td><td class="eq">O<sub>2</sub>% = 307 / P</td><td>Dashed curve on the map</td><td>app.js (SEA_PPO2)</td></tr>
               <tr><td>Distance to a test</td><td class="eq">d = &radic;((&Delta;O<sub>2</sub>/10)&sup2; + (&Delta;P/2)&sup2;)</td><td>Evidence rating, nearest tests</td><td>lib/evidence.ts</td></tr>
               <tr><td>Near</td><td class="eq">d &le; 1</td><td>Counts on the map panel</td><td>lib/evidence.ts</td></tr>
-              <tr><td>Rating</td><td class="eq">&ge;10 Well tested, 1 to 9 Thin, 0 No tests</td><td>Rating per fuel kind</td><td>lib/evidence.ts</td></tr>
+              <tr><td>Rating</td><td class="eq">&ge;10 10+ nearby, 1 to 9 1 to 9 nearby, 0 None nearby</td><td>Rating per fuel kind</td><td>lib/evidence.ts</td></tr>
               <tr><td>Ranking</td><td class="eq">near &darr;, then closest d &uarr;</td><td>Investigations ranked for this point</td><td>app.js (rankAt)</td></tr>
               <tr><td>Unit conversion</td><td class="eq">atm&times;14.696, bar&times;14.504, mmHg&times;0.019337</td><td>Every pressure</td><td>build_tests.py</td></tr>
               <tr><td>Buoyancy</td><td class="eq">F<sub>b</sub> = (&rho;<sub>air</sub> &minus; &rho;<sub>hot</sub>) g</td><td>Sim gravity</td><td>sim.html (grav)</td></tr>
@@ -761,7 +761,7 @@ footer { border-top: 1px solid var(--line); padding: 24px 0 40px; color: var(--m
   </div>
 </main>
 <footer><div class="wrap">Learners page, team BrayTech Pyrotechnics, NASA Space Apps 2026. Test data from NASA's Physical Science
-  Informatics database, counted in your browser. Written with AI assistance (Claude Code). Not endorsed by NASA.</div></footer>
+  Informatics database, counted in your browser. Written with AI assistance (Claude Code and OpenAI Codex). Not endorsed by NASA.</div></footer>
 
 <script>
 (function () {
@@ -911,7 +911,7 @@ footer { border-top: 1px solid var(--line); padding: 24px 0 40px; color: var(--m
   }
 
   /* 2.1 to 2.3: the live map, worked example and ranking */
-  var KINDS = [['gas', 'Gas flames'], ['liquid', 'Fuel droplets'], ['solid', 'Solid materials']], RATE = { lit: 'Well tested', dim: 'Thin', dark: 'No tests' };
+  var KINDS = [['gas', 'Gas flames'], ['liquid', 'Fuel droplets'], ['solid', 'Solid materials']], RATE = { lit: '10+ nearby', dim: '1 to 9 nearby', dark: 'None nearby' };
   var W = 440, H = 340, L = 44, R = 12, T = 14, Bm = 36;
   var X = function (p) { return L + p / 16 * (W - L - R); }, Y = function (o) { return H - Bm - (o - 10) / 90 * (H - T - Bm); };
   var Xi = function (px) { return (px - L) / (W - L - R) * 16; }, Yi = function (py) { return 10 + (H - Bm - py) / (H - T - Bm) * 90; };
@@ -985,5 +985,6 @@ footer { border-top: 1px solid var(--line); padding: 24px 0 40px; color: var(--m
   }
 })();
 </script>
+<script src="assets/learn-guide.js"></script>
 </body>
 </html>

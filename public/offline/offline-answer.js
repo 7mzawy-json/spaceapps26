@@ -310,9 +310,9 @@ var FlashpointOffline = (() => {
     if (probe) {
       evidence = evidenceAt(rows, probe, { k: ANSWER_TESTS });
       near = evidenceAt(rows, probe, { k: Infinity }).nearest.filter((n) => n.distance <= NEAR_DISTANCE).map((n) => n.row);
-      const range = `within about ${O2_SCALE * NEAR_DISTANCE} points of oxygen or ${P_SCALE * NEAR_DISTANCE} psi`;
-      const ratingWords = { lit: "well covered", dim: "thinly covered", dark: "not covered" }[evidence.rating];
-      paragraphs.push(`This point is ${ratingWords} by NASA's data: ${evidence.nearCount} microgravity test${evidence.nearCount === 1 ? "" : "s"} ran ${range} of it.`);
+      const range = `within normalized distance ${NEAR_DISTANCE} (oxygen difference divided by ${O2_SCALE}, pressure difference divided by ${P_SCALE}, combined in quadrature)`;
+      const ratingWords = { lit: "represented by nearby tests", dim: "represented by a few nearby tests", dark: "not represented by nearby tests" }[evidence.rating];
+      paragraphs.push(`Across fuel types, this point is ${ratingWords}: ${evidence.nearCount} microgravity test${evidence.nearCount === 1 ? "" : "s"} ran ${range} of it.`);
       const first = evidence.nearest[0];
       if (first) {
         paragraphs.push(`The closest match is ${describeTest(first.row)}.`);
@@ -333,7 +333,7 @@ var FlashpointOffline = (() => {
         } else {
           const withO2 = rows.filter((r) => r.fuel_phase === q.fuel_phase && r.o2_pct != null).sort((a, b) => Math.abs(a.o2_pct - probe.o2_pct) - Math.abs(b.o2_pct - probe.o2_pct));
           const best = withO2[0];
-          paragraphs.push(`None of those tests burned a ${q.fuel_phase} material. NASA tested ${q.fuel_phase} materials only at cabin pressure, which their tables do not record${best ? `; the closest by oxygen is ${describeTest(best)}` : ""}. Solid cabin materials at this pressure are a gap in the data.`);
+          paragraphs.push(`None of those tests burned a ${q.fuel_phase} material. The ${q.fuel_phase}-material tables do not record pressure${best ? `; the closest by oxygen is ${describeTest(best)}` : ""}. Solid cabin materials at this pressure are a gap in the data.`);
           if (best) cite(`${best.investigation} (${best.accession})`, PAGE(best.accession));
         }
       }

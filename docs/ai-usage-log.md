@@ -37,11 +37,15 @@ played in planning, research and drafting the roadmap.
 
 ## References (every library, image and dataset)
 
+Codex refinement, Sat Nov 14: OpenAI Codex audited and refined an isolated local clone in `Codex/` at the user's request. It authored the landing-page CSS flame illustration and guided evidence journey, simplified the research and lesson navigation, refined the WebGL lab and fallback behavior, corrected proximity and provenance wording, and wrote browser regression checks. NASA data and recorded narration were unchanged. Automated checks and screenshot review were performed by Codex; human review is pending. See `docs/codex-refinement.md` for scope and validation.
+
 The project page's References field must list all external resources, including open source code, text and images.
 The original-work checkbox at submission confirms this list is complete. Add each item when it enters the project.
 
 | Item | Type | Source or URL | License or credit |
 |---|---|---|---|
+| Landing-page CSS flame illustration and guided experience | original code and illustration | `site/assets/refinement.css`, `refinement.js`, `learn-guide.js` | AI-assisted by OpenAI Codex; illustration visibly labelled |
+| pypdf | test-only library, verifies the printed brief's page count | https://pypi.org/project/pypdf/ | Installed verification tool; no browser/runtime dependency |
 | NASA Physical Science Informatics (PSI) database | dataset | https://psi.nasa.gov/ | NASA open data |
 | Stable Fluids (Jos Stam, 1999) | method | SIGGRAPH 1999 conference proceedings | paper, credited in `temp/flame-sim/` |
 | WebGL-Fluid-Simulation (Pavel Dobryakov) | open source code, used as reference for the vorticity step | https://github.com/PavelDoGreat/WebGL-Fluid-Simulation | MIT |

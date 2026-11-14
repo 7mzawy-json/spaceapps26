@@ -12,6 +12,7 @@ const a = answerOffline(question, rows);
 
 console.log(`\nQ: ${question}\n`);
 for (const p of a.paragraphs) console.log(`- ${p}\n`);
-console.log(`Flame: gravity=${a.flame.gravity} state=${a.flame.state} scale=${a.flame.scale}`);
+const t = a.flame.test;
+console.log(`Flame: g=${a.flame.g} (${a.flame.gravity}) state=${a.flame.state} test=${t ? `${t.investigation} ${t.test_id} (${t.source}, line ${t.source_line})` : "none"}`);
 console.log(`       ${a.flame.caption}`);
 if (a.citations.length) console.log(`\nSources:\n${a.citations.map((c) => `  ${c.label}${c.url ? ` ${c.url}` : ""}`).join("\n")}`);

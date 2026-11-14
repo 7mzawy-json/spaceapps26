@@ -35,11 +35,23 @@ for (const question of questions) {
   const a = answerOffline(question, rows, "check script");
   for (const n of a.evidence?.nearest ?? []) expect(ids.has(`${n.row.accession} ${n.row.test_id}`), `cited test exists: ${n.row.test_id}`);
   expect(a.paragraphs.length >= 2, `answer has text: ${question}`);
-  console.log(`\nQ: ${question}\n   flame: ${JSON.stringify(a.flame)}`);
+  const f = a.flame;
+  if (f.test) expect(ids.has(`${f.test.accession} ${f.test.test_id}`), `flame test exists: ${f.test.test_id}`);
+  console.log(`\nQ: ${question}\n   flame: g=${f.g} (${f.gravity}) state=${f.state} test=${f.test ? `${f.test.investigation} ${f.test.test_id}` : "none"}\n          ${f.caption}`);
   for (const p of a.paragraphs) console.log(`   - ${p}`);
 }
 
 async function checkFallback() {
+// Flame hints follow the simulation's rules.
+const moonFabric = answerOffline("How does fabric burn at 30% oxygen and 10.2 psi on the Moon?", rows).flame;
+expect(moonFabric.g === 0.166 && moonFabric.state === "uncertain", "flame: fabric on the Moon is uncertain (no solid tests nearby), g = 0.166");
+const moonAir = answerOffline("30% oxygen at 10.2 psi on the Moon", rows).flame;
+expect(moonAir.g === 0.166 && moonAir.state === "burning", "flame: gravity added shows burning, as in the simulation");
+const iss = answerOffline("21% oxygen at 14.7 psi in microgravity", rows).flame;
+const issWant = iss.test?.ignited === false ? "no-ignition" : iss.test?.outcome === "self_extinguished" ? "goes-out" : "burning";
+expect(iss.g === 0 && iss.state === issWant, "flame: at 0 g the state is the closest test's own NASA record");
+expect(answerOffline("90% oxygen and 60 psi", rows).flame.state === "uncertain", "flame: a point with no nearby tests is uncertain");
+
 // Fallback: a failing or slow endpoint must give the offline answer, quickly.
 const down = await askWithFallback("30% oxygen at 10 psi", rows, { fetchImpl: async () => { throw new TypeError("fetch failed"); } });
 expect(down.mode === "offline", "fallback on network error");

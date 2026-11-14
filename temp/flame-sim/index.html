@@ -9,6 +9,9 @@
   Each flame is set up from one row of data/tests.web.json (NASA PSI, rows that are not separate tests left out). Gravity is the only real-physics control.
 -->
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap">
+<!-- Backup CSS flame for when WebGL 2 cannot run (see public/flames/). Paths assume the server runs in the repo root. -->
+<link rel="stylesheet" href="../../public/flames/flames.css">
+<script src="../../public/flames/flame-fallback.js"></script>
 <style>
 /* Layout: the chamber window on the left, the test's own numbers and the controls on the right; one column on phones. */
 :root {
@@ -52,6 +55,10 @@ a { color: var(--accent); }
 
 .chamber { display: grid; gap: .7rem; }
 canvas { display: block; width: 100%; max-width: 100%; aspect-ratio: 1; background: var(--chamber); border: 1px solid var(--hair-strong); }
+canvas[hidden], #cssFlame[hidden] { display: none; }
+#cssFlame { border: 1px solid var(--hair-strong); }
+#cssFlame .ff-flame { --ff-chamber: var(--chamber); }
+#fallbackNote { margin: 0; font-size: .85rem; color: var(--t3); }
 #status { min-height: 3.1em; color: var(--t2); }
 #status b { font-weight: 500; color: var(--t1); }
 
@@ -106,6 +113,8 @@ footer { font-size: .8rem; color: var(--t4); max-width: 80ch; }
   <div class="grid">
     <section class="chamber">
       <canvas id="flame" role="img" aria-label="Simulated flame for the selected test"></canvas>
+      <div id="cssFlame" hidden></div>
+      <p id="fallbackNote" hidden></p>
       <p id="status" aria-live="polite">Loading NASA test data.</p>
       <button id="pause" type="button">Pause</button>
     </section>
@@ -309,6 +318,22 @@ function draw(name, uniforms, dst) {
 const cur = { row: null, o2: 21, psi: 14.7, g: 0, jet: false, t0: 0 };
 let clock = 0, paused = false, last = 0, statusText = '';
 
+// ---- Backup: the CSS flame (public/flames/) takes over when WebGL 2 cannot run. Add ?css to the address to test it. ----
+let css = null;
+function useCss(reason) {
+  if (css) return true;
+  if (!window.FlameFallback) return false;
+  cv.hidden = true;
+  $('cssFlame').hidden = false;
+  css = FlameFallback.mount($('cssFlame'));
+  css.pause(paused);
+  $('fallbackNote').hidden = false;
+  $('fallbackNote').textContent = 'Backup flame: ' + reason + ' This simpler flame follows the same NASA record and gravity setting. Illustration, not a physics simulation.';
+  syncCss();
+  return true;
+}
+function syncCss() { if (css) css.set({ row: cur.row, o2: cur.o2, psi: cur.psi, g: cur.g, jet: cur.jet }); }
+
 function step(dt) {
   const on = cur.g === 0 ? lit(clock - cur.t0, cur.row) : 1;
   const p = flameParams(cur.o2, cur.psi, cur.g, cur.jet);
@@ -333,8 +358,8 @@ function status() {
 
 function frame(now) {
   const dt = Math.min((now - last) / 1000 || 0, 1 / 30); last = now;
-  if (!paused && dt > 0) { clock += dt; step(dt); }
-  draw('show', { s: S[0].tex, blue: flameParams(cur.o2, cur.psi, cur.g, cur.jet).blue }, null);
+  if (!paused && dt > 0) { clock += dt; if (!css) step(dt); }
+  if (!css) draw('show', { s: S[0].tex, blue: flameParams(cur.o2, cur.psi, cur.g, cur.jet).blue }, null);
   const s = status();
   if (s !== statusText) $('status').innerHTML = statusText = s;
   requestAnimationFrame(frame);
@@ -370,6 +395,7 @@ function readout() {
   }
   $('o2Out').textContent = cur.o2.toFixed(1) + ' %';
   $('psiOut').textContent = cur.psi.toFixed(1) + ' psi';
+  syncCss();
 }
 
 function pickTest() {
@@ -396,8 +422,16 @@ async function loadTests() {
 }
 
 async function main() {
-  if (!gpuOk) { $('status').textContent = 'This browser cannot run the flame (it needs WebGL 2 with float textures). Try a current Chrome, Firefox, Edge or Safari.'; return; }
-  build();
+  const forceCss = new URLSearchParams(location.search).has('css');
+  if (!gpuOk || forceCss) {
+    if (!useCss(forceCss ? 'opened with ?css.' : 'this browser cannot run the full simulation (it needs WebGL 2 with float textures).')) {
+      $('status').textContent = 'This browser cannot run the flame (it needs WebGL 2 with float textures). Try a current Chrome, Firefox, Edge or Safari.'; return;
+    }
+  } else {
+    try { build(); }
+    catch (e) { console.error(e); if (!useCss('the graphics card could not compile the simulation.')) { $('status').textContent = 'The flame could not start on this graphics card.'; return; } }
+  }
+  cv.addEventListener('webglcontextlost', (e) => { e.preventDefault(); useCss('the graphics card stopped the simulation.'); });
   let all;
   try { all = await loadTests(); }
   catch (e) { $('status').textContent = 'Could not load tests.web.json. Open this page through a local web server started in the repo root (see README.md).'; return; }
@@ -416,13 +450,13 @@ async function main() {
   $('inv').addEventListener('change', pickInv);
   $('test').addEventListener('input', pickTest);
   for (const id of ['o2', 'psi']) $(id).addEventListener('input', () => { cur.row = null; cur.o2 = +$('o2').value; cur.psi = +$('psi').value; readout(); });
-  for (const el of document.querySelectorAll('input[name=g]')) el.addEventListener('change', () => { cur.g = +el.value; cur.t0 = clock; });
-  $('pause').addEventListener('click', () => { paused = !paused; $('pause').textContent = paused ? 'Play' : 'Pause'; });
+  for (const el of document.querySelectorAll('input[name=g]')) el.addEventListener('change', () => { cur.g = +el.value; cur.t0 = clock; syncCss(); });
+  $('pause').addEventListener('click', () => { paused = !paused; $('pause').textContent = paused ? 'Play' : 'Pause'; if (css) css.pause(paused); });
   new ResizeObserver(() => { cv.width = cv.height = Math.min(1024, Math.round(cv.clientWidth * devicePixelRatio)) || N; }).observe(cv);
 
   pickInv();
-  for (let i = 0; i < 150; i++) { clock += 1 / 60; step(1 / 60); }   // warm up so the first frame already shows a flame
-  if (matchMedia('(prefers-reduced-motion: reduce)').matches) { paused = true; $('pause').textContent = 'Play'; }
+  if (!css) for (let i = 0; i < 150; i++) { clock += 1 / 60; step(1 / 60); }   // warm up so the first frame already shows a flame
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) { paused = true; $('pause').textContent = 'Play'; if (css) css.pause(true); }
   requestAnimationFrame(frame);
 }
 main();

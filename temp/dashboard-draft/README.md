@@ -47,3 +47,18 @@ Each page has its own layout and a label for what you do there.
   `alanzim/`. The team decides which direction to take.
 - Whether the map should be the first screen instead of the dashboard.
 - How the chat should work for real (see `alanzim/chat-first-design.md`).
+
+## Wired to the team's failsafes (Sat Nov 14, afternoon)
+
+The draft now loads `data/tests.web.json` and the failsafes from `public/`, so it needs a local server started in the
+repo root (`python -m http.server 8765`, then http://localhost:8765/temp/dashboard-draft/).
+
+- **Explore**: test dots on the map, the evidence rating and the five nearest tests come from `lib/evidence.ts`
+  (browser build in `public/offline/offline-answer.js`).
+- **Ask**: every question first tries the SI chat at `/api/chat`; until that exists, or whenever it fails or takes
+  longer than 8 seconds, the answer comes from the offline rule-based mode (`lib/offline-answer.ts`), labelled as such.
+  Oxygen, pressure and gravity in a question are read by the same parser, which fixes "30% oxygen and 10.2 psi" being
+  read as 10.2% oxygen.
+- **Sim**: the stand-in canvas is replaced by the CSS backup flame (`public/flames/`), set from real test rows with the
+  same rules as `temp/flame-sim/`, which it links to.
+

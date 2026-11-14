@@ -19,6 +19,11 @@ class Preview(http.server.SimpleHTTPRequestHandler):
         self.send_header('Cache-Control', 'no-cache')
         super().end_headers()
 
+    def log_request(self, code='-', size='-'):
+        # Keep long browser audits from filling the process output buffer.
+        if self.server.verbose or str(code).startswith(('4', '5')):
+            super().log_request(code, size)
+
     def send_head(self):
         self.byte_range = None
         parts = Path(unquote(urlsplit(self.path).path)).parts
@@ -78,8 +83,10 @@ class Preview(http.server.SimpleHTTPRequestHandler):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--port', type=int, default=8766)
+    parser.add_argument('--verbose', action='store_true', help='Log successful requests as well as errors')
     args = parser.parse_args()
     server = http.server.ThreadingHTTPServer(('127.0.0.1', args.port), Preview)
+    server.verbose = args.verbose
     print(f'Flashpoint preview: http://127.0.0.1:{args.port}/site/', flush=True)
     try:
         server.serve_forever()

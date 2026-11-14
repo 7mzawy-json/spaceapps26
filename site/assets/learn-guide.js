@@ -20,7 +20,7 @@
   select.addEventListener('change',function(){go(+select.value);});
   document.getElementById('lessonPrev').addEventListener('click',function(){go(Math.max(0,active-1));});
   document.getElementById('lessonNext').addEventListener('click',function(){go(Math.min(lessons.length-1,active+1));});
-  document.querySelectorAll('a[href^="#"]').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();history.pushState({},'',a.hash);show(a.hash.slice(1),true);});});
+  document.querySelectorAll('a[href^="#"]:not(.skip)').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();history.pushState({},'',a.hash);show(a.hash.slice(1),true);});});
   window.addEventListener('popstate',function(){show(location.hash.slice(1),true);});
   show(location.hash.slice(1),false);
 })();

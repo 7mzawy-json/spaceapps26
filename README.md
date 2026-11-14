@@ -4,11 +4,13 @@ This is the isolated **Codex experience refinement**, on branch `codex/experienc
 
 For the local preview, run `python scripts/preview.py`, then open `http://127.0.0.1:8766/site/`. This server supports media byte ranges so video seeking works.
 
-Start with **Start the guided analysis** for the four-step presentation. Use **Research tools** for the complete catalogue, filters, graphs and CSV export. Learn opens one chapter at a time with six interactive experiments and separate Watch/Explanation views. Its videos include an original quiet soundtrack and links to clean narration recordings. The flame lab supports recorded conditions, atmosphere presets and gravity comparisons, with explicit illustration labels.
+Start with **Start the guided analysis** for the evidence presentation. Use **Research tools** for the complete catalogue, filters, graphs and CSV export. Learn opens one chapter at a time with six interactive experiments and separate Watch/Explanation views. Its videos include an original quiet soundtrack and links to clean narration recordings. The flame lab has its own four-step demonstration: one NASA record, gravity, ventilation and a recorded extinction. Pin a model frame to compare one changed variable, or copy a setup link. The source card keeps NASA's actual conditions and outcome separate from the live illustration.
 
 Validation: `python scripts/check_experience.py` runs the local Chrome browser checks; `node scripts/check_offline_native.mjs` runs the existing evidence/answer checks with Node 24 and no installation. Browser checks use the already installed Playwright and pypdf tools. Details: `docs/codex-refinement.md`.
 
 The learning/media audit is `python scripts/check_learning.py` (146 passing checks). The application audit has 50 passing checks. Scientific limits, soundtrack generation and media validation are described in `docs/learning-refinement.md`.
+
+The flame-lab audit is `python scripts/check_flame_lab.py` (99 passing checks), including source provenance, comparisons, custom settings, fallback, reduced motion and delayed first-load transfers. See `docs/flame-lab-refinement.md` for scope and verification.
 
 Fire evidence for the places astronauts will live. Built for the NASA Space Apps Challenge 2026, challenge
 **Flame in Freefall** (Nov 14 to 15, 2026), by team BrayTech Pyrotechnics.
@@ -26,8 +28,7 @@ pressure) and shows what NASA's microgravity fire tests say about it, by what bu
   materials, the investigations ranked for that point, the nearest tests, and a printable one-page evidence brief.
 - **Analysis, Advanced mode:** the 24 combustion investigations in NASA's PSI catalogue and all 1,276 test rows, with
   filters, graphs, a table, and a CSV download of whatever is filtered (each row keeps its source file and line).
-- **Sim:** a flame set up from one NASA test, then shown with gravity added. Gravity is real physics; the rest is
-  labelled as illustration.
+- **Flame lab:** one NASA reference record alongside an illustrative fluid model. Compare gravity and ventilation, inspect oxygen and flow, and replay a recorded outcome. The model is not calibrated to predict a new test.
 - **Assistant:** one chat panel on every page. Until the SI chat is connected it answers from the test data with fixed
   rules, and says so.
 
@@ -35,10 +36,10 @@ pressure) and shows what NASA's microgravity fire tests say about it, by what bu
 
 Start a web server in the repo root, then open `/site/`:
 
-- Windows (PowerShell): `python -m http.server 8765`
-- macOS: `python3 -m http.server 8765`
+- Windows (PowerShell): `python scripts/preview.py`
+- macOS: `python3 scripts/preview.py`
 
-then http://localhost:8765/site/ . Details, and what has been checked, are in [site/README.md](site/README.md).
+then http://127.0.0.1:8766/site/ . Details, and what has been checked, are in [site/README.md](site/README.md).
 
 ## Where things are
 

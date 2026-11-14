@@ -253,8 +253,9 @@
   // Two ways to carry the point elsewhere: the same tests in Advanced mode, and the same air in the Sim.
   $('homeAround').addEventListener('click', function () {
     if (!OFF || !DATA.length) return;
-    var o = home.state.o, p = home.state.p, dO = OFF.O2_SCALE * OFF.NEAR_DISTANCE, dP = OFF.P_SCALE * OFF.NEAR_DISTANCE;
-    FS = freshFilters(); FS.o2min = +(o - dO).toFixed(1); FS.o2max = +(o + dO).toFixed(1); FS.pmin = +Math.max(0, p - dP).toFixed(1); FS.pmax = +(p + dP).toFixed(1);
+    var o = home.state.o, p = home.state.p;
+    FS = freshFilters();
+    FS.nearProbe={o2_pct:o,pressure_psi:p};
     syncFilters(); refresh(); showMode('advanced'); showResView('data'); $('page-analysis').scrollTop = 0;
   });
   $('homeBurn').addEventListener('click', function () {
@@ -478,11 +479,12 @@
   function big(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
   function tests(n) { return big(n) + (n === 1 ? ' test' : ' tests'); }
   function sayVal(k, v) { return FIELDS[k].num ? FIELDS[k].say(fmt(v)) : v; }
-  function freshFilters() { return { q: '', inv: {}, phase: {}, flame: {}, outcome: {}, o2from: {}, o2min: null, o2max: null, pmin: null, pmax: null, both: false }; }
+  function freshFilters() { return { q: '', inv: {}, phase: {}, flame: {}, outcome: {}, o2from: {}, o2min: null, o2max: null, pmin: null, pmax: null, both: false, nearProbe: null }; }
   function anyOn(o) { for (var k in o) if (o[k]) return true; return false; }
   var FACETS = ['inv', 'phase', 'flame', 'outcome', 'o2from'];
   function matches(d) {
     var v = d.v;
+    if (FS.nearProbe && (d.r.oxygen_from === 'burner' || OFF.distance(FS.nearProbe,d.r) > OFF.NEAR_DISTANCE)) return false;
     for (var i = 0; i < FACETS.length; i++) { var s = FS[FACETS[i]]; if (anyOn(s) && !s[v[FACETS[i]]]) return false; }
     if (FS.o2min != null && !(v.o2 != null && v.o2 >= FS.o2min)) return false;
     if (FS.o2max != null && !(v.o2 != null && v.o2 <= FS.o2max)) return false;
@@ -889,6 +891,7 @@
   /* filters */
   var refreshQueued = 0;
   function refresh() {
+    var neighborhood=$('nearFilterNote'); if(neighborhood){neighborhood.hidden=!(FS&&FS.nearProbe);if(FS&&FS.nearProbe)neighborhood.textContent='Nearby chamber-oxygen tests at '+FS.nearProbe.o2_pct.toFixed(1)+'% oxygen and '+FS.nearProbe.pressure_psi.toFixed(1)+' psi, using the same elliptical distance as the map. Clear filters to remove this constraint.';}
     if (refreshQueued) return;
     refreshQueued = requestAnimationFrame(function () {
       refreshQueued = 0; CUR = DATA.filter(matches); clearPick();

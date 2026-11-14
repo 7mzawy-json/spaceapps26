@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Video 1.3: Oxygen percent vs oxygen pressure</title>
+<!-- Learners page video 1.3. AI-assisted animation (Claude Code). Original drawings. Drawn as a function of time by engine.js. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;600&family=Geist+Mono:wght@500&display=block" rel="stylesheet">
+<link rel="stylesheet" href="scene.css">
+</head>
+<body>
+<svg id="stage" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid meet" aria-label="Animation: oxygen percent and oxygen pressure"></svg>
+<div id="cap" hidden></div>
+<div id="ctl" hidden><button type="button">Play</button><input type="range" min="0" value="0" aria-label="Time"><output>0.0 s</output></div>
+<script src="engine.js"></script>
+<script>
+E.scene('1-3', function (E, root) {
+  var C = E.C, el = E.el, set = E.set, at = E.at, win = E.window, L = E.label;
+  var B = {};
+  ['two_numbers', 'percent', 'partial', 'multiply', 'sea_level', 'spacewalk', 'raise', 'moon', 'flammable', 'trade'].forEach(function (b) { B[b] = E.beat(b); });
+  var END = E.timing.duration;
+  E.flameDefs(root);
+  var chap = E.chapter(root, '1.3', 'Oxygen percent vs oxygen pressure');
+
+  /* ---------- the box of air: 48 molecules at ISS pressure, 10 of them oxygen ---------- */
+  var BX = 200, BY = 250, BW = 620, BH = 560;
+  var box = el('g', {}, root);
+  el('rect', { x: BX, y: BY, width: BW, height: BH, rx: 30, fill: 'rgba(157,188,255,.05)', stroke: C.line, 'stroke-width': 4 }, box);
+  var wall = el('line', { x1: BX + BW, x2: BX + BW, y1: BY + 30, y2: BY + BH - 30, stroke: C.blueSoft, 'stroke-width': 10, 'stroke-linecap': 'round' }, box);
+  var mols = [], r = E.rand(21);
+  for (var i = 0; i < 48; i++) {
+    var oxy = i < 10, leaves = !oxy && i < 25;   // 15 nitrogen molecules leave when the pressure drops: 33 left, 10 of them oxygen
+    mols.push({ g: E.mol(box, oxy ? C.blue : C.grey, 15), oxy: oxy, leaves: leaves, x: BX + 60 + r() * (BW - 120), y: BY + 60 + r() * (BH - 120), ph: r() * 6.3, w: .5 + r() * .7, rot: r() * 360 });
+  }
+  var hits = el('g', {}, box), flashes = [];
+  for (var h = 0; h < 5; h++) flashes.push(el('circle', { cx: BX + BW, r: 26, fill: 'none', stroke: C.blueSoft, 'stroke-width': 4 }, hits));
+  var pct = L('', BX + BW / 2, BY - 30, 44, C.blueSoft, { mono: true, anchor: 'middle' }, box);
+  var pres = L('', BX + BW / 2, BY + BH + 66, 40, C.ink, { mono: true, anchor: 'middle' }, box);
+  var where = L('', BX + BW / 2, BY + BH + 112, 30, C.muted, { anchor: 'middle' }, box);
+  var lgd = el('g', {}, box);
+  E.place(E.mol(lgd, C.blue, 10), BX + 30, BY + BH + 168); L('oxygen', BX + 56, BY + BH + 178, 28, C.blueSoft, {}, lgd);
+  E.place(E.mol(lgd, C.grey, 10), BX + 220, BY + BH + 168); L('nitrogen', BX + 246, BY + BH + 178, 28, C.muted, {}, lgd);
+
+  /* ---------- right side: the two numbers ---------- */
+  var RX = 1000;
+  function card(y, title, sub, color) {
+    var g = el('g', {}, root);
+    el('rect', { x: RX, y: y, width: 800, height: 210, rx: 28, fill: C.panel, stroke: C.line, 'stroke-width': 2 }, g);
+    var hl = el('rect', { x: RX, y: y, width: 800, height: 210, rx: 28, fill: 'none', stroke: color, 'stroke-width': 5 }, g);
+    L(title, RX + 48, y + 80, 44, C.ink, { weight: 600 }, g);
+    var s = L(sub, RX + 48, y + 140, 32, color, {}, g);
+    return { g: g, hl: hl, sub: s };
+  }
+  var c1 = card(270, 'Oxygen percent', 'share of molecules → how easily things burn', C.amber);
+  var c2 = card(530, 'Oxygen partial pressure', 'push of the oxygen alone → breathing', C.blueSoft);
+
+  /* the formula */
+  var F = el('g', {}, root);
+  L('OXYGEN PARTIAL PRESSURE', RX, 330, 26, C.muted, { mono: true }, F);
+  var f1 = el('text', E.font(58, 500, true), F); set(f1, { x: RX, y: 430, fill: C.ink });
+  [['p', 0], ['O2', 1], [' = O', 0], ['2', 1], [' share × P', 0], ['total', 1]].forEach(function (p, k, a) { var s = el('tspan', p[1] ? { 'font-size': 32, dy: 12 } : { dy: k && a[k - 1][1] ? -12 : 0 }, f1); s.textContent = p[0]; });
+  var f2 = L('0.209 × 14.7 psi = 3.07 psi', RX, 540, 54, C.blueSoft, { mono: true }, F);
+  var f3 = L('sea level: the air we evolved to breathe', RX, 600, 32, C.muted, {}, F);
+
+  /* spacewalk: a pressure dial */
+  var G = el('g', {}, root), GX = 1200, GY = 520, GR = 190;
+  el('circle', { cx: GX, cy: GY, r: GR, fill: C.panel, stroke: C.line, 'stroke-width': 4 }, G);
+  function ang(p) { return (-220 + 260 * p / 16) * Math.PI / 180; }
+  for (var q = 0; q <= 16; q += 2) {
+    var a = ang(q);
+    el('line', { x1: GX + (GR - 20) * Math.cos(a), y1: GY + (GR - 20) * Math.sin(a), x2: GX + (GR - 44) * Math.cos(a), y2: GY + (GR - 44) * Math.sin(a), stroke: C.muted, 'stroke-width': 4 }, G);
+    if (q % 4 === 0) L(String(q), GX + (GR - 72) * Math.cos(a), GY + (GR - 72) * Math.sin(a) + 10, 26, C.muted, { mono: true, anchor: 'middle' }, G);
+  }
+  var needle = el('line', { x1: GX, y1: GY, stroke: C.red, 'stroke-width': 9, 'stroke-linecap': 'round' }, G);
+  el('circle', { cx: GX, cy: GY, r: 16, fill: C.red }, G);
+  var dialTxt = L('', GX, GY + 120, 40, C.ink, { mono: true, anchor: 'middle' }, G);
+  L('cabin pressure, psi', GX, GY + GR + 60, 30, C.muted, { anchor: 'middle' }, G);
+  var helmet = el('g', {}, G);
+  el('circle', { cx: GX + 450, cy: GY - 60, r: 90, fill: '#e9eef8' }, helmet);
+  el('rect', { x: GX + 390, y: GY - 100, width: 120, height: 70, rx: 30, fill: '#0b2150' }, helmet);
+  el('rect', { x: GX + 400, y: GY - 92, width: 40, height: 18, rx: 9, fill: '#9dbcff', opacity: .6 }, helmet);
+  var gTxt = L('lower pressure:', GX + 450, GY + 90, 32, C.ink, { anchor: 'middle', weight: 600 }, G);
+  var gTxt2 = L('quicker spacewalk prep', GX + 450, GY + 134, 32, C.ink, { anchor: 'middle' }, G);
+
+  /* moon vs ISS cards, then flames */
+  var M = el('g', {}, root), mc = [];
+  [['ISS / Earth', '21%', '14.7 psi', '3.09 psi', 1, C.blueSoft], ['Moon Base', '30%', '10.2 psi', '3.06 psi', 1.45, C.amber]].forEach(function (d, k) {
+    var g = el('g', {}, M), x = RX + k * 420;
+    el('rect', { x: x, y: 250, width: 380, height: 380, rx: 28, fill: C.panel, stroke: C.line, 'stroke-width': 2 }, g);
+    L(d[0], x + 40, 320, 40, d[5], { weight: 600 }, g);
+    L('oxygen', x + 40, 390, 28, C.muted, {}, g); L(d[1], x + 340, 390, 34, C.ink, { mono: true, anchor: 'end' }, g);
+    L('pressure', x + 40, 450, 28, C.muted, {}, g); L(d[2], x + 340, 450, 34, C.ink, { mono: true, anchor: 'end' }, g);
+    el('line', { x1: x + 40, x2: x + 340, y1: 480, y2: 480, stroke: C.line, 'stroke-width': 2 }, g);
+    L('breathing', x + 40, 540, 28, C.muted, {}, g); L(d[3], x + 340, 540, 34, C.teal, { mono: true, anchor: 'end' }, g);
+    var fl = el('g', {}, g);
+    var fs = 46 * d[4];
+    el('circle', { cx: x + 190, cy: 790, r: 120 * d[4], fill: 'url(#haloWarm)' }, fl);
+    var fp = el('path', { fill: 'url(#warm)' }, fl);
+    mc.push({ g: g, fl: fl, fp: fp, x: x + 190, fs: fs });
+  });
+  var same = L('same breathing,', RX + 400, 980, 40, C.teal, { weight: 600, anchor: 'end' }, M);
+  var more = L('far more flammable', RX + 420, 980, 40, C.red, { weight: 600 }, M);
+
+  /* the trade, on the map */
+  var T = el('g', {}, root), MX0 = 420, MX1 = 1240, MY0 = 900, MY1 = 230;
+  function mx(p) { return MX0 + (MX1 - MX0) * p / 16; }
+  function my(o) { return MY0 - (MY0 - MY1) * (o - 10) / 90; }
+  el('path', { d: 'M' + MX0 + ' ' + MY1 + ' V' + MY0 + ' H' + MX1, fill: 'none', stroke: C.line, 'stroke-width': 4 }, T);
+  L('pressure (psi)', MX1, MY0 + 50, 28, C.muted, { anchor: 'end' }, T);
+  L('oxygen (%)', MX0 - 20, MY1 - 20, 28, C.muted, {}, T);
+  var cd = ''; for (var p = 3.1; p <= 16; p += .1) cd += (cd ? 'L' : 'M') + mx(p).toFixed(1) + ' ' + my(307 / p).toFixed(1);
+  var curve = el('path', { d: cd, fill: 'none', stroke: C.blueSoft, 'stroke-width': 5, 'stroke-dasharray': '12 9' }, T);
+  var curveLen = 1400;
+  var pts = [['ISS', 14.7, 21, C.blueSoft], ['MOON BASE', 10.2, 30, C.amber], ['SUIT', 4.3, 100, C.ink]].map(function (d) {
+    var g = el('g', {}, T); el('circle', { cx: mx(d[1]), cy: my(d[2]), r: 14, fill: d[3] }, g);
+    L(d[0], mx(d[1]) + (d[0] === 'ISS' ? -10 : 22), my(d[2]) - 22, 28, d[3], { weight: 600, anchor: d[0] === 'ISS' ? 'end' : 'start' }, g); return g;
+  });
+  var tradeL = L('easier spacewalks', mx(7), my(30) + 120, 32, C.blueSoft, { anchor: 'middle' }, T);
+  var tradeR = L('greater fire risk', mx(9.5), my(55) - 10, 32, C.red, { anchor: 'middle' }, T);
+  var maps = el('g', {}, T); L('the trade', 1360, 540, 56, C.ink, { weight: 600 }, maps); L('Flashpoint maps', 1360, 610, 56, C.ink, { weight: 600 }, maps);
+
+  return function draw(t) {
+    set(chap, { opacity: (.35 + .65 * (1 - at(t, 5, 1))) * (1 - at(t, END - 1, 1)) });
+    var drop = at(t, B.raise + .3, 3, E.ease.inOut);          // pressure falls from 14.7 to 10.2 psi
+    var dialP = E.lerp(14.7, 10.2, at(t, B.spacewalk + .6, 2.4, E.ease.inOut));
+    var P = drop > 0 ? E.lerp(14.7, 10.2, drop) : 14.7;
+    var O = drop > 0 ? E.lerp(20.9, 30, drop) : 20.9;
+
+    /* box */
+    set(box, { opacity: at(t, .2, .8) * (1 - at(t, B.trade - .4, .8)) });
+    var focusO = win(t, B.percent + .5, B.multiply, .5), push = win(t, B.partial + .5, B.multiply, .5);
+    mols.forEach(function (m, k) {
+      var gone = m.leaves ? drop : 0;
+      var x = m.x + 26 * Math.sin(t * m.w + m.ph), y = m.y + 22 * Math.cos(t * m.w * .8 + m.ph);
+      if (m.oxy && push > 0) x = E.lerp(x, BX + BW - 40 - 30 * Math.abs(Math.sin(t * 2.2 + m.ph)), push * .85);
+      var s = m.oxy ? 1 + .25 * focusO * (1 + Math.sin(t * 5 + k)) / 2 : 1;
+      E.place(m.g, x, y, m.rot + t * 30 * m.w, s, (1 - gone) * (m.oxy ? 1 : 1 - .45 * focusO) * (gone > .99 ? 0 : 1));
+      if (gone > 0) set(m.g, { transform: m.g.getAttribute('transform') + ' translate(0 ' + (-120 * gone).toFixed(1) + ')' });
+    });
+    set(wall, { opacity: push, 'stroke-width': 10 });
+    flashes.forEach(function (f, k) { var ph = (t * 1.3 + k / 5) % 1; set(f, { cy: BY + 90 + k * 95, r: 10 + 40 * ph, opacity: push * (1 - ph) }); });
+    pct.textContent = O.toFixed(O < 21 ? 1 : 0) + '% oxygen';
+    pres.textContent = P.toFixed(1) + ' psi';
+    where.textContent = drop > .5 ? 'Moon Base air' : 'sea level, or the ISS';
+    set(pct, { opacity: at(t, B.percent, .6) });
+    set(pres, { opacity: at(t, B.sea_level, .6) }); set(where, { opacity: at(t, B.sea_level + .5, .6) });
+    set(lgd, { opacity: at(t, 1, .6) });
+
+    /* the two cards */
+    var cardsOn = win(t, .8, B.multiply - .2);
+    set(c1.g, { opacity: cardsOn * at(t, .8, .6) }); set(c2.g, { opacity: cardsOn * at(t, 2.2, .6) });
+    set(c1.hl, { opacity: focusO }); set(c2.hl, { opacity: push });
+    set(c1.sub, { opacity: at(t, B.percent + 2, .6) }); set(c2.sub, { opacity: at(t, B.partial + 2, .6) });
+
+    /* formula, then sea level numbers */
+    set(F, { opacity: win(t, B.multiply, B.spacewalk) });
+    set(f1, { opacity: at(t, B.multiply + .2, .7) });
+    set(f2, { opacity: at(t, B.sea_level + .3, .7) }); set(f3, { opacity: at(t, B.sea_level + 3, .7) });
+
+    /* dial and helmet */
+    set(G, { opacity: win(t, B.spacewalk, B.moon) });
+    var a = ang(dialP);
+    set(needle, { x2: GX + (GR - 50) * Math.cos(a), y2: GY + (GR - 50) * Math.sin(a) });
+    dialTxt.textContent = dialP.toFixed(1);
+    set(helmet, { opacity: at(t, B.spacewalk + 1.2, .6) });
+    set(gTxt, { opacity: at(t, B.spacewalk + 1.6, .6) }); set(gTxt2, { opacity: at(t, B.spacewalk + 1.6, .6) });
+
+    /* ISS vs Moon Base, then their flames */
+    set(M, { opacity: win(t, B.moon, B.trade - .4) });
+    mc.forEach(function (c, k) {
+      set(c.g, { opacity: at(t, B.moon + .3 + k * 1.2, .6) });
+      var f = at(t, B.flammable + .3 + k * 1.2, .8, E.ease.back);
+      set(c.fl, { opacity: at(t, B.flammable + .3 + k * 1.2, .4) });
+      set(c.fp, { d: E.flameShape(1, c.fs * Math.max(.05, f), c.x, 840, 7 * Math.sin(t * 9 + k)) });
+    });
+    set(same, { opacity: at(t, B.flammable + 3, .6) }); set(more, { opacity: at(t, B.flammable + 3.8, .6) });
+
+    /* the map */
+    set(T, { opacity: at(t, B.trade, .8) * (1 - at(t, END - .8, .8)) });
+    set(curve, { 'stroke-dasharray': '12 9', 'stroke-dashoffset': 0, opacity: at(t, B.trade + .3, 1.2) });
+    pts.forEach(function (g, k) { set(g, { opacity: at(t, B.trade + 1.2 + k * .6, .5) }); });
+    set(tradeL, { opacity: at(t, B.trade + 2.6, .6) }); set(tradeR, { opacity: at(t, B.trade + 3.4, .6) });
+    set(maps, { opacity: at(t, B.trade + 4.2, .6) });
+  };
+});
+</script>
+</body>
+</html>

@@ -5,40 +5,42 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Backup Flames</title>
 <link rel="stylesheet" href="flames.css">
+<script src="flame-fallback.js"></script>
 <style>
-  /* Preview only. The flames themselves are in flames.css. */
+  /* Preview only. The flame is flames.css plus flame-fallback.js. */
   :root { --bg: #07090f; --panel: #10141e; --line: #222a3a; --fg: #e8ecf4; --muted: #94a0b8; color-scheme: dark; }
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--bg); color: var(--fg); font: 15px/1.5 system-ui, sans-serif; }
-  main { max-width: 1100px; margin: 0 auto; padding: 32px max(16px, env(safe-area-inset-left)) 48px max(16px, env(safe-area-inset-right)); overflow-x: hidden; }
+  main { max-width: 1100px; margin: 0 auto; padding: 32px max(16px, env(safe-area-inset-right)) 48px max(16px, env(safe-area-inset-left)); overflow-x: hidden; }
   h1 { font-size: 1.6rem; margin: 0 0 4px; }
   h2 { font-size: 1.05rem; margin: 36px 0 12px; }
-  p { color: var(--muted); margin: 0 0 16px; max-width: 70ch; }
+  p { color: var(--muted); margin: 0 0 16px; max-width: 72ch; }
   .grid-wrap { overflow-x: auto; }
   table { border-collapse: collapse; }
   th { font-weight: 500; color: var(--muted); font-size: 0.85rem; padding: 6px 10px; text-align: center; white-space: nowrap; }
   th[scope="row"] { text-align: right; }
-  td { padding: 4px 10px; text-align: center; border-left: 1px solid var(--line); }
-  .try { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; align-items: center; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 20px; }
-  .stage { display: grid; place-items: center; min-height: 320px; }
+  td { padding: 6px; }
+  td .cell { width: 112px; }
+  .try { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; align-items: start; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 20px; }
+  .stage { max-width: 420px; width: 100%; margin: 0 auto; border: 1px solid var(--line); }
   .controls { display: grid; gap: 14px; }
   label { display: grid; gap: 4px; font-size: 0.9rem; color: var(--muted); }
   select, input[type=range] { width: 100%; }
   select { background: var(--bg); color: var(--fg); border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; }
   code { background: var(--panel); border: 1px solid var(--line); border-radius: 4px; padding: 1px 5px; font-size: 0.85em; }
-  .caption { font-size: 0.85rem; color: var(--muted); text-align: center; margin-top: 8px; }
-  @media (max-width: 640px) { .try { grid-template-columns: 1fr; } }
+  .caption { font-size: 0.85rem; color: var(--muted); text-align: center; margin: 8px 0 0; max-width: none; }
+  @media (max-width: 680px) { .try { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
 <main>
   <h1>Backup flames</h1>
-  <p>Pure CSS flames for when the flame simulation is not available. They take the gravity, state and scale that the offline answer engine (<code>lib/offline-answer.ts</code>) returns. Illustration, not a physics simulation.</p>
+  <p>The CSS flame that takes over when the WebGL flame simulation cannot run. It reads a NASA test the same way the simulation does: gravity sets the shape, NASA's recorded outcome switches it off (only at 0 g, where the test ran), more oxygen makes it hotter and shorter, lower pressure makes it wider and softer. To see it inside the simulation, open <code>temp/flame-sim/?css</code>.</p>
 
-  <h2>Every gravity and state</h2>
+  <h2>Gravity and outcome (droplet, 30% oxygen, 10.2 psi)</h2>
   <div class="grid-wrap">
     <table id="grid">
-      <thead><tr><th></th><th>burning</th><th>dying</th><th>cool</th><th>uncertain</th><th>out</th></tr></thead>
+      <thead><tr><th></th><th>burning</th><th>goes out (7 of 12 s)</th><th>no ignition (flash every 6 s)</th><th>uncertain (offline answer)</th></tr></thead>
       <tbody></tbody>
     </table>
   </div>
@@ -47,58 +49,57 @@
   <div class="try">
     <div>
       <div class="stage" id="stage"></div>
-      <div class="caption">Illustration, not a physics simulation.</div>
+      <p class="caption">Illustration, not a physics simulation.</p>
     </div>
     <div class="controls">
       <label for="g">Gravity
-        <select id="g"><option value="0g">0g, microgravity (ISS)</option><option value="partial">partial, Moon or Mars</option><option value="1g">1g, Earth</option></select>
+        <select id="g"><option value="0">Space, 0 g (as NASA tested)</option><option value="0.166">Moon, 0.17 g</option><option value="0.38">Mars, 0.38 g</option><option value="1">Earth, 1 g</option></select>
       </label>
-      <label for="s">State
-        <select id="s"><option>burning</option><option>dying</option><option>cool</option><option>uncertain</option><option>out</option></select>
+      <label for="src">Fuel source
+        <select id="src"><option value="droplet">Droplet (FLEX, CFI)</option><option value="jet">Gas burner (ACME CFI-G)</option></select>
       </label>
-      <label for="o">Oxygen <span id="ov"></span>
-        <input id="o" type="range" min="10" max="100" step="1" value="30">
+      <label for="out">NASA outcome
+        <select id="out"><option value="burned">Kept burning</option><option value="self_extinguished">Went out by itself</option><option value="noign">Did not ignite</option><option value="uncertain">Uncertain (offline answer, little evidence)</option></select>
       </label>
-      <p id="attrs"></p>
+      <label for="o2">Oxygen <span id="o2v"></span>
+        <input id="o2" type="range" min="10" max="85" step="0.5" value="30">
+      </label>
+      <label for="psi">Pressure <span id="psiv"></span>
+        <input id="psi" type="range" min="4" max="75" step="0.1" value="10.2">
+      </label>
+      <p id="note"></p>
     </div>
   </div>
 </main>
 <script>
-  // Builds the same markup the app will use (see the comment at the top of flames.css).
-  function flame(gravity, state, scale, size) {
-    const el = document.createElement('div');
-    el.className = 'ff-flame';
-    el.dataset.gravity = gravity;
-    el.dataset.state = state;
-    el.style.setProperty('--flame-scale', scale);
-    if (size) el.style.setProperty('--flame-size', size);
-    el.setAttribute('role', 'img');
-    el.setAttribute('aria-label', gravity + ' flame, ' + state);
-    el.innerHTML = '<div class="ff-body"><div class="ff-motion"><span class="ff-glow"></span><span class="ff-outer"></span>' +
-      '<span class="ff-inner"></span><span class="ff-core"></span><span class="ff-base"></span></div></div>' +
-      '<span class="ff-fuel"></span><span class="ff-smoke"></span>';
-    return el;
-  }
-  const names = { '0g': '0g (ISS)', partial: 'partial (Moon)', '1g': '1g (Earth)' };
   const tbody = document.querySelector('#grid tbody');
-  for (const g of ['0g', 'partial', '1g']) {
+  for (const [name, g] of [['Space 0 g', 0], ['Moon 0.17 g', 0.166], ['Mars 0.38 g', 0.38], ['Earth 1 g', 1]]) {
     const tr = document.createElement('tr');
-    const th = document.createElement('th'); th.scope = 'row'; th.textContent = names[g]; tr.append(th);
-    for (const s of ['burning', 'dying', 'cool', 'uncertain', 'out']) {
-      const td = document.createElement('td'); td.append(flame(g, s, 1, '80px')); tr.append(td);
+    const th = document.createElement('th'); th.scope = 'row'; th.textContent = name; tr.append(th);
+    for (const state of ['burning', 'goes-out', 'no-ignition', 'uncertain']) {
+      const td = document.createElement('td'); const cell = document.createElement('div'); cell.className = 'cell';
+      td.append(cell); tr.append(td);
+      // The grid forces each state so all four show at every gravity; in use, the state comes from the test row.
+      FlameFallback.mount(cell).set({ o2: 30, psi: 10.2, g, jet: false, state });
     }
     tbody.append(tr);
   }
-  // Same rule as FlameHint.scale in lib/offline-answer.ts: oxygen / 21, kept between 0.6 and 1.8.
-  const stage = document.getElementById('stage');
+
+  const flame = FlameFallback.mount(document.getElementById('stage'));
+  const $ = (id) => document.getElementById(id);
   function update() {
-    const g = document.getElementById('g').value, s = document.getElementById('s').value, o = +document.getElementById('o').value;
-    const scale = Math.max(0.6, Math.min(1.8, o / 21)).toFixed(2);
-    document.getElementById('ov').textContent = o + '%';
-    stage.replaceChildren(flame(g, s, scale, '130px'));
-    document.getElementById('attrs').textContent = 'data-gravity="' + g + '" data-state="' + s + '" --flame-scale: ' + scale;
+    const g = +$('g').value, out = $('out').value;
+    // A stand-in row shaped like data/tests.web.json, so the outcome rule is exactly the one used with real tests.
+    const row = { accession: $('src').value === 'jet' ? 'PSI-159' : 'PSI-69', test_id: 'preview', source: 'preview', source_line: 0,
+      o2_pct: +$('o2').value, pressure_psi: +$('psi').value,
+      outcome: out === 'self_extinguished' ? 'self_extinguished' : out === 'burned' ? 'burned' : 'unknown', ignited: out === 'noign' ? false : true };
+    const r = flame.set({ row, g, state: out === 'uncertain' ? 'uncertain' : undefined });
+    $('o2v').textContent = $('o2').value + '%';
+    $('psiv').textContent = $('psi').value + ' psi';
+    $('note').textContent = 'Showing: ' + r.gravity + ', ' + r.state.replace('-', ' ') + '.' +
+      (g > 0 && out !== 'uncertain' ? ' With gravity added the outcome is unknown, so the flame is shown burning, as in the simulation.' : '');
   }
-  for (const id of ['g', 's', 'o']) document.getElementById(id).addEventListener('input', update);
+  for (const id of ['g', 'src', 'out', 'o2', 'psi']) $(id).addEventListener('input', update);
   update();
 </script>
 </body>

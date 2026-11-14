@@ -29,6 +29,10 @@ From the repo root:
 
 Then open http://localhost:8765/temp/flame-sim/
 
+If the browser cannot run WebGL 2 (or the graphics card fails), the page switches to a simpler CSS flame from
+`public/flames/` that follows the same NASA record and gravity setting, and says so under the flame.
+Add `?css` to the address (http://localhost:8765/temp/flame-sim/?css) to see the backup on purpose.
+
 ## How it works
 
 One file, no libraries, no build step. A small fluid simulation runs on the graphics card (WebGL 2) on a 256 by 256

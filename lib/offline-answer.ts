@@ -23,8 +23,8 @@ export const SEA_LEVEL_O2_PSI = 3.07;
 export const DEFAULT_PRESSURE_PSI = 14.7;
 // How many nearby tests an answer describes.
 export const ANSWER_TESTS = 5;
-// The CSS flame shows burning or dying only when at least this many nearby tests record an outcome.
-export const MIN_OUTCOMES_FOR_FLAME = 3;
+// Gravity values of the flame simulation's buttons (temp/flame-sim/), in Earth gravities.
+export const GRAVITY_G = { "0g": 0, moon: 0.166, mars: 0.38, "1g": 1 } as const;
 // Assume the SI chat is down after this long with no reply.
 export const SI_TIMEOUT_MS = 12000;
 
@@ -149,13 +149,16 @@ export function parseQuestion(text: string): Query {
 
 // ---------- Building the answer ----------
 
-export type FlameState = "burning" | "dying" | "out" | "cool" | "uncertain";
+export type FlameState = "burning" | "goes-out" | "no-ignition" | "uncertain";
 
-// Tells the CSS fallback flame (public/flames/flames.css) what to show. Illustrative, not a simulation.
+// What the flame should show for this answer: the NASA test to load and the gravity to set. Works with the
+// WebGL simulation (temp/flame-sim/: pick `test`, press the gravity button `g`) and with the CSS backup
+// (public/flames/flame-fallback.js: flame.set({ row: test, g, state })). Illustration, not a simulation.
 export interface FlameHint {
-  gravity: "0g" | "partial" | "1g";
+  g: number;
+  gravity: "space" | "moon" | "mars" | "earth";
+  test: TestRow | null;
   state: FlameState;
-  scale: number;
   caption: string;
 }
 
@@ -224,26 +227,30 @@ function countOutcomes(rows: TestRow[]): string {
   return parts.join(", ");
 }
 
-function flameFor(q: Query, near: TestRow[], probe: Probe | null): FlameHint {
-  const gravity = q.gravity === "1g" ? "1g" : q.gravity === "moon" || q.gravity === "mars" ? "partial" : "0g";
-  const o2 = probe?.o2_pct ?? 21;
-  const scale = Math.max(0.6, Math.min(1.8, o2 / 21));
-  let state: FlameState = "uncertain";
-  let why = "Too little evidence near this point to show a likely behaviour.";
-  const burned = near.filter((r) => r.outcome === "burned" && r.ignited !== false).length;
-  const out = near.filter((r) => r.outcome === "self_extinguished" || r.ignited === false).length;
-  if (q.fuel_phase && near.length && !near.some((r) => r.fuel_phase === q.fuel_phase)) {
-    why = `No ${q.fuel_phase}-fuel test ran near this point, so the nearby results do not show how this fuel behaves.`;
-  } else if (near.length && burned + out < MIN_OUTCOMES_FOR_FLAME) {
-    why = "Few tests near this point record whether the flame kept burning.";
-  } else if (burned > out) {
-    state = "burning"; why = `Most nearby tests with a recorded outcome kept burning (${burned} of ${burned + out}).`;
-  } else if (out > burned) {
-    state = "dying"; why = `Most nearby tests with a recorded outcome went out or did not ignite (${out} of ${burned + out}).`;
-  } else if (near.length) {
-    why = "Nearby tests are split between burning and going out.";
+function flameFor(q: Query, ev: Evidence | null, near: TestRow[]): FlameHint {
+  const key = q.gravity ?? "0g";
+  const g = GRAVITY_G[key];
+  const gravity = ({ "0g": "space", moon: "moon", mars: "mars", "1g": "earth" } as const)[key];
+  const caption = (why: string) => `Illustration, not a physics simulation. ${why}`;
+  if (!ev || !ev.nearest.length) {
+    return { g, gravity, test: null, state: "uncertain", caption: caption("No oxygen and pressure to look up, so no NASA test is shown.") };
   }
-  return { gravity, state, scale: Math.round(scale * 100) / 100, caption: `Illustration of the rule-based result, not a physics simulation. ${why}` };
+  // Prefer the closest nearby test of the fuel type asked about; otherwise the closest test of any fuel.
+  const sameFuel = q.fuel_phase ? near.find((r) => r.fuel_phase === q.fuel_phase) : undefined;
+  const test = sameFuel ?? ev.nearest[0].row;
+  const name = `${test.investigation ?? test.accession} test ${test.test_id ?? ""}`.trim();
+  if (ev.rating === "dark") {
+    return { g, gravity, test, state: "uncertain", caption: caption(`No NASA test ran near this point. ${name} is the closest, shown faded.`) };
+  }
+  if (q.fuel_phase && !sameFuel) {
+    return { g, gravity, test, state: "uncertain", caption: caption(`No ${q.fuel_phase}-fuel test ran near this point. ${name} burned a different fuel, shown faded.`) };
+  }
+  // Same rule as the simulation: only NASA's recorded outcome switches the flame off, and only at 0 g.
+  if (g > 0) {
+    return { g, gravity, test, state: "burning", caption: caption(`${name}, with ${gravity} gravity added. NASA ran it at 0 g only, so with gravity the outcome is unknown and the flame is shown burning.`) };
+  }
+  const state: FlameState = test.ignited === false ? "no-ignition" : test.outcome === "self_extinguished" ? "goes-out" : "burning";
+  return { g, gravity, test, state, caption: caption(`${name}, the closest NASA test: it ${describeOutcome(test)}.`) };
 }
 
 const HELP = [
@@ -276,7 +283,7 @@ export function answerOffline(question: string, rows: TestRow[], reason?: string
 
   const hasSubject = probe || q.fuel_phase || q.gravity || q.topics.some((t) => t !== "flammability");
   if (!hasSubject) {
-    return { mode: "offline", reason, paragraphs: [paragraphs[0], ...HELP], query: q, probe: null, assumptions, evidence: null, citations: [], flame: flameFor(q, [], null) };
+    return { mode: "offline", reason, paragraphs: [paragraphs[0], ...HELP], query: q, probe: null, assumptions, evidence: null, citations: [], flame: flameFor(q, null, []) };
   }
 
   // Say how the question was read, so a wrong reading is easy to spot.
@@ -356,7 +363,7 @@ export function answerOffline(question: string, rows: TestRow[], reason?: string
   }
 
   paragraphs.push("This is a rule-based summary of the nearest NASA tests, not a prediction or a physics simulation.");
-  return { mode: "offline", reason, paragraphs, query: q, probe, assumptions, evidence, citations: Array.from(citations.values()), flame: flameFor(q, near, probe) };
+  return { mode: "offline", reason, paragraphs, query: q, probe, assumptions, evidence, citations: Array.from(citations.values()), flame: flameFor(q, evidence, near) };
 }
 
 // ---------- Ask the SI chat, fall back to rules ----------

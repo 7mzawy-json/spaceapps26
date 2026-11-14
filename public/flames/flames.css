@@ -1,66 +1,55 @@
 /*
-  Backup flame animations in pure CSS (no canvas, no JavaScript), for when the flame simulation is not
-  ready or fails to load. Illustrative only: always show the caption "Illustration, not a physics simulation".
+  Backup flame in pure CSS for when the WebGL flame simulation (temp/flame-sim/) cannot run: no WebGL 2,
+  a shader that fails to compile, or a lost graphics context. It follows the simulation's rules:
+
+  - Gravity: space (0 g), moon (0.17 g), mars (0.38 g), earth (1 g). Only gravity changes the shape:
+    a slow blue ball in space, a yellow flame that stretches up and flickers more as gravity grows.
+  - Outcome timing, same as lit() in the simulation: "goes-out" burns 7 s of every 12 s,
+    "no-ignition" flashes for 0.25 s every 6 s, "burning" stays lit.
+  - Oxygen (--ff-heat, 0 to 1): hotter, brighter, shorter flame. Pressure (--ff-soft, 0 to 1): lower pressure
+    gives a wider, softer flame. Same direction as flameParams(); the amounts are illustration only.
+  - Source: "droplet" (FLEX, CFI) or "jet" (ACME gas burner), as in the simulation.
+  - "uncertain" is for the offline answer when there is too little evidence: a ghosted flame with a dashed ring.
+
+  Use flame-fallback.js to build the markup and set the values from a test row. Always show the caption
+  "Illustration, not a physics simulation" next to it.
   Written with an AI coding assistant (Claude Code); see docs/ai-usage-log.md.
-
-  Markup (copy as is):
-    <div class="ff-flame" data-gravity="0g" data-state="burning" style="--flame-scale: 1.2"
-         role="img" aria-label="Microgravity flame, burning">
-      <div class="ff-body"><div class="ff-motion">
-        <span class="ff-glow"></span><span class="ff-outer"></span><span class="ff-inner"></span>
-        <span class="ff-core"></span><span class="ff-base"></span>
-      </div></div>
-      <span class="ff-fuel"></span><span class="ff-smoke"></span>
-    </div>
-
-  data-gravity : 0g (blue sphere around the fuel, steady) | partial (Moon or Mars: short, slow sway)
-                 | 1g (yellow teardrop, fast flicker)
-  data-state   : burning | dying (shrinks, turns blue, goes out, relights) | out (smoke only)
-                 | cool (faint cool flame, as in the CFI droplet tests) | uncertain (ghosted, too little evidence)
-  data-loop    : "once" makes "dying" play a single time and stay out
-  --flame-scale: 0.6 to 1.8, size from oxygen (lib/offline-answer.ts FlameHint.scale)
-  --flame-size : base width, default 120px
-
-  The values map one to one onto FlameHint from lib/offline-answer.ts.
 */
 
 .ff-flame {
-  --flame-size: 120px;
-  --flame-scale: 1;
-  --ff-stretch: 1.7;
-  --ff-cy: 56%;
-  --ff-outer: rgba(255, 106, 0, 0.85);
+  --ff-heat: 0.15;
+  --ff-soft: 0.25;
+  --ff-stretch: 1.75;
+  --ff-lift: 16%;
+  --ff-src-y: 58%;
+  --ff-outer: rgba(255, 106, 0, 0.88);
   --ff-inner: rgba(255, 182, 39, 0.95);
   --ff-core: rgba(255, 246, 214, 0.95);
   --ff-base: rgba(70, 120, 255, 0.85);
-  --ff-glow: rgba(255, 120, 30, 0.45);
+  --ff-glow: rgba(255, 120, 30, 0.42);
   --ff-radius: 50% 0 50% 50%;
   --ff-rot: -45deg;
-  --ff-flicker: ff-flicker 1.1s linear infinite;
+  --ff-motion: ff-flicker 1.1s linear infinite;
   position: relative;
-  display: inline-block;
-  width: var(--flame-size);
-  height: calc(var(--flame-size) * 1.6);
+  display: block;
+  width: var(--flame-size, 160px);
+  aspect-ratio: 1;
+  overflow: hidden;
   isolation: isolate;
-  vertical-align: middle;
+  background: var(--ff-chamber, #000);
 }
+.ff-flame[data-fill] { width: 100%; }
 
+/* Body: oxygen makes it shorter, low pressure makes it wider (same direction as the simulation). */
 .ff-body,
-.ff-motion {
-  position: absolute;
-  inset: 0;
-  transform-origin: 50% 72%;
+.ff-motion { position: absolute; inset: 0; transform-origin: 50% calc(var(--ff-src-y) - var(--ff-lift)); }
+.ff-body {
+  transform: scale(calc(1 + 0.35 * var(--ff-soft)), calc(1.1 - 0.3 * var(--ff-heat)));
+  filter: brightness(calc(0.8 + 0.55 * var(--ff-heat)));
 }
-.ff-body { transform: scale(var(--flame-scale)); }
-.ff-motion { animation: var(--ff-flicker); }
+.ff-motion { animation: var(--ff-motion); }
 
-.ff-glow,
-.ff-outer,
-.ff-inner,
-.ff-core,
-.ff-base,
-.ff-fuel,
-.ff-smoke {
+.ff-flame span {
   position: absolute;
   left: 50%;
   width: var(--w);
@@ -71,16 +60,14 @@
 }
 
 .ff-glow {
-  --w: calc(var(--flame-size) * 1.15);
-  top: var(--ff-cy);
+  --w: 72%;
+  top: calc(var(--ff-src-y) - var(--ff-lift));
   border-radius: 50%;
   background: radial-gradient(circle, var(--ff-glow) 0%, transparent 68%);
-  filter: blur(10px);
-  animation: ff-glow 2.4s ease-in-out infinite;
+  filter: blur(8px);
 }
-
-/* The three flame layers: a rounded square with one sharp corner, turned so the corner points up, and
-   stretched by --ff-stretch. That is a teardrop in 1g; with --ff-radius 50% it becomes a sphere (0g). */
+/* A rounded square with one sharp corner, turned so the corner points up and stretched by gravity:
+   a teardrop under gravity, a ball in space (--ff-radius 50%). */
 .ff-outer,
 .ff-inner,
 .ff-core {
@@ -89,29 +76,27 @@
   mix-blend-mode: screen;
 }
 .ff-outer {
-  --w: calc(var(--flame-size) * 0.5);
-  top: calc(var(--ff-cy) - 2%);
-  /* Gradient centred away from the sharp corner, so the colour reaches the tip and tapers there. */
+  --w: 30%;
+  top: calc(var(--ff-src-y) - var(--ff-lift));
   background: radial-gradient(circle at 38% 62%, var(--ff-inner) 0%, var(--ff-outer) 42%, var(--ff-outer) 68%, transparent 100%);
-  filter: blur(2px);
+  filter: blur(calc(1.5px + 4px * var(--ff-soft)));
 }
 .ff-inner {
-  --w: calc(var(--flame-size) * 0.34);
-  top: calc(var(--ff-cy) + 3%);
+  --w: calc(18% + 4% * var(--ff-heat));
+  top: calc(var(--ff-src-y) - var(--ff-lift) + 3%);
   background: radial-gradient(circle at 38% 62%, var(--ff-core) 0%, var(--ff-inner) 55%, transparent 95%);
-  filter: blur(1.5px);
+  filter: blur(calc(1px + 3px * var(--ff-soft)));
   animation: ff-jitter 0.09s steps(2) infinite alternate;
 }
 .ff-core {
-  --w: calc(var(--flame-size) * 0.16);
-  top: calc(var(--ff-cy) + 8%);
+  --w: calc(7% + 6% * var(--ff-heat));
+  top: calc(var(--ff-src-y) - var(--ff-lift) + 6%);
   background: radial-gradient(circle, var(--ff-core) 0%, transparent 75%);
   filter: blur(1px);
 }
-/* Blue zone at the bottom of a 1g flame, where it gets fresh oxygen. */
 .ff-base {
-  --w: calc(var(--flame-size) * 0.22);
-  top: calc(var(--ff-cy) + 16%);
+  --w: 13%;
+  top: calc(var(--ff-src-y) - 3%);
   border-radius: 50%;
   transform: scaleY(0.55);
   background: radial-gradient(circle, var(--ff-base) 0%, transparent 70%);
@@ -119,92 +104,102 @@
   mix-blend-mode: screen;
 }
 
-/* The fuel: a wick or sample under a 1g flame, a droplet in the middle of a 0g flame. */
+/* The fuel: a droplet, or a gas burner nozzle for "jet". */
 .ff-fuel {
-  --w: calc(var(--flame-size) * 0.07);
-  top: calc(var(--ff-cy) + 22%);
+  --w: 4%;
+  top: var(--ff-src-y);
   border-radius: 50%;
   background: radial-gradient(circle at 35% 35%, #c9d2e0, #5a6474 70%);
-  box-shadow: 0 0 6px rgba(255, 170, 80, 0.5);
   z-index: 2;
 }
-
-.ff-smoke {
-  --w: calc(var(--flame-size) * 0.5);
-  top: var(--ff-cy);
+.ff-flame[data-source="jet"] .ff-fuel {
+  --w: 6%;
+  height: 9%;
+  margin-top: 0;
+  top: var(--ff-src-y);
+  border-radius: 2px 2px 0 0;
+  background: linear-gradient(90deg, #4a5262, #9aa4b4 50%, #4a5262);
+}
+/* Igniter spark, seen in "no-ignition". */
+.ff-spark {
+  --w: 5%;
+  top: var(--ff-src-y);
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(170, 176, 188, 0.45) 0%, transparent 70%);
+  background: radial-gradient(circle, #fff 0%, #ffe9a8 35%, transparent 70%);
+  opacity: 0;
+  z-index: 3;
+}
+.ff-smoke {
+  --w: 34%;
+  top: calc(var(--ff-src-y) - var(--ff-lift));
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(170, 176, 188, 0.4) 0%, transparent 70%);
   filter: blur(8px);
   opacity: 0;
 }
 
-/* ---------- Gravity ---------- */
+/* ---------- Gravity: the only real physics ---------- */
 
-.ff-flame[data-gravity="0g"] {
+.ff-flame[data-gravity="space"] {
   --ff-stretch: 1;
+  --ff-lift: 0%;
   --ff-radius: 50%;
   --ff-rot: 0deg;
-  --ff-cy: 50%;
-  --ff-outer: rgba(70, 130, 255, 0.6);
+  --ff-outer: rgba(70, 130, 255, 0.62);
   --ff-inner: rgba(120, 175, 255, 0.35);
-  --ff-core: rgba(255, 190, 130, 0.22);
-  --ff-glow: rgba(60, 110, 255, 0.4);
-  --ff-flicker: ff-breathe 4.5s ease-in-out infinite;
+  --ff-core: rgba(170, 210, 255, 0.25);
+  --ff-glow: rgba(60, 110, 255, 0.38);
+  --ff-motion: ff-breathe 4.5s ease-in-out infinite;
 }
-.ff-flame[data-gravity="0g"] .ff-motion,
-.ff-flame[data-gravity="0g"] .ff-body { transform-origin: 50% 50%; }
-.ff-flame[data-gravity="0g"] .ff-outer { --w: calc(var(--flame-size) * 0.62); top: var(--ff-cy); background: radial-gradient(circle, transparent 38%, var(--ff-outer) 58%, transparent 72%); }
-.ff-flame[data-gravity="0g"] .ff-inner { --w: calc(var(--flame-size) * 0.5); top: var(--ff-cy); animation: none; background: radial-gradient(circle, transparent 30%, var(--ff-inner) 60%, transparent 75%); }
-.ff-flame[data-gravity="0g"] .ff-core { --w: calc(var(--flame-size) * 0.36); top: var(--ff-cy); }
-.ff-flame[data-gravity="0g"] .ff-base { display: none; }
-.ff-flame[data-gravity="0g"] .ff-fuel { top: var(--ff-cy); }
+.ff-flame[data-gravity="space"] .ff-outer { --w: 38%; background: radial-gradient(circle, transparent 36%, var(--ff-outer) 58%, transparent 74%); }
+.ff-flame[data-gravity="space"] .ff-inner { --w: 30%; top: var(--ff-src-y); animation: none; background: radial-gradient(circle, transparent 30%, var(--ff-inner) 60%, transparent 76%); }
+.ff-flame[data-gravity="space"] .ff-core { --w: 22%; top: var(--ff-src-y); }
+.ff-flame[data-gravity="space"] .ff-base { display: none; }
 
-.ff-flame[data-gravity="partial"] {
-  --ff-stretch: 1.2;
-  --ff-cy: 54%;
-  --ff-outer: rgba(255, 128, 30, 0.8);
+.ff-flame[data-gravity="moon"] {
+  --ff-stretch: 1.25;
+  --ff-lift: 9%;
+  --ff-outer: rgba(255, 128, 30, 0.82);
   --ff-inner: rgba(255, 196, 87, 0.9);
-  --ff-glow: rgba(255, 130, 60, 0.38);
-  --ff-flicker: ff-sway 2.6s ease-in-out infinite;
+  --ff-base: rgba(80, 130, 255, 0.9);
+  --ff-glow: rgba(255, 130, 60, 0.36);
+  --ff-motion: ff-sway 2.6s ease-in-out infinite;
 }
-.ff-flame[data-gravity="partial"] .ff-base { --w: calc(var(--flame-size) * 0.3); }
-.ff-flame[data-gravity="partial"] .ff-inner { animation-duration: 0.3s; }
-
-/* ---------- State ---------- */
-
-.ff-flame[data-state="dying"] .ff-body { animation: ff-die 7s ease-in infinite; }
-.ff-flame[data-state="dying"][data-loop="once"] .ff-body { animation-iteration-count: 1; animation-fill-mode: forwards; }
-
-.ff-flame[data-state="out"] .ff-body { opacity: 0; }
-.ff-flame[data-state="out"] .ff-fuel { box-shadow: none; }
-.ff-flame[data-state="out"] .ff-smoke { animation: ff-smoke-rise 4s ease-out infinite; }
-.ff-flame[data-state="out"][data-gravity="0g"] .ff-smoke { animation-name: ff-smoke-sphere; }
-
-.ff-flame[data-state="cool"] {
-  --ff-outer: rgba(170, 205, 255, 0.35);
-  --ff-inner: rgba(200, 220, 255, 0.18);
-  --ff-core: rgba(220, 230, 255, 0.08);
-  --ff-glow: rgba(150, 190, 255, 0.18);
-  --ff-base: rgba(150, 190, 255, 0.2);
+.ff-flame[data-gravity="moon"] .ff-base { --w: 18%; }
+.ff-flame[data-gravity="mars"] {
+  --ff-stretch: 1.45;
+  --ff-lift: 12%;
+  --ff-motion: ff-sway 1.6s ease-in-out infinite;
 }
-.ff-flame[data-state="cool"] .ff-body { animation: ff-cool 6s ease-in-out infinite; }
 
-.ff-flame[data-state="uncertain"] .ff-body {
-  filter: grayscale(0.85);
-  opacity: 0.55;
-  animation: ff-uncertain 3.5s ease-in-out infinite;
-}
+/* A gas jet pushes the flame up even in space. */
+.ff-flame[data-source="jet"] { --ff-src-y: 78%; }
+.ff-flame[data-source="jet"][data-gravity="space"] { --ff-stretch: 1.6; --ff-lift: 14%; --ff-radius: 50% 0 50% 50%; --ff-rot: -45deg; }
+.ff-flame[data-source="jet"][data-gravity="space"] .ff-outer { --w: 28%; background: radial-gradient(circle at 38% 62%, var(--ff-inner) 0%, var(--ff-outer) 45%, transparent 100%); }
+.ff-flame[data-source="jet"][data-gravity="space"] .ff-inner,
+.ff-flame[data-source="jet"][data-gravity="space"] .ff-core { top: calc(var(--ff-src-y) - var(--ff-lift) + 4%); }
+.ff-flame[data-source="jet"]:not([data-gravity="space"]) { --ff-lift: calc(var(--ff-stretch) * 12%); }
+
+/* ---------- Outcome, from NASA's record ---------- */
+
+.ff-flame[data-state="goes-out"] .ff-body { animation: ff-goes-out 12s linear infinite; }
+.ff-flame[data-state="goes-out"] .ff-smoke { animation: ff-smoke-after 12s linear infinite; }
+.ff-flame[data-state="no-ignition"] .ff-body { animation: ff-no-ignition 6s linear infinite; }
+.ff-flame[data-state="no-ignition"] .ff-spark { animation: ff-spark 6s linear infinite; }
+.ff-flame[data-state="uncertain"] .ff-body { opacity: 0.45; filter: grayscale(0.85); }
 .ff-flame[data-state="uncertain"]::after {
   content: "";
   position: absolute;
   left: 50%;
-  top: var(--ff-cy);
-  width: calc(var(--flame-size) * 0.8 * var(--flame-scale));
-  height: calc(var(--flame-size) * 0.8 * var(--flame-scale));
+  top: calc(var(--ff-src-y) - var(--ff-lift));
+  width: 52%;
+  aspect-ratio: 1;
   transform: translate(-50%, -50%);
-  border: 1.5px dashed rgba(200, 208, 222, 0.45);
+  border: 1.5px dashed rgba(200, 208, 222, 0.5);
   border-radius: 50%;
 }
+.ff-flame.ff-paused *,
+.ff-flame.ff-paused { animation-play-state: paused !important; }
 
 /* ---------- Keyframes ---------- */
 
@@ -230,45 +225,37 @@
 }
 @keyframes ff-breathe {
   0%, 100% { transform: scale(1); }
-  50%      { transform: scale(1.045); }
+  50%      { transform: scale(1.04); }
 }
-@keyframes ff-jitter {
-  from { opacity: 1; }
-  to   { opacity: 0.82; }
+@keyframes ff-jitter { from { opacity: 1; } to { opacity: 0.82; } }
+/* Lit for 7 of 12 seconds (58.3%), then out, then relit: the replay in the simulation. */
+@keyframes ff-goes-out {
+  0%     { opacity: 1; }
+  52%    { opacity: 1; }
+  58.3%  { opacity: 0; }
+  99%    { opacity: 0; }
+  100%   { opacity: 1; }
 }
-@keyframes ff-glow {
-  0%, 100% { opacity: 0.85; }
-  50%      { opacity: 1; }
+@keyframes ff-smoke-after {
+  0%, 56% { opacity: 0; transform: scale(0.6); }
+  66%     { opacity: 0.7; }
+  92%     { opacity: 0; transform: scale(1.5); }
+  100%    { opacity: 0; }
 }
-@keyframes ff-die {
-  0%   { transform: scale(var(--flame-scale)); opacity: 1; filter: none; }
-  50%  { transform: scale(calc(var(--flame-scale) * 0.6)); opacity: 0.85; filter: hue-rotate(160deg) saturate(0.7); }
-  72%  { transform: scale(calc(var(--flame-scale) * 0.22)); opacity: 0.35; filter: hue-rotate(180deg) saturate(0.5); }
-  80%  { transform: scale(calc(var(--flame-scale) * 0.1)); opacity: 0; }
-  100% { transform: scale(calc(var(--flame-scale) * 0.1)); opacity: 0; }
+/* The igniter fires for 0.25 of every 6 seconds (4.2%) and no flame holds. */
+@keyframes ff-no-ignition {
+  0%    { opacity: 0.55; }
+  4.2%  { opacity: 0; }
+  100%  { opacity: 0; }
 }
-@keyframes ff-cool {
-  0%, 100% { opacity: 0.55; }
-  50%      { opacity: 0.85; }
-}
-@keyframes ff-uncertain {
-  0%, 100% { opacity: 0.35; }
-  50%      { opacity: 0.6; }
-}
-@keyframes ff-smoke-rise {
-  0%   { opacity: 0; transform: translateY(0) scale(0.6); }
-  25%  { opacity: 0.8; }
-  100% { opacity: 0; transform: translateY(calc(var(--flame-size) * -0.7)) scale(1.4); }
-}
-@keyframes ff-smoke-sphere {
-  0%   { opacity: 0; transform: scale(0.5); }
-  25%  { opacity: 0.7; }
-  100% { opacity: 0; transform: scale(1.8); }
+@keyframes ff-spark {
+  0%    { opacity: 1; }
+  4.2%  { opacity: 0; }
+  100%  { opacity: 0; }
 }
 
-/* People who turn motion off get the still flame: dying shows its half-way point, out shows a faint cloud. */
+/* Motion off: the flame is shown still and lit, or unlit with no spark for no-ignition. */
 @media (prefers-reduced-motion: reduce) {
   .ff-flame *, .ff-flame::after { animation: none !important; }
-  .ff-flame[data-state="dying"] .ff-body { transform: scale(calc(var(--flame-scale) * 0.6)); filter: hue-rotate(160deg) saturate(0.7); opacity: 0.85; }
-  .ff-flame[data-state="out"] .ff-smoke { opacity: 0.5; }
+  .ff-flame[data-state="no-ignition"] .ff-body { opacity: 0; }
 }

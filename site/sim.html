@@ -271,9 +271,9 @@ footer { color: var(--muted); font-size: var(--t-xs); }
   </details>
 
   <details class="model-method"><summary>How the model works and what it cannot tell you</summary><section class="truth">
-    <div><h2>Real physics</h2><p>Fuel only burns where it meets oxygen, and each bit of fuel uses up a fixed share of oxygen. Hot gas rises only when there is gravity. Gases spread faster at low pressure. A flame goes out when it loses heat faster than it makes it. These rules are in the equations.</p></div>
-    <div><h2>From NASA's table</h2><p>Oxygen, pressure, fuel, and whether the flame lit and went out. These come from the test's own row and are never filled in or estimated. At 0 g with no airflow, the flame follows NASA's record of the test.</p></div>
-    <div><h2>Simplified, not a prediction</h2><p>The chamber is flat (two dimensions), every fuel burns with the same made-up strength, and sizes, speeds and heat are in the model's own units. Use it to see directions and compare settings. Colours in the Flame view are an illustration.</p></div>
+    <div><h2>Real physics</h2><p>Fuel burns only where it meets oxygen, and each bit of fuel uses up a fixed share of it. Hot gas rises only when there is gravity. Heat, motion and gases spread in proportion to 1 / pressure. Between 20% and 40% oxygen, the flame's heat follows the flame temperatures NASA lists for its own gas tests. A flame goes out when it loses heat faster than it makes it.</p></div>
+    <div><h2>From NASA's table</h2><p>Oxygen, pressure, fuel, the other gases in the chamber, the burn time, and whether the flame lit and went out. These come from the test's own row and are never filled in or estimated. At 0 g with no airflow, the flame follows NASA's record of the test.</p></div>
+    <div><h2>What the model leaves out</h2><p>The chamber is flat (two dimensions). One reaction stands in for every fuel, and its speed does not change with pressure, although real chemistry slows as pressure drops. The model knows only oxygen percent and pressure, so the carbon dioxide and helium that FLEX added to put flames out are treated as nitrogen. Soot and radiation are a single cooling term. Sizes, speeds and times are in the model's own units, and above 40% oxygen the heat curve is an extrapolation. Use it to see which way a change pushes a flame. It cannot tell you whether a material will burn.</p></div>
   </section></details>
 
   <footer>
@@ -314,20 +314,33 @@ const K = {
   SHELL: 14,     // brightness of the burning zone in the Flame view
 };
 // Tuned by hand on Sat Nov 14 so that, in Earth air, the model flame holds at 0 g, on the Moon, on Mars and on Earth,
-// and goes out by itself when the oxygen is lowered far enough. No number here was fitted to a NASA measurement.
+// and goes out by itself when the oxygen is lowered far enough. These constants were not fitted to a NASA measurement.
+// The one curve that does come from NASA's tables is heatFactor, below.
+
+// ---- Flame heat against oxygen, relative to Earth air. ----
+// From 21% oxygen up this follows the adiabatic flame temperatures NASA lists in its own tables, taken as the rise above a
+// 300 K chamber. CFI-G normal flames (PSI-159), propane: 2,271 K at 21.1% oxygen (test 21112 H3, line 65) and 2,730 K at
+// 39.5% (test 21112A1, line 46). One constant, 8, fits all 64 undiluted propane, ethane and ethylene rows of PSI-159 and
+// PSI-10 to within 1% of the rise. Those rows stop at 40% oxygen, so anything above that is an extrapolation.
+// Below 21%, where NASA lists no undiluted-fuel rows, the factor is a constant-heat-capacity estimate (nitrogen to heat
+// per oxygen burnt), which is what the earlier hand-written curve already approximated.
+const TAD_FIT = 8, N2_PER_O2_AIR = 79 / 21;
+const heatFactor = x => x >= 0.21 ? (TAD_FIT + N2_PER_O2_AIR) / (TAD_FIT + (1 - x) / x) : 16 / (1 + 3.15 / x);
 
 // ---- From a test's numbers to simulation settings. o2 in percent, psi in psi, g in Earth gravities. ----
 function flameParams(o2, psi, g, jet, wind = 0) {
   const atm = clamp(psi / 14.696, 0.05, 5), x0 = clamp(o2 / 100, 0.05, 1);
   return {
     x0,                                        // real: oxygen share of the gas, straight from the test
-    // real: the less oxygen, the more nitrogen each bit of burning has to heat, so the flame is cooler.
-    // 16 / (1 + 3.15 / x0) is 1 in Earth air; capped because very hot flames lose energy in other ways.
-    heat: K.HEAT * Math.min(1.5, 16 / (1 + 3.15 / x0)),
+    // real: the less oxygen, the more nitrogen each bit of burning has to heat, so the flame is cooler (see heatFactor).
+    heat: K.HEAT * heatFactor(x0),
     // real direction: fuel leaves a droplet faster when gas moves past it (gravity or a fan).
     fuel: K.FUEL * Math.min(3, 1 + 1.5 * Math.sqrt(g) + 1.5 * Math.sqrt(wind / 30)),
-    diff: Math.min(0.24, 0.07 / atm),         // real direction: heat and motion spread faster at low pressure
-    dx: Math.min(0.24, K.DX / atm),           // real direction: oxygen and fuel mix faster at low pressure
+    // real: heat, motion and gases all spread in proportion to 1 / pressure. One step on this grid can carry at most
+    // 0.24 per cell, so below about 12 psi the stencil reaches further instead (rs and rx, in cells): the spreading is
+    // coefficient x reach squared, and that product keeps following 1 / pressure down to the bottom of the slider.
+    diff: Math.min(0.24, 0.07 / atm), rs: Math.sqrt(Math.max(1, 0.07 / atm / 0.24)),
+    dx: Math.min(0.24, K.DX / atm), rx: Math.sqrt(Math.max(1, K.DX / atm / 0.24)),
     grav: K.GRAV * G * g,                       // real: buoyancy is the only term gravity touches
     blue: Math.exp(-12 * g),                  // colour only: 0 g flames carry little soot and glow blue
     jet: jet ? 350 * G : 0,
@@ -340,6 +353,11 @@ console.assert(flameParams(40, 14.7, 0, false).x0 > flameParams(21, 14.7, 0, fal
 console.assert(flameParams(15, 14.7, 0, false).heat < flameParams(21, 14.7, 0, false).heat, 'less oxygen, cooler flame');
 console.assert(Math.abs(flameParams(21, 14.7, 0, false).heat - K.HEAT) < 1e-9, 'Earth air is the reference');
 console.assert(flameParams(21, 8, 0, false).dx > flameParams(21, 14.7, 0, false).dx, 'lower pressure, faster mixing');
+{ const spread = psi => { const p = flameParams(21, psi, 0, false); return p.dx * p.rx * p.rx; };
+  console.assert(Math.abs(spread(4.3) / spread(14.696) - 14.696 / 4.3) < 1e-6, 'mixing follows 1 / pressure at spacesuit pressure too'); }
+// NASA's own numbers: (2730 - 300) / (2271 - 300) = 1.233 for propane between 21.1% and 39.5% oxygen.
+console.assert(Math.abs(heatFactor(0.3954) / heatFactor(0.2114) - (2730 - 300) / (2271 - 300)) < 0.01, 'heat follows NASA\'s listed flame temperatures');
+console.assert(heatFactor(1) > heatFactor(0.4) && heatFactor(0.4) > heatFactor(0.3), 'more oxygen, hotter flame, all the way to pure oxygen');
 
 // Is the NASA flame lit, t seconds after the test was picked? Only real outcomes switch it off.
 // By default the test plays once and then stays as NASA recorded it. With "Replay in a loop" on, it starts again.
@@ -379,16 +397,18 @@ bool outside(vec2 c){ return c.x<0.||c.x>1.||c.y<0.||c.y>1.; }
 `;
 // One time step of the chemistry and transport, shared by the two passes that write S and A.
 const CORE = `uniform sampler2D s, a;
-uniform float dt, diff, dx, fuel, rate, heat, stoich, tign, cool, x0, spark, wind, jet, grav;
+uniform float dt, diff, dx, rs, rx, fuel, rate, heat, stoich, tign, cool, x0, spark, wind, jet, grav;
 uniform vec2 src, pushAt, push;
 vec4 core(out float X, out float R){
   vec2 b = uv - dt*(texture(s,uv).xy + vec2(wind,0.))*px;          // where this gas came from
   vec4 c = texture(s,b);
-  vec4 n = texture(s,b+vec2(wx.x,0.))+texture(s,b-vec2(wx.x,0.))+texture(s,b+vec2(0.,wx.y))+texture(s,b-vec2(0.,wx.y));
+  vec2 hs = wx*rs, hx = wx*rx;                                       // how far the heat and gas stencils reach (one cell unless the pressure is low)
+  vec4 n = texture(s,b+vec2(hs.x,0.))+texture(s,b-vec2(hs.x,0.))+texture(s,b+vec2(0.,hs.y))+texture(s,b-vec2(0.,hs.y));
   c.xyz += diff*(n.xyz-4.*c.xyz);
-  c.w += dx*(n.w-4.*c.w);
+  float nw = texture(s,b+vec2(hx.x,0.)).w+texture(s,b-vec2(hx.x,0.)).w+texture(s,b+vec2(0.,hx.y)).w+texture(s,b-vec2(0.,hx.y)).w;
+  c.w += dx*(nw-4.*c.w);
   float ua = texture(a,b).x;
-  float un = texture(a,b+vec2(wx.x,0.)).x+texture(a,b-vec2(wx.x,0.)).x+texture(a,b+vec2(0.,wx.y)).x+texture(a,b-vec2(0.,wx.y)).x;
+  float un = texture(a,b+vec2(hx.x,0.)).x+texture(a,b-vec2(hx.x,0.)).x+texture(a,b+vec2(0.,hx.y)).x+texture(a,b-vec2(0.,hx.y)).x;
   X = 1. - (ua + dx*(un-4.*ua));                                   // oxygen left, as a share of the chamber's level
   if (outside(b)) { c.zw = vec2(0.); X = 1.; }                     // fresh chamber gas comes in at the edges
   c.xy /= 1.+VDAMP*dt; c.z /= 1.+cool*(1.+.5*c.z*c.z)*dt;         // hot gas radiates much faster
@@ -598,7 +618,7 @@ function step(dt) {
   } else { wasOn = 0; held = false; }
   // A hair of sideways drift, like any real draught. Only gravity can amplify it into flicker.
   const src = [p.src[0] + 0.0015 * Math.sin(clock * 9.1) + 0.001 * Math.sin(clock * 23.3), p.src[1]];
-  const u = { s: S[0].tex, a: A[0].tex, dt, diff: p.diff, dx: p.dx, fuel, rate: K.RATE, heat: p.heat, stoich: K.STOICH, tign: K.TIGN,
+  const u = { s: S[0].tex, a: A[0].tex, dt, diff: p.diff, dx: p.dx, rs: p.rs, rx: p.rx, fuel, rate: K.RATE, heat: p.heat, stoich: K.STOICH, tign: K.TIGN,
     cool: K.COOL, x0: p.x0, spark, wind: cur.wind * K.WIND * G, jet: p.jet, grav: p.grav, src, pushAt: push.at, push: push.v };
   draw('advect', u, S[1]); draw('species', u, A[1]); S.reverse(); A.reverse();
   push.v = [0, 0];
@@ -787,8 +807,14 @@ function readout() {
     ['Oxygen', cur.o2.toFixed(1) + ' %', 'Earth air is 20.9 %'],
     ['Pressure', cur.psi.toFixed(1) + ' psi', 'sea level is 14.7 psi'],
     ['Oxygen pressure', pp.toFixed(2) + ' psi', 'sea-level air gives 3.07 psi'],
-    ['Reference outcome', r ? (r.ignited === false ? 'Did not ignite' : OUTCOME[r.outcome] || r.outcome) : 'none', ''],
+    ['Reference outcome', r ? (r.ignited === false ? 'Did not ignite' : OUTCOME[r.outcome] || r.outcome) : 'none', r && r.outcome_note ? 'NASA\'s table: ' + r.outcome_note : ''],
   ];
+  if (r) {
+    const gases = [[r.n2_pct, 'nitrogen'], [r.co2_pct, 'carbon dioxide'], [r.he_pct, 'helium']].filter(g => g[0] > 0).map(g => g[0].toFixed(0) + '% ' + g[1]);
+    const stated = r.n2_pct != null || r.co2_pct != null || r.he_pct != null;
+    rows.splice(3, 0, ['Other gases', stated ? (gases.join(', ') || 'none') : 'not stated', stated && (r.co2_pct > 0 || r.he_pct > 0) ? 'the model treats every gas except oxygen as nitrogen' : '']);
+    rows.push(['Burn time', r.burn_time_s == null ? 'not recorded' : r.burn_time_s + ' s', r.burn_time_s == null ? '' : 'from NASA\'s table; the replay keeps its own clock']);
+  }
   dl.textContent = '';
   for (const [k, v, hint] of rows) {
     const dt = document.createElement('dt'), dd = document.createElement('dd');

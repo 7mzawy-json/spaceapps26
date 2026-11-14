@@ -8,11 +8,13 @@
  const initialDisabled=new Map(controls.map(e=>[e,e.disabled]));controls.forEach(e=>e.disabled=true);
  const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const outcome=r=>!r?'No selected record':r.ignited===false?'Did not ignite':r.outcome==='self_extinguished'?'Went out by itself':r.outcome==='burned'?'Kept burning':'Outcome not recorded';
+ // The other gases in the chamber, where NASA's row states them (FLEX and CFI).
+ const gases=r=>{if(r.n2_pct==null&&r.co2_pct==null&&r.he_pct==null)return'';const g=[[r.n2_pct,'nitrogen'],[r.co2_pct,'carbon dioxide'],[r.he_pct,'helium']].filter(x=>x[0]>0).map(x=>x[0].toFixed(0)+'% '+x[1]);return'<br>Rest of the gas: '+esc(g.join(', ')||'none');};
  const steps=[
   ['Start with one NASA record.','The reference card shows the original oxygen, pressure, fuel and recorded outcome. Everything moving in the chamber is an illustration.','Next: add gravity'],
   ['Add gravity. Keep the atmosphere.','The pinned frame is the same illustration at 0 g. Oxygen and pressure stay fixed. The live model now includes Earth gravity; NASA did not measure this altered case.','Next: ventilation'],
   ['Move gas without gravity.','Return to 0 g and add ventilation. Use Gas flow to see how forced flow can move gas even without buoyancy. The fan setting has no calibrated speed.','Next: extinction'],
-  ['Separate an outcome from a prediction.','This selected test went out by itself in NASA’s table. Replay illustrates that recorded outcome. The animation’s duration is chosen for the demo, not copied from NASA.','Replay this outcome']
+  ['Separate an outcome from a prediction.','This selected test went out by itself in NASA’s table, and the reference card gives the burn time NASA recorded. Replay illustrates that outcome on the demo’s own clock.','Replay this outcome']
  ];
  function freeMode(){if(!started)return;generation++;free=true;$('demoStep').textContent='FREE EXPLORATION';$('demoTitle').textContent='Change a setting and compare.';$('demoText').textContent='The reference card keeps the original NASA record. The label above the controls tells you whether the live settings still match it.';$('demoNext').textContent='Resume guided demo';document.querySelectorAll('[data-demo]').forEach(b=>b.removeAttribute('aria-current'));}
  function selectStep(i){
@@ -28,7 +30,7 @@
  function clearPin(){pinned=null;$('pinnedView').hidden=true;$('chamberCompare').classList.remove('comparing');$('pinnedImage').removeAttribute('src');$('restorePinned').disabled=true;}
  function source(s){
   const r=s.reference;let h='';
-  if(r){h='<div class="source-name">'+esc(r.investigation)+' · '+esc(r.test_id)+'</div><p class="source-values">'+r.o2_pct.toFixed(1)+'% O₂ · '+r.pressure_psi.toFixed(2)+' psi · 0 g<br>'+esc(r.fuel)+'</p><p class="source-outcome">NASA recorded: <strong>'+esc(outcome(r))+'</strong></p><p class="source-file">'+esc(r.source)+', line '+r.source_line+'. <a href="https://psi.nasa.gov/physci/repo/data/investigations/'+encodeURIComponent(r.accession)+'" target="_blank" rel="noopener">Open NASA PSI</a></p>';}
+  if(r){h='<div class="source-name">'+esc(r.investigation)+' · '+esc(r.test_id)+'</div><p class="source-values">'+r.o2_pct.toFixed(1)+'% O₂ · '+r.pressure_psi.toFixed(2)+' psi · 0 g<br>'+esc(r.fuel)+gases(r)+'</p><p class="source-outcome">NASA recorded: <strong>'+esc(outcome(r))+'</strong>'+(r.burn_time_s==null?'':' after '+r.burn_time_s+' s')+'</p><p class="source-file">'+esc(r.source)+', line '+r.source_line+'. <a href="https://psi.nasa.gov/physci/repo/data/investigations/'+encodeURIComponent(r.accession)+'" target="_blank" rel="noopener">Open NASA PSI</a></p>';}
   else h='<p>No reference test is selected. The live chamber uses a generic illustrative reaction.</p>';
   if($('sourceSummary').innerHTML!==h)$('sourceSummary').innerHTML=h;
   $('sourceRelation').textContent=s.following?'Original conditions':'Reference only';$('restoreRecord').disabled=!r;

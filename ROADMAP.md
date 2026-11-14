@@ -11,7 +11,7 @@ Draft 4 of 2026-11-14, before kickoff. All three NASA guides are now read: the R
 Judging and Awards Guide (`docs/challenge/judging.md`). Background: `docs/challenge/flame-in-freefall.md` and
 `docs/challenge/research-notes.md`. Read all five before starting any phase.
 
-**Live URL:** https://flashpoint-taupe.vercel.app
+**Live URL:** https://flashpoint-space.vercel.app
 
 There is no team lead. The three members share responsibility, and decisions are made by the whole team.
 

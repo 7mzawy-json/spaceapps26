@@ -34,7 +34,8 @@ is copied from any channel (no characters, birds, logos or frames).
 
 ## Constraints
 
-- NASA rule: AI-generated video needs a **visible watermark**. Every frame carries "AI-assisted animation and voice" in a corner.
+- NASA rule: AI-generated video needs a **visible watermark**. Every frame carries a small "AI" badge in the bottom-right corner
+  (the user chose a small badge over the longer line; the full disclosure is in `docs/ai-usage-log.md`). No AI note under the videos on the page.
 - No NASA logos or insignia in any frame.
 - AGENTS.md: no em dash or en dash anywhere, including scripts and captions. AI use logged in `docs/ai-usage-log.md`,
   and the voice service and every tool listed in its References.
@@ -86,7 +87,9 @@ alanzim/learn/videos/
 - Shapes: flat circles, rounded rectangles, simple molecules (two joined circles), thick rounded strokes, gentle long shadows.
 - Motion: ease-out entrances, small overshoot on pops, nothing faster than 250 ms. Formulas type in or assemble piece by piece.
 - Text: Geist for labels, Geist Mono for formulas and numbers (the site's fonts).
-- Watermark: bottom-right, small, always visible: "AI-assisted animation and voice · Flashpoint".
+- Watermark: bottom-right, a small "AI" badge at half opacity, always visible.
+- Motion (refined after the user's review): 60 fps, a slow camera drift, drifting background light and a vignette, labels that rise
+  in and lift away, and in 1.2 the flame gliding onto the gravity scale. Narration unchanged.
 
 ## The six videos (beats)
 

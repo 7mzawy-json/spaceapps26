@@ -47,6 +47,14 @@
       if (h[3] === 'c') el('circle', { cx: x(h[1]), cy: y(h[2]), r: 6 }, g); else el('rect', { x: x(h[1]) - 6, y: y(h[2]) - 6, width: 12, height: 12 }, g);
       var tt = el('text', h[3] === 'r' ? { x: x(h[1]) + 13, y: y(h[2]) + 4 } : { x: x(h[1]) + 10, y: y(h[2]) - 11 }, g); tt.textContent = h[0];
     });
+    var msgG = el('g', { 'class': 'mapmsg' }, svg);
+    function message(title, sub) {
+      while (msgG.firstChild) msgG.removeChild(msgG.firstChild);
+      if (!title) return;
+      var mx = narrow ? (L + W - R) / 2 : x(10.4), my = y(narrow ? 86 : 88);
+      var t1 = el('text', { 'class': 'big', x: mx, y: my }, msgG); t1.textContent = title;
+      if (sub) { var t3 = el('text', { 'class': 'sub', x: mx, y: my + (narrow ? 24 : 20) }, msgG); t3.textContent = sub; }
+    }
     var probe = el('g', { 'class': 'probe' }, svg);
     var hx = el('line', { x1: L }, probe), vx = el('line', { y2: H - B }, probe);
     el('circle', { 'class': 'ring', r: 15 }, probe); el('circle', { 'class': 'dot', r: 4 }, probe);
@@ -73,7 +81,7 @@
       });
     }
     set(state.p, state.o);
-    return { set: set, moveTo: moveTo, state: state, root: svg.parentNode, dots: dots };
+    return { set: set, moveTo: moveTo, state: state, root: svg.parentNode, dots: dots, message: message };
   }
 
   var GRAV_NOTE = {
@@ -108,7 +116,8 @@
     else c.textContent = text;
     tr.appendChild(c);
   }
-  var evPending = null;
+  var evPending = null, homeG = '0';
+  var GRAV_LBL = { lunar: 'Moon gravity (0.17 g)', mars: 'Mars gravity (0.38 g)', earth: 'Earth gravity (1 g)' };
   function updateEvidence(p, o) {
     if (!ROWS || !OFF) return;
     evPending = [p, o];
@@ -116,8 +125,13 @@
     updateEvidence.raf = requestAnimationFrame(function () {
       updateEvidence.raf = 0;
       var ev = OFF.evidenceAt(ROWS, { o2_pct: evPending[1], pressure_psi: evPending[0] }, { k: 5 });
-      $('homeRating').querySelectorAll('span').forEach(function (sp) { var on = sp.dataset.r === ev.rating; sp.className = on ? 'on ' + ev.rating : ''; });
-      $('homeRateNote').textContent = ev.nearCount + ' microgravity test' + (ev.nearCount === 1 ? '' : 's') + ' within ' + OFF.O2_SCALE * OFF.NEAR_DISTANCE + ' points of oxygen or ' + OFF.P_SCALE * OFF.NEAR_DISTANCE +
+      // Every test in the data ran in microgravity, so any other gravity level has no tests of its own.
+      var rate = homeG === '0' ? ev.rating : 'dark';
+      $('homeRating').querySelectorAll('span').forEach(function (sp) { var on = sp.dataset.r === rate; sp.className = on ? 'on ' + rate : ''; });
+      $('homeNearH').textContent = homeG === '0' ? 'Nearest NASA tests' : 'Nearest NASA tests (all run in microgravity)';
+      if (homeG !== '0') $('homeRateNote').textContent = 'No test in our data ran at ' + GRAV_LBL[homeG] + ': every one ran in microgravity. For reference, ' + ev.nearCount + ' microgravity test' + (ev.nearCount === 1 ? ' sits' : 's sit') +
+        ' within ' + OFF.O2_SCALE * OFF.NEAR_DISTANCE + ' points of oxygen or ' + OFF.P_SCALE * OFF.NEAR_DISTANCE + ' psi of this point.';
+      else $('homeRateNote').textContent = ev.nearCount + ' microgravity test' + (ev.nearCount === 1 ? '' : 's') + ' within ' + OFF.O2_SCALE * OFF.NEAR_DISTANCE + ' points of oxygen or ' + OFF.P_SCALE * OFF.NEAR_DISTANCE +
         ' psi. Well tested means ' + OFF.LIT_MIN_TESTS + ' or more, thin means 1 to ' + (OFF.LIT_MIN_TESTS - 1) + '. Inverse flames (oxygen from the burner) are left out.';
       var tb = $('homeNear'); tb.classList.remove('skel'); tb.textContent = '';
       ev.nearest.forEach(function (n) {
@@ -143,8 +157,11 @@
   $('homePresets').querySelectorAll('button').forEach(function (b) { b.addEventListener('click', function () { home.moveTo(+b.dataset.p, +b.dataset.o); }); });
   segInit($('homeGrav'), function (b) {
     var g = b.dataset.g, n = GRAV_NOTE[g];
+    homeG = g;
     $('homeBanner').textContent = n; $('homeBanner').classList.toggle('show', !!n);
     $('homeMap').classList.toggle('dim', g !== '0');
+    home.message(g === '0' ? null : 'No NASA tests at ' + GRAV_LBL[g], 'Faded marks: microgravity tests');
+    updateEvidence(home.state.p, home.state.o);
   });
 
   /* ---------- SI Assist: scripted demo, it only moves this page's controls ---------- */
@@ -160,6 +177,26 @@
     $('siFuel').querySelectorAll('button').forEach(function (b) { b.setAttribute('aria-pressed', ctl.fuels.indexOf(b.dataset.f) >= 0); });
     if (animate) mini.moveTo(ctl.p, ctl.o, 800); else mini.set(ctl.p, ctl.o);
     $('siSvg').parentNode.classList.toggle('dim', ctl.g !== '0');
+    siMap();
+  }
+  // The small map shows only the chosen fuel types, and says so when a gravity level or a fuel has no tests to show.
+  var MAPROWS = [], siKey = '';
+  function siMap() {
+    var key = ctl.g + '|' + ctl.fuels.slice().sort().join(',');
+    if (!MAPROWS.length || key === siKey) return;
+    siKey = key;
+    var rows = MAPROWS.filter(function (r) { return ctl.fuels.indexOf(r.fuel_phase) >= 0; });
+    mini.dots(rows);
+    var names = ['gas', 'liquid', 'solid'].filter(function (f) { return ctl.fuels.indexOf(f) >= 0; });
+    var title = null, sub = '';
+    if (!names.length) title = 'No fuel type chosen';
+    else if (!rows.length) { title = 'No ' + names.join(' or ') + ' fuel test on this map'; sub = 'NASA gives these tests no pressure'; }
+    else if (ctl.g !== '0') { title = 'No NASA tests at ' + GRAV_LBL[ctl.g]; sub = 'Faded marks: microgravity tests'; }
+    mini.message(title, sub);
+    var note = rows.length + ' of ' + MAPROWS.length + ' tests shown' + (names.length ? ' (' + names.join(', ') + ')' : '') + '.';
+    if (ctl.fuels.indexOf('solid') >= 0) note += ' Solid-fuel tests (BASS, BASS-II, SAFFIRE) record no pressure, so none can be placed on this map.';
+    if (ctl.g !== '0') note += ' ' + GRAV_NOTE[ctl.g];
+    $('siMapNote').textContent = note;
   }
   function flash(id) { var f = $(id); f.classList.remove('flash'); void f.offsetWidth; f.classList.add('flash'); }
   function snapshot() { return JSON.parse(JSON.stringify(ctl)); }
@@ -558,9 +595,18 @@
       xc.forEach(function (a, xi) { yc.forEach(function (b, yi) {
         var rows = cells[xi + '|' + yi]; if (!rows) return;
         var t = rows.length / max2, cx = x0 + xi * cw, cy = y1 + yi * ch;
-        el('rect', { x: r1(cx + 1), y: r1(cy + 1), width: r1(cw - 2), height: r1(ch - 2), fill: shade(t) }, svg);
-        var tx = el('text', { 'class': 'cellnum', x: r1(cx + cw / 2), y: r1(cy + ch / 2 + 4), 'text-anchor': 'middle', style: 'fill:' + (t > .45 ? '#fff' : '#0d1b2e') }, svg); tx.textContent = big(rows.length);
-        hit(cx, cy, cw, ch, tests(rows.length), [a, b], rows, a + ', ' + b);
+        if (pal) {
+          // With a colour chosen, each cell holds a bar: its length is the number of tests, its colours split that number.
+          el('rect', { 'class': 'cellbox', x: r1(cx + 1), y: r1(cy + 1), width: r1(cw - 2), height: r1(ch - 2) }, svg);
+          var pad = Math.min(8, cw * .08), full = cw - 2 * pad, bh = Math.max(5, Math.min(ch * .34, c ? 12 : 20)), by = cy + ch / 2, off = 0, n2 = {};
+          rows.forEach(function (d) { n2[ckey(d)] = (n2[ckey(d)] || 0) + 1; });
+          ccats.forEach(function (k) { var n = n2[k] || 0; if (!n) return; var w = full * n / max2; el('rect', { x: r1(cx + pad + off), y: r1(by), width: r1(Math.max(w - 1, .8)), height: r1(bh), fill: colour(k) }, svg); off += w; });
+          var tn = el('text', { 'class': 'cellnum', x: r1(cx + pad), y: r1(by - 5), style: 'fill:var(--ink)' }, svg); tn.textContent = big(rows.length);
+        } else {
+          el('rect', { x: r1(cx + 1), y: r1(cy + 1), width: r1(cw - 2), height: r1(ch - 2), fill: shade(t) }, svg);
+          var tx = el('text', { 'class': 'cellnum', x: r1(cx + cw / 2), y: r1(cy + ch / 2 + 4), 'text-anchor': 'middle', style: 'fill:' + (t > .45 ? '#fff' : '#0d1b2e') }, svg); tx.textContent = big(rows.length);
+        }
+        hit(cx, cy, cw, ch, tests(rows.length), [a, b].concat(splitLines(rows)), rows, a + ', ' + b);
       }); });
     }
     frame();
@@ -618,7 +664,7 @@
     gSvg.setAttribute('aria-label', $('gTitle').textContent + '. The same tests are listed in the table below.');
     var lg = $('gLegend'); lg.textContent = '';
     var points = info.form === 'points' || info.form === 'strips';
-    if (CBY[ck] && info.form !== 'grid') FIELDS[ck].cats.forEach(function (k, i) { if (info.legend[k]) legendItem(lg, k, info.legend[k], CBY[ck][k] || GREY, i, points); });
+    if (CBY[ck]) FIELDS[ck].cats.forEach(function (k, i) { if (info.legend[k]) legendItem(lg, k, info.legend[k], CBY[ck][k] || GREY, i, points); });
     if (info.refs) { var s = document.createElement('span'), ln = document.createElement('i'); s.appendChild(ln); s.appendChild(document.createTextNode('Same oxygen as sea level (reference)')); lg.appendChild(s); }
     var n = [];
     var left = info.missX + info.missY;
@@ -639,7 +685,7 @@
       if (info.r != null) n.push('Correlation between the two columns (Pearson r, computed here from the plotted tests): ' + info.r.toFixed(2) + '. It describes which conditions NASA chose to test, not a law of physics.');
     }
     if (info.form === 'strips') n.push('Marks are spread sideways only so they do not hide each other. The dark line is each group\'s median, computed here.');
-    if (info.form === 'grid') n.push('Each cell is the number of tests with both values; a darker cell means more tests. Colour by is not used in this view.');
+    if (info.form === 'grid') n.push(CBY[ck] ? 'Each cell is the number of tests with both values. The bar\'s length is that number, and its colours split it by the Colour by column.' : 'Each cell is the number of tests with both values; a darker cell means more tests. Pick a Colour by column to split each cell.');
     if (info.refs) n.push('The dashed curve (oxygen fraction times pressure = 3.07 psi) and the habitat points come from the challenge statement, not from the tests.');
     if (info.n) n.push('Hover or click a mark to list its tests in the table.');
     setNotes(n);
@@ -884,7 +930,7 @@
     }
     ROWS = rows;
     var onMap = rows.filter(function (r) { return r.o2_pct != null && r.pressure_psi != null && r.oxygen_from !== 'burner' && r.pressure_psi <= 16; });
-    home.dots(onMap); mini.dots(onMap);
+    home.dots(onMap); MAPROWS = onMap; siKey = ''; siMap();
     var note = $('homeDotsNote'); note.textContent = 'Each dot is a NASA microgravity test with chamber oxygen at 16 psi or less (' + onMap.length + ' tests):';
     [['b', 4, 'kept burning'], ['x', 3.6, 'went out or did not ignite'], ['u', 2.4, 'not recorded']].forEach(function (k) {
       var g = document.createElementNS(NS, 'svg'); g.setAttribute('class', 'lg'); g.setAttribute('viewBox', '0 0 12 12'); g.setAttribute('aria-hidden', 'true');

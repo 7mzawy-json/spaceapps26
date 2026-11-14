@@ -186,7 +186,13 @@ body.in-page .bar { visibility: visible; opacity: 1; transition: opacity 260ms 2
 .map .tdot.b { fill: var(--d-burn); stroke: var(--well); stroke-width: .8; }
 .map .tdot.x { fill: var(--well); stroke: var(--d-out); stroke-width: 1.7; }
 .map .tdot.u { fill: var(--d-none); }
-.lg { width: 12px; height: 12px; margin: 0 .3rem 0 .7rem; vertical-align: -1px; overflow: visible; }
+/* the legend marks sit in the note's text; ".map svg" above would otherwise stretch each one to the full width */
+.map svg.lg { display: inline-block; width: 12px; height: 12px; margin: 0 .3rem 0 .7rem; vertical-align: -1px; overflow: visible; }
+.map .mapmsg text { text-anchor: middle; font-family: var(--sans); paint-order: stroke; stroke: var(--well); stroke-width: 6px; stroke-linejoin: round; }
+.map .mapmsg .big { font-size: 15px; font-weight: 700; fill: var(--ink); }
+.map .mapmsg .sub { font-size: 12px; font-weight: 500; fill: var(--muted); }
+.map svg.narrow .mapmsg .big { font-size: 16px; }
+.map svg.narrow .mapmsg .sub { font-size: 15px; }
 .banner { display: none; margin-top: .75rem; padding: .7rem .9rem; background: var(--accent-soft); border-left: 3px solid var(--accent-mark); font-size: var(--t-sm); border-radius: var(--r); }
 .banner.show { display: block; }
 
@@ -212,7 +218,8 @@ td { padding: .6rem .5rem; border-bottom: 1px solid var(--line); vertical-align:
 #homeNear a { font-weight: 600; }
 
 /* ---------- Chat ---------- */
-.chat { display: flex; flex-direction: column; height: 620px; padding: 0; overflow: hidden; }
+/* contain: size keeps a long conversation from stretching the row: the chat takes the height of the column beside it and scrolls inside */
+.chat { display: flex; flex-direction: column; min-height: 620px; contain: size; padding: 0; overflow: hidden; }
 .chat-head { display: flex; align-items: center; gap: .75rem; padding: 1rem 1.25rem; border-bottom: 1px solid var(--line); }
 .avatar { width: 36px; height: 36px; background: var(--brand-fill); border-radius: var(--r); display: grid; place-items: center; }
 .chat-head strong { display: block; font-size: var(--t-md); }
@@ -262,6 +269,10 @@ details summary { cursor: pointer; font-weight: 600; font-size: var(--t-sm); col
 .sub { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 1.4rem; min-width: 0; }
 .sub[hidden] { display: none; }
 .stack { display: grid; gap: 1.4rem; align-content: start; min-width: 0; }
+/* a side column whose last box grows, so the column ends level with the box beside it */
+.stack.fill { display: flex; flex-direction: column; }
+.stack.fill > :last-child { flex: 1; }
+.chart .cellbox { fill: var(--surface); stroke: var(--line); }
 .lbl { font-size: var(--t-xs); font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
 .check { display: flex; gap: .5rem; align-items: flex-start; font-size: .85rem; cursor: pointer; }
 .check input { margin-top: .25rem; accent-color: var(--brand); }
@@ -352,7 +363,7 @@ th.sort[aria-sort="descending"]::after { content: " \25BC"; color: var(--accent)
   .cards { grid-template-columns: 1fr; gap: 1.25rem; }
   .card { min-height: 0; }
   .meta { display: none; }
-  .chat { height: 560px; }
+  .chat { min-height: 560px; }
   .bar { gap: .25rem; padding: 0 .5rem; }
   .bar .mark span, .theme .long { display: none; }
   .bar .tabs { justify-content: flex-start; }

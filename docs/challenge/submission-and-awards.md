@@ -1,7 +1,7 @@
 # Project Submission Guide and awards (read 2026-11-14)
 
 Source: https://www.spaceappschallenge.org/resources/project-submission-guide/ (dated Nov 13, 2026; saved as PDF by
-the team on Nov 14, 07:49). Awards list: screenshot of the awards section shared by the team. The Judging and Awards
+the team on Nov 14, 07:49). Awards list: screenshot of the awards section shared by the team, since checked against the Judging and Awards
 Guide itself (criteria definitions and scoring) has **not** been read yet. Quotes are verbatim.
 
 ## Deadlines
@@ -70,20 +70,23 @@ Images on the page: JPG, PNG, GIF up to 10 MB. No video or document upload.
 
 ## Judging criteria
 
-Five criteria: **Impact, Creativity, Validity, Relevance, Presentation.** Definitions and weights are in the 2026
-Judging and Awards Guide, still to be read.
+Five criteria: **Impact, Creativity, Validity, Relevance, Presentation**, each scored 1 to 5, no weights. Details and
+the exact wording are in `judging.md`.
 
-## Global awards (from the screenshot)
+## Global awards
 
-| Award | Description | Fit for Flashpoint |
+| Award | Description (official wording in `judging.md`) | Fit for Flashpoint |
 |---|---|---|
-| Best Use of Science | "best and most valid use of science and/or the scientific method" | strong: honest gaps, cited tests |
-| Best Use of Data | "best makes space data accessible or leverages it for a unique application" | strongest fit |
+| Best Use of Science | "the best and most valid use of the scientific method" | strong: honest gaps, cited tests |
+| Best Use of Data | "best makes space data accessible or leverages it to a unique application" | strongest fit |
 | Best Use of Technology | "the most innovative use of technology" | |
-| Galactic Impact | "most potential to improve life on Earth or in the universe" | |
-| Best Mission Concept | "most plausible concept and design" | the suggested-experiment brief |
+| Galactic Impact | "the most potential to improve life on Earth or the universe" | |
+| Best Mission Concept | "the most plausible concept and design" | the suggested-experiment brief |
 | Most Inspirational | "captures our hearts" | |
-| Best Use of Storytelling | "most creatively communicates the potential of open data through the art of storytelling" | the scroll story |
-| Global Connection | "best connects people around the world through technology" | |
-| Art & Technology | "most effectively combines technical and creative skills" | |
-| Local Impact | "greatest potential for local impact" | |
+| Best Storytelling Award | "most creatively communicates the potential of open data through the art of storytelling" | the scroll story |
+| Global Connection Award | "best connects people around the world through technology" | |
+| Art & Technology Award | "most effectively combines technical and creative skills" | |
+| Local Impact Award | "the greatest potential for making a difference in their local community" | |
+
+The screenshot used slightly different names and wording ("Best Use of Storytelling", "science and/or the
+scientific method"); the table above follows the guide.

@@ -89,6 +89,7 @@ data/model.json                   fitted coefficients
 scripts/fetch_psi.py  scripts/enrich.py  scripts/fit_model.py
 docs/ai-usage-log.md              running log of AI use and the References list (required for submission)
 README.md  .env.example           repo front page; names of the env vars (no values)
+site/                             the website as static files (see site/README.md); index.html at the root forwards to it
 ```
 
 `data/tests.json` row: `accession`, `test_id`, `fuel`, `fuel_phase`, `o2_pct`, `pressure_psi`,

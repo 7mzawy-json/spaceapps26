@@ -42,6 +42,7 @@ class Scene:
         cls.browser.close()
         cls.pw.stop()
         cls.srv.shutdown()
+        cls.srv.server_close()
 
     def shot(self, t):
         self.page.evaluate(f"seek({t})")

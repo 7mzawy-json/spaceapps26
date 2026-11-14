@@ -72,6 +72,8 @@ class ShortRender(unittest.TestCase):
         self.assertAlmostEqual(secs, 2.0, delta=0.1)
         self.assertIn("Audio:", info)
         self.assertIn("1920x1080", info)
+        self.assertIn("yuv420p", info)
+        self.assertNotIn("yuvj420p", info)   # full-range colour looks washed out in Safari and QuickTime
 
 
 if __name__ == "__main__":

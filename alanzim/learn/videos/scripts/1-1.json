@@ -1,0 +1,58 @@
+{
+  "id": "1-1",
+  "title": "What a flame needs",
+  "poster": "meet",
+  "note": "Approved narration (alanzim/learn/videos-design.md). Drafted with AI assistance (Claude Code); approved by AlanziM2. Editing a recorded script costs ElevenLabs credits.",
+  "sentences": [
+    {
+      "say": "Every fire, from a candle to a spacecraft emergency, needs three things at once: fuel, oxygen, and heat.",
+      "show": "Every fire, from a candle to a spacecraft emergency, needs three things at once: fuel, oxygen, and heat.",
+      "beat": "triangle"
+    },
+    {
+      "say": "Take any one of them away, and the fire goes out.",
+      "show": "Take any one of them away, and the fire goes out.",
+      "beat": "remove"
+    },
+    {
+      "say": "That simple triangle is the basis of fire safety: prevent, detect, and suppress.",
+      "show": "That simple triangle is the basis of fire safety: prevent, detect, and suppress.",
+      "beat": "pillars"
+    },
+    {
+      "say": "Most fires in a cabin are diffusion flames.",
+      "show": "Most fires in a cabin are diffusion flames.",
+      "beat": "diffusion"
+    },
+    {
+      "say": "Fuel and oxygen start apart, and they only burn where they meet, in a thin glowing layer.",
+      "show": "Fuel and oxygen start apart, and they only burn where they meet, in a thin glowing layer.",
+      "beat": "meet"
+    },
+    {
+      "say": "Every fuel uses a fixed amount of oxygen. One molecule of propane needs five molecules of oxygen to burn completely.",
+      "show": "Every fuel uses a fixed amount of oxygen. One molecule of propane needs five molecules of oxygen to burn completely.",
+      "beat": "equation"
+    },
+    {
+      "say": "If the oxygen near the flame runs low, the burning slows down.",
+      "show": "If the oxygen near the flame runs low, the burning slows down.",
+      "beat": "starve"
+    },
+    {
+      "say": "NASA has tested three kinds of fuel in microgravity: gases, liquid droplets, and solids.",
+      "show": "NASA has tested three kinds of fuel in microgravity: gases, liquid droplets, and solids.",
+      "beat": "kinds"
+    },
+    {
+      "say": "This database holds 660 gas flame tests, 353 droplet tests, and 263 tests of solid materials.",
+      "show": "This database holds 660 gas flame tests, 353 droplet tests, and 263 tests of solid materials.",
+      "beat": "counts"
+    },
+    {
+      "say": "Solids matter most, because a spacecraft is full of them: fabric, plastic, and wiring.",
+      "show": "Solids matter most, because a spacecraft is full of them: fabric, plastic, and wiring.",
+      "beat": "solids"
+    }
+  ]
+}

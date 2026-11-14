@@ -1,0 +1,58 @@
+{
+  "id": "1-6",
+  "title": "How flames go out",
+  "poster": "high_band",
+  "note": "Approved narration (alanzim/learn/videos-design.md). Drafted with AI assistance (Claude Code); approved by AlanziM2. Editing a recorded script costs ElevenLabs credits.",
+  "sentences": [
+    {
+      "say": "A flame survives only while it makes heat faster than it loses it.",
+      "show": "A flame survives only while it makes heat faster than it loses it.",
+      "beat": "balance"
+    },
+    {
+      "say": "Lower the oxygen, and the flame makes less heat.",
+      "show": "Lower the oxygen, and the flame makes less heat.",
+      "beat": "less_heat"
+    },
+    {
+      "say": "At some point the losses win, and the flame goes out on its own.",
+      "show": "At some point the losses win, and the flame goes out on its own.",
+      "beat": "goes_out"
+    },
+    {
+      "say": "The oxygen level where that happens is called the flammability limit. For choosing cabin materials, it may be the most useful number there is.",
+      "show": "The oxygen level where that happens is called the flammability limit. For choosing cabin materials, it may be the most useful number there is.",
+      "beat": "limit"
+    },
+    {
+      "say": "NASA's FLEX experiment burned hundreds of fuel droplets at different oxygen levels.",
+      "show": "NASA's FLEX experiment burned hundreds of fuel droplets at different oxygen levels.",
+      "beat": "flex"
+    },
+    {
+      "say": "Below fifteen percent oxygen, twenty seven of twenty eight droplet flames went out on their own.",
+      "show": "Below fifteen percent oxygen, twenty seven of twenty eight droplet flames went out on their own.",
+      "beat": "low_band"
+    },
+    {
+      "say": "Between thirty and fifty percent, only two of twenty four did. Four kept burning, and the rest were not recorded.",
+      "show": "Between thirty and fifty percent, only two of twenty four did. Four kept burning, and the rest were not recorded.",
+      "beat": "high_band"
+    },
+    {
+      "say": "FLEX changed other things too, like the fuel and the pressure, so this is a pattern, not a controlled test of oxygen alone.",
+      "show": "FLEX changed other things too, like the fuel and the pressure, so this is a pattern, not a controlled test of oxygen alone.",
+      "beat": "caution"
+    },
+    {
+      "say": "But the direction is clear.",
+      "show": "But the direction is clear.",
+      "beat": "direction"
+    },
+    {
+      "say": "More oxygen means flames that are harder to stop: the fire risk side of every high oxygen habitat.",
+      "show": "More oxygen means flames that are harder to stop: the fire risk side of every high oxygen habitat.",
+      "beat": "risk"
+    }
+  ]
+}

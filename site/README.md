@@ -35,6 +35,22 @@ Fixes after a teammate's review (Sat Nov 14, afternoon):
 - **Resources, Colour by.** The grid of two groups (for example outcome by fuel type) ignored the colour. Each cell
   now holds a bar split by the chosen colour column.
 
+Finishing pass (Sat Nov 14, evening): nothing on the site is a placeholder any more.
+
+- **Evidence brief.** "Open the brief" and "Save as PDF" on the Map now work. The brief is one printable page for the
+  probe's point: the reading, the evidence rating, the five nearest tests, what NASA's tests do not cover there, and the
+  upcoming NASA experiments (FM2, SoFIE, FLARE) that would close the gap. It is built from the rows and fixed rules; no
+  AI writes it. Printing shows only the brief.
+- **Prevent, detect, suppress.** Each box now says something real about the point: the oxygen range of NASA's solid
+  material tests (and whether the point is above it), what SAME and SAME-R measured, and the nearest FLEX test.
+- **Resources, Selected.** Picking an investigation shows what its tests cover (oxygen and pressure ranges, fuels,
+  outcomes) or, when it has none, the reason from `data/tests.meta.json`. The Credits panel lists the real credits.
+- **One footer** on the dashboard and at the end of every page. The flame lab's own footer is hidden inside the site.
+- **SI Assist.** Offline answers no longer repeat that they are offline, and the note under them no longer shows an HTTP code.
+- **Small fixes.** A favicon; Esc no longer leaves the page while you type in a box; wide tables scroll inside their box
+  on phones instead of the whole page; the relationship charts say "No tests match the filters" instead of calling an
+  empty filter a gap in the data; comments in the code no longer describe the drafts.
+
 ## Files
 
 ```
@@ -64,12 +80,25 @@ Static Web Apps or the GoDaddy/Porkbun hosting from the Space Apps global offers
 `/api/chat`; until one exists, every question is answered by the offline rule-based mode, and the browser console shows
 a failed request to `/api/chat` (expected).
 
-## Checked (Sat Nov 14, in the Claude desktop browser)
+## Checked (Sat Nov 14, evening, scripted in the Claude desktop browser, Chromium)
 
-- All four pages open from the cards and from the bar; no errors in the console apart from the expected `/api/chat`.
-- Map: test dots, the evidence rating and the five nearest tests load. SI Assist: the chat moves the controls, Undo works.
-- Resources: 24 investigations, filters, the graph builder and the tests table; "See its tests" jumps to the filtered data.
-- Sim: the flame lab loads in its frame, the WebGL flame runs, and the frame grows to fit. Dark mode reaches it.
-- Phone width (375 px): no sideways scrolling on any page.
+No script errors on any page; the only console errors are the expected failed requests to `/api/chat`.
 
-Not checked: Safari, Firefox, a real phone, a screen reader.
+- **Navigation:** every card and every bar tab opens its page; the logo, Esc and the browser's back button return; Esc in
+  a text box does nothing; a direct link such as `/site/#resources` opens that page; the root forwards to `/site/`.
+- **Map:** the three presets, clicking and dragging on the map, arrow keys, all four gravity levels (rating "No tests"
+  and the banner away from microgravity), the brief (open, Esc closes only the brief, print).
+- **SI Assist:** the five starter questions, typed numbers, a research question, an off-topic question, an empty message
+  (ignored), the sliders, gravity, the fuel buttons (marks on the small map follow), Undo from the chat and the button.
+- **Resources:** search, fuel and platform filters, "only records with test rows", sorting every column, the Selected
+  summary for records with and without rows, "See its tests". Test data: every filter, search, ranges, "both values",
+  Clear; all 440 graph pairings (10 across, 11 up, 4 colours) with all tests, with 2 tests and with none; quick picks,
+  Swap, the relationship charts, tooltips, table sorting, paging and opening a row.
+- **Sim:** all four experiments, first and last test, the four gravity buttons and the slider, airflow, oxygen and
+  pressure by hand ("Your experiment" appears), the four views and their legends, Ignite, Clear, Pause, the probe, the
+  live measurements, NASA's record table, dark mode; `sim.html` on its own, and `sim.html?css` (backup flame).
+- **Phone width (375 px):** no sideways scrolling on the dashboard, any page, or the brief.
+
+Not checked: Safari, Firefox, a real phone, a screen reader, a printer (printing was triggered, not printed).
+Known limit: the Map picks its proportions when it is first drawn, so turning a phone sideways keeps the phone layout
+until the page is reloaded.

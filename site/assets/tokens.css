@@ -1,0 +1,35 @@
+/* Flashpoint design tokens (from temp/design-master). Shared by index.html and sim.html.
+   Every colour, size and radius used on the site is a token here, with a light and a dark value. */
+:root {
+  /* surfaces and text */
+  --bg: #f3f5f9; --surface: #ffffff; --well: #f5f7fb; --line: #d9e0eb; --line-strong: #8492a8;
+  --ink: #0d1b2e; --muted: #536074;
+  /* interface colours: NASA blue for the interface, NASA red only for the probe and for "no evidence" */
+  --brand: #0B3D91; --brand-fill: #0B3D91; --on-fill: #ffffff; --brand-soft: #e8eefa;
+  --accent: #C8291A; --accent-mark: #FC3D21; --accent-soft: #fff1ed;
+  /* data colours: test outcomes only, never used for the interface */
+  --d-burn: #B45309; --d-out: #0F766E; --d-none: #6B7789;
+  /* the flame chamber is dark in both themes */
+  --chamber: #05173a; --on-chamber: #ffffff;
+  --shadow: 0 22px 44px -22px rgba(11, 61, 145, .38);
+  /* shape: the one-rounded-corner signature is for cards and panels only; controls use --r */
+  --corner: 0 0 0 28px; --r: 8px; --bar-h: 56px;
+  /* type: six sizes, two families */
+  --sans: Geist, "Helvetica Neue", Arial, sans-serif;
+  --mono: "Geist Mono", ui-monospace, Menlo, Consolas, monospace;
+  --t-xs: .75rem; --t-sm: .875rem; --t-md: 1rem; --t-lg: 1.25rem; --t-xl: 1.5rem;
+  --t-2xl: clamp(1.9rem, 4vw, 2.75rem); --t-3xl: clamp(2.1rem, 4.6vw, 3.4rem);
+  /* motion: fast for presses, mid for hovers, slow for page changes */
+  --fast: 150ms; --mid: 300ms; --slow: 480ms; --ease: cubic-bezier(.22, 1, .36, 1);
+  color-scheme: light;
+}
+:root[data-theme="dark"] {
+  --bg: #070d1c; --surface: #0e172b; --well: #131f38; --line: #25334f; --line-strong: #5d6f92;
+  --ink: #e9eef8; --muted: #9dadc8;
+  --brand: #9dbcff; --brand-fill: #2a62d6; --on-fill: #ffffff; --brand-soft: #172849;
+  --accent: #ff8068; --accent-mark: #FC3D21; --accent-soft: #33161a;
+  --d-burn: #F5A524; --d-out: #2DD4BF; --d-none: #8a97ad;
+  --chamber: #030a1a; --on-chamber: #ffffff;
+  --shadow: 0 22px 44px -22px rgba(0, 0, 0, .7);
+  color-scheme: dark;
+}

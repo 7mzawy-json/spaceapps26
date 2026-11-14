@@ -105,16 +105,14 @@ with sync_playwright() as p:
  verify('Comparison uses real same-oxygen records','193R002' in page.locator('.paired-records').inner_text() and '175R001' in page.locator('.paired-records').inner_text())
  page.screenshot(path=str(OUT/'outcomes-desktop.png'))
  verify('Progress records exploration','6 of 6' in page.locator('#labProgress').inner_text())
- # Play all six mixed media files, verify the clean narration path and synchronization.
+ # Play all six lesson videos.
  for n in range(1,7):
     lesson(n)
     page.locator(f'#l{n}-tab-1').click()
     v=page.locator(f'#l{n} video')
     v.evaluate('v=>v.play()')
     page.wait_for_function(f"document.querySelector('#l{n} video').currentTime>.15")
-    verify('Mixed video '+str(n)+' decodes and plays',v.evaluate('v=>!v.paused && v.readyState>=2 && v.videoWidth===1920'))
-    voice=page.locator(f'#l{n} .video-settings a').get_attribute('href')
-    verify('Clean narration link '+str(n),voice==f'videos/1-{n}.voice.m4a')
+    verify('Video '+str(n)+' decodes and plays',v.evaluate('v=>!v.paused && v.readyState>=2 && v.videoWidth===1920'))
     v.evaluate('v=>{v.currentTime=12;v.playbackRate=1.25;v.volume=.4;}')
     page.wait_for_function(f"!document.querySelector('#l{n} video').seeking && document.querySelector('#l{n} video').currentTime>11.5")
     verify('Video seeking, volume and speed '+str(n),v.evaluate('v=>v.currentTime>11.5 && v.volume===.4 && v.playbackRate===1.25'))

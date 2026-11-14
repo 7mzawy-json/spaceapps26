@@ -1,0 +1,58 @@
+{
+  "id": "1-3",
+  "title": "Oxygen percent vs oxygen pressure",
+  "poster": "moon",
+  "note": "Approved narration (alanzim/learn/videos-design.md). Drafted with AI assistance (Claude Code); approved by AlanziM2. Editing a recorded script costs ElevenLabs credits.",
+  "sentences": [
+    {
+      "say": "Two numbers describe the oxygen in a cabin, and they mean very different things.",
+      "show": "Two numbers describe the oxygen in a cabin, and they mean very different things.",
+      "beat": "two_numbers"
+    },
+    {
+      "say": "The first is oxygen percent: what share of the gas molecules are oxygen. It controls how easily things burn.",
+      "show": "The first is oxygen percent: what share of the gas molecules are oxygen. It controls how easily things burn.",
+      "beat": "percent"
+    },
+    {
+      "say": "The second is oxygen partial pressure: how hard the oxygen alone pushes. It controls whether you can breathe.",
+      "show": "The second is oxygen partial pressure: how hard the oxygen alone pushes. It controls whether you can breathe.",
+      "beat": "partial"
+    },
+    {
+      "say": "To find it, multiply the oxygen share by the total pressure.",
+      "show": "To find it, multiply the oxygen share by the total pressure.",
+      "beat": "multiply"
+    },
+    {
+      "say": "At sea level, that is about twenty one percent of 14.7 pounds per square inch, or 3.07.",
+      "show": "At sea level, that is about twenty one percent of 14.7 psi, or 3.07.",
+      "beat": "sea_level"
+    },
+    {
+      "say": "Astronauts heading out on spacewalks are helped by a lower cabin pressure.",
+      "show": "Astronauts heading out on spacewalks are helped by a lower cabin pressure.",
+      "beat": "spacewalk"
+    },
+    {
+      "say": "But lower the pressure, and you must raise the oxygen percent to keep breathing the same.",
+      "show": "But lower the pressure, and you must raise the oxygen percent to keep breathing the same.",
+      "beat": "raise"
+    },
+    {
+      "say": "A planned Moon Base at 10.2 pounds per square inch needs about thirty percent oxygen.",
+      "show": "A planned Moon Base at 10.2 psi needs about thirty percent oxygen.",
+      "beat": "moon"
+    },
+    {
+      "say": "Its crew would breathe just as they do on Earth, but the air around them would be far more flammable.",
+      "show": "Its crew would breathe just as they do on Earth, but the air around them would be far more flammable.",
+      "beat": "flammable"
+    },
+    {
+      "say": "That trade, easier spacewalks against greater fire risk, is exactly what Flashpoint maps.",
+      "show": "That trade, easier spacewalks against greater fire risk, is exactly what Flashpoint maps.",
+      "beat": "trade"
+    }
+  ]
+}

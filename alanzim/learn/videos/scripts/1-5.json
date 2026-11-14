@@ -1,0 +1,58 @@
+{
+  "id": "1-5",
+  "title": "Low pressure and mixing",
+  "poster": "larger",
+  "note": "Approved narration (alanzim/learn/videos-design.md). Drafted with AI assistance (Claude Code); approved by AlanziM2. Editing a recorded script costs ElevenLabs credits.",
+  "sentences": [
+    {
+      "say": "Pressure changes how fast gases mix.",
+      "show": "Pressure changes how fast gases mix.",
+      "beat": "mixing"
+    },
+    {
+      "say": "At lower pressure, gas molecules are further apart, so they collide less often and spread out faster.",
+      "show": "At lower pressure, gas molecules are further apart, so they collide less often and spread out faster.",
+      "beat": "spacing"
+    },
+    {
+      "say": "Halve the pressure, and gases spread about twice as fast.",
+      "show": "Halve the pressure, and gases spread about twice as fast.",
+      "beat": "halve"
+    },
+    {
+      "say": "On Earth, rising hot air does most of the mixing, so this barely matters.",
+      "show": "On Earth, rising hot air does most of the mixing, so this barely matters.",
+      "beat": "earth"
+    },
+    {
+      "say": "In microgravity, spreading is the only way oxygen reaches a flame, so it matters a great deal.",
+      "show": "In microgravity, spreading is the only way oxygen reaches a flame, so it matters a great deal.",
+      "beat": "micro"
+    },
+    {
+      "say": "At low pressure, oxygen arrives from further away. The flame grows larger, and dimmer.",
+      "show": "At low pressure, oxygen arrives from further away. The flame grows larger, and dimmer.",
+      "beat": "larger"
+    },
+    {
+      "say": "A Moon Base would run at about 10.2 pounds per square inch, well below the space station's 14.7.",
+      "show": "A Moon Base would run at about 10.2 psi, well below the space station's 14.7.",
+      "beat": "moon_pressure"
+    },
+    {
+      "say": "So the evidence that counts comes from tests at the right pressure, not only the right oxygen percent.",
+      "show": "So the evidence that counts comes from tests at the right pressure, not only the right oxygen percent.",
+      "beat": "evidence"
+    },
+    {
+      "say": "NASA's database holds 33 microgravity tests in the Moon Base range.",
+      "show": "NASA's database holds 33 microgravity tests in the Moon Base range.",
+      "beat": "count"
+    },
+    {
+      "say": "All of them burned fuel droplets. None tested a gas flame or a cabin material in that atmosphere.",
+      "show": "All of them burned fuel droplets. None tested a gas flame or a cabin material in that atmosphere.",
+      "beat": "droplets"
+    }
+  ]
+}

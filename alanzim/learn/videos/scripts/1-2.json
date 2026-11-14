@@ -1,0 +1,63 @@
+{
+  "id": "1-2",
+  "title": "Gravity and the shape of fire",
+  "poster": "sphere",
+  "note": "Approved narration (alanzim/learn/videos-design.md). Drafted with AI assistance (Claude Code); approved by AlanziM2. Editing a recorded script costs ElevenLabs credits.",
+  "sentences": [
+    {
+      "say": "On Earth, a flame has a shape we all know: a flickering teardrop.",
+      "show": "On Earth, a flame has a shape we all know: a flickering teardrop.",
+      "beat": "teardrop"
+    },
+    {
+      "say": "That shape comes from gravity.",
+      "show": "That shape comes from gravity.",
+      "beat": "gravity"
+    },
+    {
+      "say": "Gas heated by the flame is lighter than the air around it, so it rises, and cooler air rushes in underneath.",
+      "show": "Gas heated by the flame is lighter than the air around it, so it rises, and cooler air rushes in underneath.",
+      "beat": "rises"
+    },
+    {
+      "say": "The push on that hot gas is the difference in density, times gravity.",
+      "show": "The push on that hot gas is the difference in density, times gravity.",
+      "beat": "formula"
+    },
+    {
+      "say": "Now take gravity away.",
+      "show": "Now take gravity away.",
+      "beat": "remove_g"
+    },
+    {
+      "say": "On the space station, nothing is lighter or heavier. Hot gas stays where it is.",
+      "show": "On the space station, nothing is lighter or heavier. Hot gas stays where it is.",
+      "beat": "station"
+    },
+    {
+      "say": "Oxygen can only reach the flame by slowly drifting in, so the flame becomes a small, steady, dim blue sphere.",
+      "show": "Oxygen can only reach the flame by slowly drifting in, so the flame becomes a small, steady, dim blue sphere.",
+      "beat": "sphere"
+    },
+    {
+      "say": "Without fresh air arriving, a flame in orbit can even smother itself.",
+      "show": "Without fresh air arriving, a flame in orbit can even smother itself.",
+      "beat": "smother"
+    },
+    {
+      "say": "The Moon and Mars sit in between, at one sixth and about three eighths of Earth's gravity.",
+      "show": "The Moon and Mars sit in between, at one sixth and about three eighths of Earth's gravity.",
+      "beat": "scale"
+    },
+    {
+      "say": "Every one of NASA's 1,276 fire tests in this database ran in microgravity. Nobody has measured a fire at Moon gravity yet.",
+      "show": "Every one of NASA's 1,276 fire tests in this database ran in microgravity. Nobody has measured a fire at Moon gravity yet.",
+      "beat": "count"
+    },
+    {
+      "say": "So for a Moon Base, the honest answer lies somewhere between space and Earth.",
+      "show": "So for a Moon Base, the honest answer lies somewhere between space and Earth.",
+      "beat": "between"
+    }
+  ]
+}

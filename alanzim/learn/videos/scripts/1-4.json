@@ -1,0 +1,58 @@
+{
+  "id": "1-4",
+  "title": "Why more oxygen burns hotter",
+  "poster": "moon_ratio",
+  "note": "Approved narration (alanzim/learn/videos-design.md). Drafted with AI assistance (Claude Code); approved by AlanziM2. Editing a recorded script costs ElevenLabs credits.",
+  "sentences": [
+    {
+      "say": "Nitrogen does not burn, but it still plays a big part in every fire.",
+      "show": "Nitrogen does not burn, but it still plays a big part in every fire.",
+      "beat": "nitrogen"
+    },
+    {
+      "say": "In Earth's air, every oxygen molecule comes with almost four molecules of nitrogen.",
+      "show": "In Earth's air, every oxygen molecule comes with almost four molecules of nitrogen.",
+      "beat": "ratio_earth"
+    },
+    {
+      "say": "A flame has to heat all of that nitrogen too. It acts like a sponge, soaking up heat.",
+      "show": "A flame has to heat all of that nitrogen too. It acts like a sponge, soaking up heat.",
+      "beat": "sponge"
+    },
+    {
+      "say": "Raise the oxygen percent, and there is less nitrogen to share the heat.",
+      "show": "Raise the oxygen percent, and there is less nitrogen to share the heat.",
+      "beat": "raise"
+    },
+    {
+      "say": "In a Moon Base atmosphere of thirty percent oxygen, each oxygen molecule brings only about two and a third nitrogen molecules.",
+      "show": "In a Moon Base atmosphere of thirty percent oxygen, each oxygen molecule brings only about two and a third nitrogen molecules.",
+      "beat": "moon_ratio"
+    },
+    {
+      "say": "In a spacesuit, filled with pure oxygen, there is none at all.",
+      "show": "In a spacesuit, filled with pure oxygen, there is none at all.",
+      "beat": "suit"
+    },
+    {
+      "say": "With less nitrogen to warm, the flame burns hotter, spreads faster, and is harder to put out.",
+      "show": "With less nitrogen to warm, the flame burns hotter, spreads faster, and is harder to put out.",
+      "beat": "hotter"
+    },
+    {
+      "say": "This is why the same breathing does not mean the same fire risk.",
+      "show": "This is why the same breathing does not mean the same fire risk.",
+      "beat": "same_breath"
+    },
+    {
+      "say": "It also explains how some extinguishers work. Carbon dioxide or helium dilutes the oxygen and carries heat away from the flame.",
+      "show": "It also explains how some extinguishers work. Carbon dioxide or helium dilutes the oxygen and carries heat away from the flame.",
+      "beat": "diluents"
+    },
+    {
+      "say": "NASA's FLEX experiment tested exactly that, on burning droplets aboard the space station.",
+      "show": "NASA's FLEX experiment tested exactly that, on burning droplets aboard the space station.",
+      "beat": "flex"
+    }
+  ]
+}

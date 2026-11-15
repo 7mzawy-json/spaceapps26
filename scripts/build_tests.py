@@ -8,7 +8,7 @@ Usage (standard library only):
     python scripts/build_tests.py              # build from tables already in data/raw/psi/
 
 Output:
-    data/tests.json       every row, in the shape frozen in ROADMAP.md, plus provenance fields (the full record)
+    data/tests.json       every row, in the shape frozen in ROADMAP.md (archived), plus provenance fields (the full record)
     data/tests.web.json   slim copy for the website: same values, rows with an exclude_reason left out,
                           bulky provenance fields (raw, source_url) dropped
     data/tests.meta.json  where the data came from, how it was converted, what was left out and why
@@ -179,7 +179,7 @@ def emit(acc, name, line, cells, used, *, test_id, fuel, fuel_phase, o2_pct, oxy
         exclude_reason = f"exact repeat of line {seen_rows[key]} of the same NASA file (every cell identical)"
     seen_rows.setdefault(key, line)
     rows_out.append({
-        # Shape frozen in ROADMAP.md ("File layout")
+        # Shape frozen in ROADMAP.md (archived), "File layout"
         "accession": acc,
         "test_id": test_id or None,
         "fuel": fuel or None,

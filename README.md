@@ -70,7 +70,6 @@ Checks: `python scripts/check_data.py`, `python scripts/check_investigations.py`
 | `public/flames/` | The backup CSS flame for browsers without WebGL 2 |
 | `tools/videos/` | How the six Learn videos were made: scripts, scenes, the recorded AI narration and the renderer |
 | `docs/` | The AI usage log, data inventory, audit log and investigation-card notes |
-| `ROADMAP.md` | The plan we built from. Where it and the site disagree, the site is what we built |
 
-Earlier drafts, design notes and working reports are on the `archive/before-cleanup` branch. Files marked "(archived)"
+The original build plan, earlier drafts, design notes and working reports are on the `archive/before-cleanup` branch. Files marked "(archived)"
 in comments live there.

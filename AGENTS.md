@@ -2,7 +2,7 @@
 
 Challenge: **Flame in Freefall: SI-Powered Fire Safety Insights from Microgravity Combustion Data**.
 Challenge spec, resources, submission rules and judging criteria live in `docs/challenge/`. Read them before
-proposing anything. The build plan lives in `ROADMAP.md`. Follow it phase by phase; do not skip ahead.
+proposing anything. `README.md` describes what was built. The original build plan (`ROADMAP.md`) is in git history.
 
 ## Hard deadlines (local time)
 
@@ -19,7 +19,7 @@ proposing anything. The build plan lives in `ROADMAP.md`. Follow it phase by pha
 ## Team
 
 Three people with equal responsibility and no team lead. Decisions are made by the whole team.
-Each lane owns its folders (see "Team and lanes" in `ROADMAP.md`).
+Each lane owns its folders: Data (`scripts/`, `data/`, `lib/`), Interface (`site/`, `public/`, `api/`), Story (`docs/`, the pitch and the submission text).
 An agent edits only the files of the lane it is working for. Personal folders are drafts and stay off `main`.
 
 ## Working conditions

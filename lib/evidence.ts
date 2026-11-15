@@ -1,10 +1,10 @@
 // Nearest NASA tests to a point on the pressure and oxygen map, and how well that point is covered.
-// Spec: ROADMAP.md, Phase 4 step 3. Plain arithmetic with named constants, no AI call, so every
+// Spec: ROADMAP.md (archived), Phase 4 step 3. Plain arithmetic with named constants, no AI call, so every
 // result can be explained. Written with an AI coding assistant (Claude Code); see docs/ai-usage-log.md.
 
 export type Outcome = "burned" | "self_extinguished" | "suppressed" | "unknown";
 
-// One row of data/tests.web.json (shape frozen in ROADMAP.md, plus the added context fields).
+// One row of data/tests.web.json (shape frozen in ROADMAP.md (archived), plus the added context fields).
 export interface TestRow {
   accession: string;
   test_id: string | null;

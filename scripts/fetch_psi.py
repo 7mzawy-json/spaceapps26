@@ -1,4 +1,4 @@
-"""Fetch NASA's PSI investigation catalogue and keep the combustion records (ROADMAP Phase 1).
+"""Fetch NASA's PSI investigation catalogue and keep the combustion records (ROADMAP.md (archived), Phase 1).
 
 Written with an AI coding assistant (Claude Code); see docs/ai-usage-log.md. Standard library only.
 

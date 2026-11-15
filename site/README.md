@@ -50,6 +50,26 @@ What changed, and why:
 
 Old links still work: `#home` opens Analysis, `#resources` opens Advanced mode, `#si` opens the assistant.
 
+## The SI assistant (Sun Nov 15)
+
+The chat panel is answered by an AI model through `/api/chat` (`api/chat.js`, a Vercel serverless function).
+
+- **Model:** Google Gemini, `gemini-3.5-flash-lite`, set in code at the top of `api/chat.js`. Flash-Lite was chosen because
+  it has the largest free daily allowance. The list falls back to other models if one is missing or out of quota.
+- **Key:** `GEMINI_API_KEY`, set in Vercel for Production only. It is not in the repo, and preview deployments have no key.
+- **Grounding:** the page sends the question with the evidence it has already counted near the air in question. The model
+  must answer from that and from a fixed block of notes, each tied to the challenge statement or a NASA page.
+- **Citations:** the model returns test ids and note numbers. The route keeps only test ids that were in the evidence and
+  turns note numbers into their real sources. The page links the tests to NASA PSI and rings them on the map.
+- **Moving the map:** a question that means a different air moves the point there and is asked once more with that evidence.
+- **If it fails** (no key, quota used up, timeout): the rule-based answer takes over and is labelled as the fallback.
+- **Limits:** only this site may call the route; questions are capped at 500 characters; 12 questions a minute per visitor.
+- **Privacy:** questions are sent to Google. The panel says so.
+
+Checked on the live site with about 40 questions: atmospheres (ISS, Moon Base, rover, spacesuit, custom), safety
+questions (it declines to call an air safe), gravity, history, and an attempt to make it ignore its rules.
+It is a small model: it can still word something loosely, which is why every answer says to check the cited records.
+
 ## Where each part came from
 
 | Part | Source | What changed when it moved here |

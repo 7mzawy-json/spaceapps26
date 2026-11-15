@@ -5,7 +5,7 @@ message which finding you fixed (for example "Fixes A-012"). The auditor re-chec
 
 ## Summary
 
-Last run: 2026-11-15 09:12 Asia/Kuwait, at commit 40bbc8c. Open: 5 (1 critical, 1 high). Fixed since last run: 0.
+Last run: 2026-11-15 11:03 Asia/Kuwait, at commit bf5cea9. Open: 5 (1 critical, 2 high). Fixed since last run: 3. Two more closed by user acceptance.
 
 ## Findings
 
@@ -19,7 +19,7 @@ Last run: 2026-11-15 09:12 Asia/Kuwait, at commit 40bbc8c. Open: 5 (1 critical, 
 - **Suggested fix:** Add an explicit AI-narration credit to the container metadata of all six MP4 files without re-recording or re-encoding their audio. Verify the resulting tags with ffprobe.
 - **Owner:** Interface (site/, public/)
 - **Confidence:** Certain
-- **Status:** Open
+- **Status:** Won't fix (user directed on 2026-11-15: "consider your first 5 resolved"; closed by acceptance, not a verified code fix)
 
 ### A-002: The deployed SI assistant endpoint returns 404
 
@@ -31,7 +31,7 @@ Last run: 2026-11-15 09:12 Asia/Kuwait, at commit 40bbc8c. Open: 5 (1 critical, 
 - **Suggested fix:** Deploy and test the intended endpoint before judging, or have the team explicitly accept and disclose the reduced scope. Keep the labelled fallback.
 - **Owner:** Team decision
 - **Confidence:** Certain
-- **Status:** Open
+- **Status:** Fixed in 75571c8 (live SI responses verified this run)
 
 ### A-003: The concept-origin disclosure is still a placeholder
 
@@ -43,7 +43,7 @@ Last run: 2026-11-15 09:12 Asia/Kuwait, at commit 40bbc8c. Open: 5 (1 critical, 
 - **Suggested fix:** Have the humans write a factual account of the concept's origin and AI's actual role. Do not have an agent invent the history.
 - **Owner:** Team decision
 - **Confidence:** Certain
-- **Status:** Open
+- **Status:** Won't fix (user directed on 2026-11-15: "consider your first 5 resolved"; closed by acceptance, not a verified code fix)
 
 ### A-004: Internal refinement notes are publicly served
 
@@ -55,7 +55,7 @@ Last run: 2026-11-15 09:12 Asia/Kuwait, at commit 40bbc8c. Open: 5 (1 critical, 
 - **Suggested fix:** Decide which referenced verification reports should be public. Exclude internal notes and the site README if they are not intended public deliverables; update the deployment comment and any public links accordingly.
 - **Owner:** Team decision
 - **Confidence:** Certain
-- **Status:** Open
+- **Status:** Fixed in 8d46211 (all previously exposed paths now return 404)
 
 ### A-005: Required onboarding notes still authorize invented solid-test pressures
 
@@ -65,6 +65,66 @@ Last run: 2026-11-15 09:12 Asia/Kuwait, at commit 40bbc8c. Open: 5 (1 critical, 
 - **Evidence:** The inventory says solid rows can be plotted with `pressure_from: "investigation"` and cabin pressure `about 14.7 psi`. The current metadata says no investigation text states cabin pressure for BASS, BASS-II or SAFFIRE, so those values are null and the rows are not plotted. The auditor brief explicitly requires reading this inventory before judging.
 - **Why it matters:** This is actionable stale guidance in a required onboarding document. Following it would invent missing coordinates and undermine Data truth and Validity. The current dataset correctly keeps them null.
 - **Suggested fix:** Mark that recommendation as superseded and point to the current metadata rule. State that pressure stays null unless a cited source supplies it.
+- **Owner:** Story (docs/, page text)
+- **Confidence:** Certain
+- **Status:** Fixed in 8d46211 (inventory now explicitly requires null pressure)
+
+### A-006: SI questions outside the map range use the wrong atmosphere
+
+- **Severity:** Critical
+- **Area:** Data truth
+- **Where:** `site/assets/app.js:313`, `site/assets/app.js:365`; live landing-page assistant
+- **Evidence:** Asked the live assistant `What was tested at 21% oxygen and 30 psi?`. The POST carried `context.point.pressure_psi: 16`, with 108 gas tests and 181 droplet tests nearby, rather than evidence at 30 psi. The displayed response was `NASA's database here does not cover an atmosphere at 21 percent oxygen and 30 psi.` The actual dataset has 21 nearby rows at that point using `FlashpointOffline.evidenceAt(FlashpointRows,{o2_pct:21,pressure_psi:30}).nearCount`. One is PSI-159 test 21130A1, source line 90, 21.07% oxygen and 29.39 psi. `interpret` clamps pressure to 16 before building the SI evidence. A separate live question at 90% and 60 psi also sent 16 psi.
+- **Why it matters:** A display range is treated as a limit of NASA's evidence. The model receives a different atmosphere than the one requested and can falsely deny available evidence. This directly affects Validity and the project's central data-gap claim.
+- **Suggested fix:** Keep the requested atmosphere for evidence lookup even if the map cannot display it. Explicitly label the display limit, or reject an unsupported input before calling the model. Do not silently substitute 16 psi. Recount from the existing rows at the requested values.
+- **Owner:** Interface (site/, public/)
+- **Confidence:** Certain
+- **Status:** Open
+
+### A-007: Overlapping SI requests lose the first answer's citations
+
+- **Severity:** High
+- **Area:** Live site
+- **Where:** `site/assets/app.js:329`, `site/assets/app.js:332`, `site/assets/app.js:380`
+- **Evidence:** In a browser with controlled API responses, submitted `What was tested at the ISS?` and then `What was tested at the Moon Base?` before answering either request. The ISS context's first test was CFI-G 21137 D1; the Moon Base context's first test was FLEX 219F001. Returned an ISS response with `cites: ["21137 D1"]`. The displayed answer had zero source links. Each new `siContext` overwrites the global `siRows`, and the earlier response resolves its IDs against the latest request's rows. The chat form allows overlapping submissions. This reproduction isolates client behavior; it does not claim the model generated the controlled text.
+- **Why it matters:** A valid citation returned for one question disappears when another question is pending. Judges cannot trace the answer, and map highlights can refer to a different request's evidence.
+- **Suggested fix:** Capture citation rows separately for each request and carry them through both SI calls and response rendering. Alternatively serialize submissions across both assistant entry points.
+- **Owner:** Interface (site/, public/)
+- **Confidence:** Certain
+- **Status:** Open
+
+### A-008: Investigation cards confuse omitted rows with missing NASA tables
+
+- **Severity:** High
+- **Area:** Honest claims
+- **Where:** `site/assets/investigations.js:170`, `site/assets/investigations.js:190`, `site/assets/investigations.js:207`
+- **Evidence:** The cards say `Without per-test rows`, `No per-test rows:` and that 9 of 24 investigations `have per-test rows`. That division is computed only from the project's `tests.web.json`. Fresh NASA downloads show `PSI-107_Experimental table_Spice.csv` has 470 CSV records including its header, and `PSI-101_Experimental table_SAME-R.csv` has 110 including its header. SPICE's first row gives an ignition time, fuel and flow measurements; SAME-R's first row has test number 51 and sample Kapton. Both appear in the site's no-row group because this project excludes their rows, not because NASA lacks per-test records. Their exclusion reasons are already in `data/tests.meta.json`.
+- **Why it matters:** Readers looking for smoke detection or soot research may mistake a project selection decision for a NASA evidence gap. This weakens Relevance and Validity, especially the objective of identifying relevant investigations.
+- **Suggested fix:** Use `Rows included in Flashpoint` and `No rows included in this dataset`, and retain the specific exclusion reason and PSI link. Distinguish actual absence of a table from rows excluded for different measurements or missing map coordinates.
+- **Owner:** Interface (site/, public/)
+- **Confidence:** Certain
+- **Status:** Open
+
+### A-009: Compare lets keyboard focus leave its modal
+
+- **Severity:** Medium
+- **Area:** Accessibility
+- **Where:** `site/index.html:421`; `site/assets/investigations.js:268`
+- **Evidence:** Opened Research tools, selected CFI-G and FLEX, then opened Compare. Focus started on `invCmpClose`. Pressing Tab once made `document.querySelector('#invCmp').contains(document.activeElement)` return false while the dialog stayed open. The dialog declares `aria-modal="true"`, but opening it neither makes the background inert nor traps focus. Its key handler only handles Escape.
+- **Why it matters:** Keyboard users can leave the visible modal and reach background navigation instead of remaining in the comparison. This harms usability and Presentation.
+- **Suggested fix:** Use a native modal dialog or implement focus containment and background inertness, while retaining Escape and focus restoration.
+- **Owner:** Interface (site/, public/)
+- **Confidence:** Certain
+- **Status:** Open
+
+### A-010: The cards describe the elliptical evidence rule as an OR rule
+
+- **Severity:** Medium
+- **Area:** Data truth
+- **Where:** `site/assets/investigations.js:213`; `site/assets/investigations.js:24`
+- **Evidence:** The visible explanation says `within 10 points of oxygen or 2 psi`. The actual condition is `sqrt((oxygen difference / 10)^2 + (pressure difference / 2)^2) <= 1`. For example, real CFI-G test 21130A1 is at 21.07% oxygen and 29.39 psi. Its oxygen is within 10 points of Moon Base's 30%, so the written OR rule admits it; the implemented distance excludes it because pressure is far away. Counts and the ellipse use the implemented rule.
+- **Why it matters:** Readers cannot reproduce the displayed counts using the stated method. The chosen definition of nearby evidence is central to Validity.
+- **Suggested fix:** State the normalized-distance formula, or explain that both differences combine within the ellipse. Use the same wording as the existing Analysis method explanation; changing `or` to `and` alone still describes a rectangle.
 - **Owner:** Story (docs/, page text)
 - **Confidence:** Certain
 - **Status:** Open
@@ -89,3 +149,17 @@ First run. No earlier audit log existed, so there were no findings to close. Fin
 
 - `check_learning.py`: all 141 checks passed with the same Chromium substitution. `check_flame_lab.py` passed through all 24 width/theme/demo layout cases, then timed out waiting for readiness when reopening with reduced motion. Later checks were not reached. An isolated reduced-motion retry also exceeded the 10-second readiness wait, but subsequent diagnostics showed `ready: true`, the expected opening title and no script errors. This establishes a timeout in this environment, not a proven functional defect; the full 99-check pass is not claimed.
 - Live hashes for `site/assets/app.js`, `data/tests.web.json` and `site/videos/1-1.mp4` matched the audited checkout.
+
+## Second run evidence and limits
+
+- Audited main at bf5cea9. Re-read the brief and required files in order, retaining the first-run reading where file contents were unchanged. Reviewed all intervening changes, especially the SI route, client evidence handling, investigation cards and calm layer.
+- Closed A-002, A-004 and A-005 against their fixing commits and current behavior. Closed A-001 and A-003 on the user's explicit acceptance, using the log's Won't fix status instead of inventing fixing commits. Media bytes are unchanged since the first run and the concept-origin placeholder remains; these are not reopened or repeated as new findings.
+- `python scripts/check_data.py`: all seven checks passed. `node scripts/check_offline_native.mjs`: all offline checks passed. The test datasets and build parser are unchanged from the first run's fresh NASA comparison.
+- `python scripts/check_investigations.py`: eight checks passed; raw-catalogue checks were skipped because the optional local cache was absent. Independently fetched NASA's catalogue into memory and verified all 24 copied objectives against it. Downloaded the SPICE and SAME-R tables to verify A-008. No repository data file was regenerated.
+- Traced PSI-159 21130A1 to source line 90 and independently recounted 21 tests near 21% oxygen and 30 psi. Reviewed the cards' outcome grouping, null pressures and exclusion of inverse burner oxygen. New summaries identify AI-written fields; copied NASA objectives match the source. This does not validate every AI paraphrase or physical model.
+- Used live Chromium at phone width. The new hero loaded without horizontal overflow or page script errors. Two live SI questions returned AI-labelled answers, confirming the old missing-endpoint issue is fixed. Captured their requested evidence points for A-006. Model wording can vary; the client-side clamp is deterministic.
+- Local Chromium checks at 375, 768 and 1440 pixels rendered 9 cards and 15 tiles, with no horizontal overflow or page script errors. The only-rows filter hid all 15 tiles. Exercised See its tests and Compare. Used controlled replies only for the overlapping-request citation reproduction.
+- Did not rerun all old browser suites: the new README explicitly says the calm layer folds controls those scripts click and requires changing their navigation or disabling that layer. Used targeted checks of the new default UI instead. The previous flame-lab reduced-motion timeout remains a prior verification limit; no new full-suite pass is claimed. Learning and flame-model files are unchanged.
+- Publishing recheck: the three refinement reports, site README and new logo-draft comparison all returned 404. Reviewed the new API's secret handling and capped inputs. A pattern scan of 400 reachable history blobs found no common AWS, GitHub, OpenAI-style or private-key signatures. It is not an exhaustive secret or personal-data guarantee, nor a load test of API rate limiting.
+- Reviewed references, AI labels, quoted objectives, active UI text and new controls. No additional proven library-credit or redundancy issue was established. The source objectives include NASA's original punctuation; no new author-written dash finding is added.
+- Live browser testing used this environment's certificate-ignore setting as in run one. Actual submission fields, human permissions, final demo, physical devices, Safari, Firefox, screen-reader output, exhaustive contrast and all external links remain unchecked for the reasons recorded in run one. Historical lane ownership cannot be inferred reliably from commit authors.

@@ -77,6 +77,15 @@ The chat panel is answered by an AI model through `/api/chat` (`api/chat.js`, a 
 - **Key:** `GEMINI_API_KEY`, set in Vercel for Production only. It is not in the repo, and preview deployments have no key.
 - **Grounding:** the page sends the question with the evidence it has already counted near the air in question. The model
   must answer from that and from a fixed block of notes, each tied to the challenge statement or a NASA page.
+- **Scope (loosened Sun Nov 15, afternoon):** any question inside Flashpoint's subject is answered, general or specific:
+  fire and combustion, gravity, cabin atmospheres, spacecraft fire safety, NASA's experiments, the data and its gaps,
+  the challenge and this site. When the evidence and notes do not settle a question, the model may reason beyond them,
+  but each such sentence must start with "My inference:" or "My guess:". If the model flags an inference and forgets the
+  label, the route adds one. Numbers are still checked: an answer with a number that is not in the evidence, the notes
+  or the question is dropped. Questions outside the subject get a one-sentence reply.
+- **Abuse:** profanity is ignored (the real question, if any, is answered). Instructions hidden in a question are not
+  followed, an answer that talks about its own instructions is dropped, and it will not give fire-starting instructions.
+  These rule changes were tested with canned model replies only, not yet on the live site.
 - **Citations:** the model returns test ids and note numbers. The route keeps only test ids that were in the evidence and
   turns note numbers into their real sources. The page links the tests to NASA PSI and rings them on the map.
 - **Moving the map:** a question that means a different air moves the point there and is asked once more with that evidence.

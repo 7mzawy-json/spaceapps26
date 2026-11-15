@@ -5,7 +5,7 @@ message which finding you fixed (for example "Fixes A-012"). The auditor re-chec
 
 ## Summary
 
-Last run: 15/11/2026, 13:31:57 Asia/Kuwait, at commit f1f552f. Open: 4 (0 critical, 0 high). Fixed since last run: 3.
+Last run: 15/11/2026, 13:46:22 Asia/Kuwait, at commit 0099e27. Open: 4 (0 critical, 0 high). Fixed since last run: 0.
 
 ## Findings
 
@@ -285,3 +285,17 @@ First run. No earlier audit log existed, so there were no findings to close. Fin
 - A-012: live Learn now says there is no plotted test in this collection, explicitly noting missing pressures and studies outside it. The prior nobody-has-tested wording is absent.
 - A-013: the two cited BASS and suppressant-jet references now use page 31 in api/chat.js and lib/offline-answer.ts. The deployed browser fallback also contains page 31 for both facts. This verifies the identified corrections, not every other citation or generated response.
 - Targeted source and live-browser checks only. Browser used the same environment certificate-ignore setting as earlier runs. No application files or optimization entries were changed by the auditor.
+
+## Final pre-submission webpage check
+
+- Result: no new blocker found in the targeted live checks below. A-014 through A-017 remain deferred and unchanged. No optimization or application code was edited.
+- Live landing, Analysis and investigation navigation checked at 375, 768 and 1440 pixels. No document horizontal overflow. Nine cards and fifteen tiles rendered; Compare contained Tab focus and closed with Escape. No page script errors or HTTP failures were recorded in that navigation/assistant session.
+- After waiting for the animated transition, Moon Base displayed 30% oxygen, 10.2 psi, zero nearby gas tests, 68 nearby droplet tests and unplaceable solids. The droplet split was 21 nitrogen-only and 47 with carbon dioxide or helium. Initial immediate reads during the transition were not treated as final-state failures.
+- Live SI answered the Moon Base starter with 0 gas tests, 68 droplets and 263 solid tests without pressure, explicitly noting microgravity. It cited FLEX 219F001 and 223F002. This was an actual model response, not an intercepted response, but does not establish correctness of all possible replies.
+- Evidence brief opened at the chosen Moon Base conditions. CSV download completed successfully as flashpoint-nasa-tests.csv with 1,277 lines, including the header. This pass did not recheck PDF pagination or a physical printer.
+- All six Learn videos started playback without a media error and each exposed one caption track. The lesson views had no phone-width horizontal overflow. Playback was sampled, not watched end to end; caption transcription and audio quality were not reaudited.
+- CSS flame fallback loaded its NASA source card. WebGL lab initialized; advancing gravity reached 1 g and labelled the result MODIFIED CONDITIONS / OUTCOME UNKNOWN. Pause held the model clock fixed. No new full 99-check flame-lab claim is made.
+- All seven check_data.py checks and the offline-engine checks passed on the current checkout. Hashes of live app.js, learn.html, browser fallback and tests.web.json matched current main.
+- Deployment exclusions still returned 404 for tools/videos/tts.py, docs/audit-log.md and data/tests.json. The pitch deck also returns 404 under the Vercel docs path by design of the exclusion list. Its public GitHub raw URL returned 200 with a valid ZIP signature: https://raw.githubusercontent.com/7mzawy-json/spaceapps26/main/docs/pitch/Flashpoint-pitch.pptx . Use a verified public demo URL, not the excluded Vercel path.
+- Inspected the PowerPoint package and counted seven slides, meeting the previously read slide-count limit. Slides are image-based; this pass did not visually review their content or verify presentation compatibility.
+- Limits: Chromium in this environment, with its certificate-ignore setting. No Safari, Firefox, physical-device or screen-reader test. Actual Space Apps submission fields, submitted demo URL, registrations, permissions and successful submission confirmation are outside this webpage check. No submission was made by the auditor.

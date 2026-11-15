@@ -157,6 +157,8 @@ Each flame-science lesson opens with a narrated video. The videos are built outs
 (scripts, scenes, the recorded narration and the renderer; see `videos-design.md` there), and only the finished files
 are copied here. The narration was recorded once with ElevenLabs; do not regenerate it (credits). AI use is logged in
 `docs/ai-usage-log.md`; every video frame carries a small AI badge (NASA rule for AI-generated video).
+The page uses the main site's top bar, header band, buttons, theme and footer through `assets/frame.css` (a copy of
+those rules from `site.css`, since the whole of `site.css` would clash with the lesson styles). Change both together.
 
 ## Investigation cards (Sun Nov 15, morning)
 
@@ -178,6 +180,7 @@ learn.html          the learners page: six interactive flame-science lessons and
 videos/            the six lesson videos (MP4, captions, posters), made by alanzim/learn/videos/render.py
 assets/tokens.css   every colour, size and radius, light and dark (shared by both pages)
 assets/site.css     styles for index.html
+assets/frame.css    the shared top bar, header band, buttons and footer, copied from site.css for learn.html
 assets/app.js       script for index.html
 assets/flame-lab.js the guided lab, source context, comparisons and setup links
 assets/flame-lab.css presentation and responsive lab styles

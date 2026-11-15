@@ -1,0 +1,58 @@
+/* Flashpoint page frame: top bar, logo, buttons, theme switch, page header band and footer, drawn exactly as the main
+   site draws them in site.css. Pages that do not load site.css (learn.html) load this file instead, placed before
+   refinement.css, so the same rules land in the same order and the pages look the same. Only the frame is here: lesson
+   and page content keep their own styles. If a rule below changes in site.css, change it here too.
+   AI-assisted (Claude Code). */
+.wrap { max-width: 1200px; margin: 0 auto; padding: 0 1.5rem; }
+.kind { font-size: var(--t-xs); font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+
+/* buttons and the theme switch */
+.btn, .theme { min-height: 44px; display: inline-flex; align-items: center; border-radius: var(--r); padding: 0 1.1rem; font-size: var(--t-sm); font-weight: 600; cursor: pointer; white-space: nowrap; transition: transform var(--fast), filter var(--fast), border-color var(--fast); }
+.btn { border: 1.5px solid var(--brand-fill); background: var(--brand-fill); color: var(--on-fill); }
+.btn:hover { filter: brightness(1.12); } .btn:active { transform: translateY(1px); }
+.btn.ghost, .theme { background: transparent; color: var(--brand); border: 1.5px solid var(--line-strong); }
+.btn.ghost:hover, .theme:hover { border-color: var(--brand); filter: none; }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.btn.sm { font-size: var(--t-sm); }
+
+/* the mark and logo */
+.top { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1.25rem 0; }
+.top .mark, .bar .mark { display: inline-flex; align-items: center; gap: .6rem; min-height: 44px; font-weight: 700; font-size: var(--t-lg); letter-spacing: -.01em; color: var(--brand); text-decoration: none; }
+.logo { height: 36px; width: auto; aspect-ratio: 178 / 372; flex: none; color: var(--accent-mark); overflow: visible; }
+.bar .logo { height: 32px; }
+#fpLogo polygon { fill: none; stroke: currentColor; stroke-width: 1.5px; vector-effect: non-scaling-stroke; stroke-linejoin: round; }
+
+/* the top bar: the main site's bar, always shown and kept at the top while the page scrolls */
+.bar { position: sticky; top: 0; height: var(--bar-h); z-index: 220; display: flex; align-items: center; gap: .75rem;
+  padding: 0 max(1rem, calc((100vw - 1200px) / 2 + 1.5rem)); background: var(--surface); border-bottom: 1px solid var(--line); }
+#bar.bar { background: var(--bg); }   /* the main site's bar while a page is open (refinement.css, body.in-page .bar) */
+.bar .mark { font-size: var(--t-md); }
+.bar .mark, .bar .theme { flex: none; }
+.bar .tabs { flex: 1; display: flex; gap: .25rem; justify-content: center; overflow-x: auto; }
+.bar .tab { min-height: 44px; display: inline-flex; align-items: center; padding: 0 .9rem; border-radius: var(--r); font-size: var(--t-sm); font-weight: 500; color: var(--muted); text-decoration: none; white-space: nowrap; transition: background-color var(--fast), color var(--fast); }
+.bar .tab:hover { color: var(--ink); background: var(--well); }
+.bar .tab[aria-current="page"] { color: var(--brand); background: var(--brand-soft); font-weight: 600; }
+
+/* the page header band, as on Analysis */
+.band { position: relative; overflow: hidden; border-bottom: 1px solid var(--line); }
+.band .wrap { position: relative; padding-top: 2rem; padding-bottom: 1.75rem; }
+.band h1 { margin-top: .3rem; font-size: var(--t-2xl); font-weight: 700; letter-spacing: -.03em; line-height: 1.1; color: var(--ink); text-wrap: balance; }
+.band h1:focus { outline: none; }
+.band p { margin-top: .5rem; max-width: 62ch; color: var(--muted); }
+.band .art { position: absolute; right: 1.5rem; bottom: -12px; width: 210px; height: 138px; color: var(--brand); opacity: .16; pointer-events: none; }
+
+/* the footer */
+.site-foot { border-top: 1px solid var(--line); margin-top: 1rem; }
+.site-foot .wrap { display: flex; gap: 1.25rem; align-items: flex-start; padding-top: 1.5rem; padding-bottom: 2.5rem; }
+.site-foot .top { padding: 0; flex: none; }
+.site-foot p { font-size: var(--t-sm); color: var(--muted); max-width: 80ch; }
+
+@media (max-width: 860px) { .band .art { display: none; } }
+@media (max-width: 767px) {
+  .wrap { padding: 0 1rem; }
+  .bar { gap: .25rem; padding: 0 .5rem; }
+  .bar .mark span, .theme .long { display: none; }
+  .bar .tabs { justify-content: flex-start; }
+  .bar .tab { padding: 0 .6rem; }
+  .bar .theme { padding: 0 .7rem; }
+}

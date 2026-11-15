@@ -1,7 +1,7 @@
 {
  "what": "One entry per combustion investigation in NASA's Physical Science Informatics (PSI) catalogue.",
  "source": "https://psi.nasa.gov/geode-py/ws/repo/search?q=&data_source=psi&data_type=investigation&size=100",
- "built_at": "2026-11-15T06:07:41Z",
+ "built_at": "2026-11-15T06:14:10Z",
  "generated_by": {
   "nasa": "accession, acronym, title, platform, hardware, start, end, objectives and psi_url are copied from NASA's catalogue.",
   "team": "short_name, stage, hardware_family and fuel_form are set by the team from the challenge statement and NASA's hardware field (scripts/build_investigations.py).",
@@ -20,7 +20,7 @@
   "prevent": "Prevent",
   "detect": "Detect",
   "suppress": "Suppress",
-  "basics": "Combustion basics"
+  "basics": "Flame science"
  },
  "investigations": [
   {

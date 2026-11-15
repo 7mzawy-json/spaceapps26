@@ -36,8 +36,8 @@ FAMILIES = {
 }
 # Fire-safety stage, from the challenge statement: prevention (BASS, BASS-II, SAFFIRE; BRE "a study of materials
 # flammability"), detection (SAME, SAME-R; DAFT shares SAME's instrument), suppression (FLEX). Everything else is
-# combustion basics. The team should confirm these tags.
-STAGES = {"prevent": "Prevent", "detect": "Detect", "suppress": "Suppress", "basics": "Combustion basics"}
+# flame science. The team should confirm these tags.
+STAGES = {"prevent": "Prevent", "detect": "Detect", "suppress": "Suppress", "basics": "Flame science"}  # "Flame science" matches the ranking on the Analysis page
 
 # accession: (short_name, stage, hardware_family, fuel_form)
 TEAM = {

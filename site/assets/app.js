@@ -308,29 +308,30 @@
     // Numbers come from the offline engine's parser (units, "30% oxygen and 10.2 psi"); the simple patterns are the backup if it did not load.
     var q = OFF ? OFF.parseQuestion(text) : null;
     var mo = q ? (q.o2_pct != null ? [0, q.o2_pct] : null) : (t.match(/(?:oxygen|o2)\D{0,12}(\d+(?:\.\d+)?)/) || t.match(/(\d+(?:\.\d+)?)\s*%/));
-    if (mo) { next.o = clamp(+mo[1], 10, 100); said.push('Set oxygen to ' + next.o + '%'); }
+    // The map shows 10 to 100% oxygen and 1 to 16 psi. A question outside that still gets evidence for the air it asks
+    // about: the point goes to the map's edge and the reply says so. The asked values (ao, ap) are never clamped.
+    if (mo && +mo[1] > 0 && +mo[1] <= 100) { next.ao = +mo[1]; next.o = clamp(next.ao, 10, 100); said.push(next.o === next.ao ? 'Set oxygen to ' + next.o + '%' : 'The map starts at 10% oxygen, so the point sits at its edge while the answer is for ' + next.ao + '%'); }
     var mp = q ? (q.pressure_psi != null ? [0, q.pressure_psi] : null) : (t.match(/(\d+(?:\.\d+)?)\s*psi/) || t.match(/pressure\D{0,12}(\d+(?:\.\d+)?)/));
-    if (mp) { next.p = clamp(+mp[1], 1, 16); said.push('Set pressure to ' + next.p + ' psi'); }
+    if (mp && +mp[1] > 0 && +mp[1] <= 150) { next.ap = +mp[1]; next.p = clamp(next.ap, 1, 16); said.push(next.p === next.ap ? 'Set pressure to ' + next.p + ' psi' : 'The map stops at 16 psi, so the point sits at its edge while the answer is for ' + next.ap + ' psi'); }
     if (!said.length) return { reply: 'I can move the point on the map (oxygen and pressure, or the ISS, the Moon Base or a spacesuit) and answer from NASA\'s test data.' };
     var o = next.o !== undefined ? next.o : home.state.o, p = next.p !== undefined ? next.p : home.state.p, pp = o / 100 * p, label = said.join('; ');
     movePoint(o, p, label);
     var extra = ' Oxygen partial pressure is now ' + pp.toFixed(2) + ' psi, ' + (pp / SEA_PPO2).toFixed(2) + ' times sea level.';
     if (q && q.gravity && q.gravity !== '0g') extra += ' Every NASA test in the data ran in microgravity, so there is no test at another gravity level. The flame lab illustrates what gravity would change.';
-    return { reply: label + '.' + extra, did: label, o: o, p: p };
+    return { reply: label + '.' + extra, did: label, o: next.ao !== undefined ? next.ao : o, p: next.ap !== undefined ? next.ap : p };
   }
   function addMsg(cls, text, did, why) {
     var m = document.createElement('div'); m.className = 'msg ' + cls; m.textContent = text;
-    if (did) { var s = document.createElement('span'); s.className = 'did'; s.textContent = 'Moved the point on the map'; m.appendChild(s); }
+    // When the air asked about is outside what the map can draw, say so instead of implying the point is on it.
+    if (did) { var s = document.createElement('span'); s.className = 'did'; s.textContent = /sits at its edge/.test(did) ? 'The map covers 10 to 100% oxygen and 1 to 16 psi, so the point sits at its edge. The answer is for the air you asked about.' : 'Moved the point on the map'; m.appendChild(s); }
     if (why) { var w = document.createElement('span'); w.className = 'why'; w.textContent = why; m.appendChild(w); }
     $('msgs').appendChild(m); $('msgs').scrollTop = $('msgs').scrollHeight; return m;
   }
   // What the SI assistant is given: the air in question and what NASA's rows say near it, counted here with the same
   // rules the page shows. It is told to answer from this and nothing else (see api/chat.js).
-  var siRows = [];
   function siContext(p, o) {
     var ev = OFF.evidenceAt(ROWS, { o2_pct: o, pressure_psi: p }, { k: 6 }), rank = rankAt(p, o), s = solidSummary();
-    siRows = ev.nearest.map(function (n) { return n.row; });
-    return {
+    return { rows: ev.nearest.map(function (n) { return n.row; }), context: {
       point: { o2_pct: +o.toFixed(1), pressure_psi: +p.toFixed(1), oxygen_partial_pressure_psi: +(o / 100 * p).toFixed(2), times_sea_level: +(o / 100 * p / SEA_PPO2).toFixed(2),
         habitat: [["ISS cabin air", 21, 14.7], ["Moon Base or pressurized rover air", 30, 10.2], ["Spacesuit air", 100, 4.3]].filter(function (h) { return Math.abs(h[1] - o) < 0.6 && Math.abs(h[2] - p) < 0.15; }).map(function (h) { return h[0]; })[0] || null },
       near_rule: 'A test counts as near when sqrt((oxygen difference / ' + OFF.O2_SCALE + ')^2 + (pressure difference / ' + OFF.P_SCALE + ')^2) <= ' + OFF.NEAR_DISTANCE + '. Inverse flames (oxygen from the burner) are left out.',
@@ -340,15 +341,16 @@
       investigations_ranked: rank.placed.map(function (r) { return { name: r.name, accession: r.acc, what_it_is_for: r.role, tests_near: r.near, tests_total: r.total }; }),
       investigations_that_cannot_be_placed: rank.unplaced.map(function (r) { return { name: r.name, accession: r.acc, what_it_is_for: r.role, tests_total: r.total, reason: 'no pressure in the NASA table' }; }),
       totals: { test_rows: ROWS.length, solid_material_tests: s.n, solid_material_tests_with_pressure: s.withP, highest_oxygen_in_a_solid_test_pct: s.hi, gravity_of_every_test: 'microgravity' }
-    };
+    } };
   }
+  var siSeq = 0;
   function askSI(text, p, o, final) {
     var ctrl = new AbortController(), timer = setTimeout(function () { ctrl.abort(); }, 22000);
-    var page = (document.querySelector('.page.open') || { id: 'page-dashboard' }).id.slice(5);
+    var page = (document.querySelector('.page.open') || { id: 'page-dashboard' }).id.slice(5), sent = siContext(p, o);
     return fetch(CHAT_ENDPOINT, { method: 'POST', headers: { 'content-type': 'application/json' }, signal: ctrl.signal,
-      body: JSON.stringify({ question: text, page: page, final: !!final, context: siContext(p, o) }) })
+      body: JSON.stringify({ question: text, page: page, final: !!final, context: sent.context }) })
       .then(function (res) { clearTimeout(timer); if (!res.ok) throw new Error('status ' + res.status); return res.json(); }, function (e) { clearTimeout(timer); throw e; })
-      .then(function (d) { if (!d || typeof d.answer !== 'string' || !d.answer) throw new Error('empty answer'); return d; });
+      .then(function (d) { if (!d || typeof d.answer !== 'string' || !d.answer) throw new Error('empty answer'); d.rows = sent.rows; return d; });
   }
   function send(text) {
     text = text.trim(); if (!text) return;
@@ -362,26 +364,27 @@
       return;
     }
     var at = r.did ? { o: r.o, p: r.p } : { o: home.state.o, p: home.state.p };
+    var mine = ++siSeq;   // only the newest question may draw rings on the map
     home.mark([]);
     askSI(text, at.p, at.o, !!r.did).then(function (d) {
       // The assistant may mean a different air than the map shows (a rover, say). Move there, then ask once more with that air's evidence.
       if (!r.did && d.move && (Math.abs(d.move.o2_pct - at.o) > 0.5 || Math.abs(d.move.pressure_psi - at.p) > 0.1)) {
         r.did = 'Moved to the air in your question (' + d.move.o2_pct + '% oxygen, ' + d.move.pressure_psi + ' psi)';
-        movePoint(d.move.o2_pct, d.move.pressure_psi, r.did);
+        movePoint(clamp(d.move.o2_pct, 10, 100), clamp(d.move.pressure_psi, 1, 16), r.did);
         return askSI(text, d.move.pressure_psi, d.move.o2_pct, true).catch(function () { return d; });
       }
       return d;
     }).then(function (d) {
       typing.remove();
       var msg = addMsg('bot', d.answer, r.did, 'Answered by the Flashpoint SI assistant (AI-generated, Google Gemini). Check it against the cited NASA records.');
-      var cited = (d.cites || []).map(function (id) { return siRows.filter(function (x) { return String(x.test_id) === id; })[0]; }).filter(Boolean);
+      var cited = (d.cites || []).map(function (id) { return (d.rows || []).filter(function (x) { return String(x.test_id) === id; })[0]; }).filter(Boolean);
       // Links under the answer: the NASA tests it named, then the documents its background came from (attached by the server, not written by the AI).
       var links = cited.map(function (x) { return { label: x.investigation + ' ' + x.test_id, url: PSI_PAGE + x.accession }; })
         .concat((d.sources || []).filter(function (x) { return x && x.label && /^https:\/\//.test(x.url || ''); }));
       if (!links.length) return;
       var box = document.createElement('div'); box.className = 'answer-sources';
       links.forEach(function (x) { var a = document.createElement('a'); a.href = x.url; a.target = '_blank'; a.rel = 'noopener'; a.textContent = x.label; box.appendChild(a); });
-      msg.appendChild(box); home.mark(cited);
+      msg.appendChild(box); if (mine === siSeq) home.mark(cited);
     }, function () { showFallback(OFF.answerOffline(text, ROWS, 'the SI assistant was unavailable')); });
     function showFallback(ans) {
       typing.remove();

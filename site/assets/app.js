@@ -374,9 +374,12 @@
       typing.remove();
       var msg = addMsg('bot', d.answer, r.did, 'Answered by the Flashpoint SI assistant (AI-generated, Google Gemini). Check it against the cited NASA records.');
       var cited = (d.cites || []).map(function (id) { return siRows.filter(function (x) { return String(x.test_id) === id; })[0]; }).filter(Boolean);
-      if (!cited.length) return;
+      // Links under the answer: the NASA tests it named, then the documents its background came from (attached by the server, not written by the AI).
+      var links = cited.map(function (x) { return { label: x.investigation + ' ' + x.test_id, url: PSI_PAGE + x.accession }; })
+        .concat((d.sources || []).filter(function (x) { return x && x.label && /^https:\/\//.test(x.url || ''); }));
+      if (!links.length) return;
       var box = document.createElement('div'); box.className = 'answer-sources';
-      cited.forEach(function (x) { var a = document.createElement('a'); a.href = PSI_PAGE + x.accession; a.target = '_blank'; a.rel = 'noopener'; a.textContent = x.investigation + ' ' + x.test_id; box.appendChild(a); });
+      links.forEach(function (x) { var a = document.createElement('a'); a.href = x.url; a.target = '_blank'; a.rel = 'noopener'; a.textContent = x.label; box.appendChild(a); });
       msg.appendChild(box); home.mark(cited);
     }, function () { showFallback(OFF.answerOffline(text, ROWS, 'the SI assistant was unavailable')); });
     function showFallback(ans) {

@@ -1,5 +1,11 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
-  "outputDirectory": "."
+  "outputDirectory": ".",
+  "functions": {
+    "api/chat.js": {
+      "includeFiles": "{data/tests.web.json,public/offline/offline-answer.js}",
+      "maxDuration": 10
+    }
+  }
 }

@@ -74,7 +74,7 @@
     el('rect', { 'class': 'bg', x: L, y: T, width: X1 - L, height: H - T - B, rx: 4 }, svg);
     [4, 8, 12].forEach(function (p) { el('line', { 'class': 'gl', x1: x(p), x2: x(p), y1: T, y2: H - B }, svg); });
     [40, 70].forEach(function (o) { el('line', { 'class': 'gl', x1: L, x2: X1, y1: y(o), y2: y(o) }, svg); });
-    // The Moon Base "near" zone: within O2S * NEAR points of oxygen and PS * NEAR psi, the same rule as the main map.
+    // The Moon Base "near" zone: the ellipse sqrt((dO2 / O2S)^2 + (dP / PS)^2) <= NEAR, the same rule as the main map.
     var zone = el('ellipse', { 'class': 'zone' + (f.nearMoon ? ' lit' : ''), cx: x(HAB.moon[0]), cy: y(HAB.moon[1]),
       rx: x(HAB.moon[0] + PS * NEAR) - x(HAB.moon[0]), ry: y(HAB.moon[1]) - y(HAB.moon[1] + O2S * NEAR) }, svg);
     var d = ''; for (var pp = SEA; pp <= 16.001; pp += 0.2) d += (d ? 'L' : 'M') + x(pp).toFixed(1) + ' ' + y(SEA / pp * 100).toFixed(1);
@@ -167,7 +167,7 @@
     var why = reasonFor(e.accession);
     t.innerHTML = '<div class="inv-top"><span class="inv-stage ' + e.stage + '">' + esc(INV.stages[e.stage]) + '</span><span class="inv-acc">' + esc(e.accession) + '</span></div>' +
       '<h5>' + icon(e.fuel_form) + esc(e.short_name) + '</h5><p class="inv-sum">' + esc(e.summary) + '</p>' +
-      '<p class="inv-why">No per-test rows: ' + esc(why) + '.</p>' +
+      '<p class="inv-why">No rows included in Flashpoint: ' + esc(why) + '.</p>' +
       '<div class="inv-act"><a class="linkbtn" href="' + esc(e.psi_url) + '" target="_blank" rel="noopener">NASA PSI page</a><label class="check inv-cmp"><input type="checkbox" data-cmp> Compare</label></div>';
     var cb = t.querySelector('[data-cmp]'); cb.checked = picked.indexOf(e.accession) >= 0;
     cb.addEventListener('change', function () { toggle(e.accession, cb.checked); });
@@ -183,11 +183,11 @@
     var list = order(INV.investigations.filter(function (e) { return stage === 'all' || e.stage === stage; }));
     var data = list.filter(hasRows), rest = list.filter(function (e) { return !hasRows(e); });
     if (data.length) {
-      var h = document.createElement('h3'); h.className = 'inv-h'; h.innerHTML = 'With test rows in NASA\'s tables <span>' + plural(data.length, 'investigation') + ', every map on the same scale</span>'; box.appendChild(h);
+      var h = document.createElement('h3'); h.className = 'inv-h'; h.innerHTML = 'Rows included in Flashpoint <span>' + plural(data.length, 'investigation') + ', every map on the same scale</span>'; box.appendChild(h);
       var grid = document.createElement('div'); grid.className = 'inv-grid'; data.forEach(function (e) { grid.appendChild(card(e)); }); box.appendChild(grid);
     }
     if (rest.length && !onlyRows) {
-      var h2 = document.createElement('h3'); h2.className = 'inv-h'; h2.innerHTML = 'Without per-test rows <span>' + plural(rest.length, 'investigation') + ', with the reason</span>'; box.appendChild(h2);
+      var h2 = document.createElement('h3'); h2.className = 'inv-h'; h2.innerHTML = 'No rows included in this dataset <span>' + plural(rest.length, 'investigation') + ', each with the reason</span>'; box.appendChild(h2);
       var tg = document.createElement('div'); tg.className = 'inv-tiles'; rest.forEach(function (e) { tg.appendChild(tile(e)); }); box.appendChild(tg);
     }
     $('invCount').textContent = 'Showing ' + plural(data.length + (onlyRows ? 0 : rest.length), 'investigation') + ' of ' + INV.investigations.length + '.';
@@ -204,20 +204,20 @@
   function findings() {
     var s = stats();
     var tiles = [
-      ['', '<b>' + s.withRows.length + '</b><small>of ' + s.all.length + '</small>', 'investigations have per-test rows (' + ROWS.length.toLocaleString('en') + ' tests). The other ' + (s.all.length - s.withRows.length) + ' are tiles below, with the reason.'],
+      ['', '<b>' + s.withRows.length + '</b><small>of ' + s.all.length + '</small>', 'investigations have rows included in Flashpoint (' + ROWS.length.toLocaleString('en') + ' tests). The other ' + (s.all.length - s.withRows.length) + ' are tiles below, each with the reason: some have NASA tables that measure something else or lack oxygen and pressure per test, some have no per-test table.'],
       [s.moonAllDroplets ? 'gap' : '', '<b>' + s.moonN + '</b>', 'tests near the Moon Base air (30% oxygen, 10.2 psi): ' + s.moon.map(function (m) { return m[0] + ' ' + m[1]; }).join(', ') + (s.moonAllDroplets ? '. All are fuel droplets, none a cabin material.' : '.')],
       ['gap', '<b>' + s.solidP + '</b><small>of ' + s.solid.length + '</small>', 'solid-material tests have a pressure in NASA\'s tables, so no cabin material can be placed near any habitat.'],
       ['', '<b>' + s.noOutcome.length + '</b>', 'investigations record no outcome for any test: ' + s.noOutcome.map(function (e) { return e.short_name; }).join(', ') + '.']
     ];
     $('invFindings').innerHTML = '<div class="inv-statgrid">' + tiles.map(function (t) { return '<div class="inv-stat ' + t[0] + '"><p class="num">' + t[1] + '</p><p>' + esc(t[2]).replace(/&lt;b&gt;|&lt;\/b&gt;/g, '') + '</p></div>'; }).join('') + '</div>' +
-      '<p class="note">Counted in your browser from data/tests.web.json. "Near" uses the same rule as the map: within ' + (O2S * NEAR) + ' points of oxygen or ' + (PS * NEAR) + ' psi, chamber oxygen only. On each map, the ring around the Moon Base point is that zone.</p>';
+      '<p class="note">Counted in your browser from data/tests.web.json. "Near" uses the same rule as the map, chamber oxygen only. The oxygen and pressure differences are combined into one distance: sqrt((oxygen difference / ' + O2S + ')^2 + (pressure difference / ' + PS + ')^2) <= ' + NEAR + '. A test ' + (O2S * NEAR) + ' points of oxygen away counts only if its pressure is the same, and one ' + (PS * NEAR) + ' psi away only if its oxygen is the same. On each map, the ring around the Moon Base point is that zone.</p>';
   }
   /* ---------- the landing-page strip: the same small maps, one per investigation with test rows ---------- */
   function strip() {
     var box = $('invStrip'); if (!box) return;
     var s = stats(), list = order(s.withRows);
     var names = s.moon.map(function (m) { return m[0]; });
-    $('invStripTitle').textContent = s.withRows.length + ' investigations with test rows. ' + (names.length ? 'Only ' + names.join(' and ') + ' reach the Moon Base air.' : 'None reaches the Moon Base air.');
+    $('invStripTitle').textContent = s.withRows.length + ' investigations with rows in Flashpoint. ' + (names.length ? 'Only ' + names.join(' and ') + ' reach the Moon Base air.' : 'None reaches the Moon Base air.');
     box.textContent = '';
     list.forEach(function (e) {
       var f = facts(e.accession), fig = document.createElement('figure'); fig.className = 'inv-strip-item st-' + e.stage;
@@ -243,7 +243,7 @@
     var cols = picked.map(byAcc), fs = cols.map(function (e) { return facts(e.accession); });
     var rows = [
       ['Stage', function (e) { return INV.stages[e.stage]; }], ['Hardware', function (e) { return INV.families[e.hardware_family]; }],
-      ['Fuel', function (e) { return FORM[e.fuel_form]; }], ['Tests in NASA\'s tables', function (e, f) { return f.n || 'none we can use'; }],
+      ['Fuel', function (e) { return FORM[e.fuel_form]; }], ['Tests included in Flashpoint', function (e, f) { return f.n || 'none included'; }],
       ['Oxygen in the chamber', function (e, f) { return range(f.chamber.map(function (r) { return r.o2_pct; }), '%') || 'not recorded'; }],
       ['Pressure', function (e, f) { return range(f.withP.map(function (r) { return r.pressure_psi; }), ' psi') || 'not recorded'; }],
       ['Near the Moon Base air', function (e, f) { return !f.n ? '-' : !f.withP.length ? 'cannot be placed (no pressure in NASA\'s table)' : (f.nearMoon || 'none'); }],
@@ -258,17 +258,28 @@
       c.innerHTML = '<span class="inv-stage ' + e.stage + '">' + esc(INV.stages[e.stage]) + '</span><h4>' + esc(e.short_name) + ' <small>' + esc(e.accession) + '</small></h4><p class="inv-sum">' + esc(e.summary) + '</p>';
       if (fs[i].n && (fs[i].chamber.length || fs[i].burner.length)) { c.appendChild(miniMap(fs[i], mapLabel(e, fs[i]))); c.appendChild(outBar(fs[i])); }
       else if (fs[i].n) { c.appendChild(noMap('No oxygen or pressure recorded')); c.appendChild(outBar(fs[i])); }
-      else { var w = document.createElement('p'); w.className = 'inv-why'; w.textContent = 'No per-test rows we can use: ' + reasonFor(e.accession) + '.'; c.appendChild(w); }
+      else { var w = document.createElement('p'); w.className = 'inv-why'; w.textContent = 'No rows included in Flashpoint: ' + reasonFor(e.accession) + '.'; c.appendChild(w); }
       var dl = document.createElement('dl');
       rows.forEach(function (r) { dl.innerHTML += '<dt>' + esc(r[0]) + '</dt><dd>' + esc(r[1](e, fs[i])) + '</dd>'; });
       c.appendChild(dl); grid.appendChild(c);
     });
     b.appendChild(grid);
     var n = document.createElement('p'); n.className = 'note'; n.textContent = 'Maps share one scale: total pressure 0 to 16 psi across, oxygen 10 to 100% up; the ring is the Moon Base "near" zone. Summaries are AI-written from NASA\'s objectives; every number is counted from NASA\'s rows.'; b.appendChild(n);
-    cmpFrom = document.activeElement; $('invCmp').hidden = false; $('invCmpClose').focus();
+    cmpFrom = document.activeElement; $('invCmp').hidden = false; behind(true); $('invCmpClose').focus();
   }
   var cmpFrom = null;
-  function closeCompare() { $('invCmp').hidden = true; if (cmpFrom && cmpFrom.focus) cmpFrom.focus(); }
+  // While Compare is open, everything else on the page is inert: it cannot take focus, clicks or screen-reader reading.
+  function behind(on) { Array.prototype.forEach.call(document.body.children, function (n) { if (n.id !== 'invCmp' && n.tagName !== 'SCRIPT') { if (on) { if (!n.inert) { n.inert = true; n.setAttribute('data-cmp-inert', ''); } } else if (n.hasAttribute('data-cmp-inert')) { n.inert = false; n.removeAttribute('data-cmp-inert'); } } }); }
+  function closeCompare() { $('invCmp').hidden = true; behind(false); if (cmpFrom && cmpFrom.focus) cmpFrom.focus(); }
+  // Tab and Shift+Tab stay inside the dialog (also covers browsers without inert).
+  function trapTab(e) {
+    if (e.key !== 'Tab' || $('invCmp').hidden) return;
+    var f = Array.prototype.filter.call($('invCmp').querySelectorAll('a[href], button:not([disabled]), input:not([disabled]), select, [tabindex]:not([tabindex="-1"])'), function (n) { return n.offsetParent !== null; });
+    if (!f.length) { e.preventDefault(); return; }
+    var first = f[0], last = f[f.length - 1], inside = $('invCmp').contains(document.activeElement);
+    if (e.shiftKey && (document.activeElement === first || !inside)) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && (document.activeElement === last || !inside)) { e.preventDefault(); first.focus(); }
+  }
 
   /* ---------- the Cards / Table switch, the filters and the ways in ---------- */
   function showView(v) {
@@ -291,6 +302,7 @@
     $('invCmpClear').addEventListener('click', function () { picked = []; document.querySelectorAll('[data-cmp]').forEach(function (c) { c.checked = false; }); toggle('', false); });
     $('invCmpClose').addEventListener('click', closeCompare);
     $('invCmp').addEventListener('click', function (e) { if (e.target === this) closeCompare(); });
+    document.addEventListener('keydown', trapTab, true);
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !$('invCmp').hidden) { e.stopImmediatePropagation(); closeCompare(); } }, true);
     document.querySelectorAll('[data-open-cards]').forEach(function (b) { b.addEventListener('click', openCards); });
     Promise.all([

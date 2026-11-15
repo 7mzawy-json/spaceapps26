@@ -5,6 +5,8 @@
 > with three sections (Analysis, Flame lab, Learn) and one assistant panel. `README.md` and `site/README.md` describe what exists.
 > **The assistant is AI first.** The team is adding an AI API as the main system for the assistant. The rule-based
 > engine is the **FALLBACK, NOT THE MAIN SYSTEM**. See "The assistant: AI first, rules as fallback" below.
+> **No feature freeze (decided Sun Nov 15).** The only hard stop is project submission at **15:30**. Proposal for
+> summarizing the investigations visually: `docs/investigation-summaries.md`.
 > Where this file and the site disagree, the site wins; do not build from the "Fixed decisions", "File layout" or
 > "Design rules" sections without checking with the team. `docs/mockup/` and `data/tests.sample.json` are deleted.
 
@@ -159,7 +161,7 @@ Personal working folders (for example `alanzim/`) hold drafts and proposals. The
   least every two hours. Pull `main` before starting a step. Only `main` deploys to the public URL;
   Vercel gives every branch its own preview link.
 - **Sync points:** 12:30 (data gate), 15:00 (after mentor round I), 17:30, 21:30 on Saturday; 09:30 and
-  12:00 (feature freeze) on Sunday. Five minutes each: what is merged, what is blocked, what gets cut.
+  12:00 on Sunday. Five minutes each: what is merged, what is blocked, what gets cut.
 - The times in the phases below were written for one person working in sequence. With lanes, Phase 4
   starts at 10:15 on Saturday alongside Phases 1 to 3 instead of waiting for them. Use the time this
   frees for polish, never for new features. The cut order still applies.
@@ -184,7 +186,7 @@ Default: Sonnet 5.5 at medium effort. Switch up only for the rows marked high.
 - Haiku 5.5 is for quick questions only, never for project code. Codex can take any Sonnet row.
 - Claude Code skills to invoke where available: **`taste-skill:gpt-tasteskill` before writing any UI
   (required by the human)**, `dataviz` before the map, `claude-api` before any script or route that
-  calls Claude, `code-review` before the feature freeze, `humanizer:humanizer` on submission text.
+  calls Claude, `code-review` before submission, `humanizer:humanizer` on submission text.
   Agents without these skills follow the "Design rules" section below and carry on.
 - Every phase ends with: run the done-check, commit, push, add one line to `docs/ai-usage-log.md`.
 
@@ -322,7 +324,7 @@ gravity control changes the plotted flames, and the self-check passes.
 **Done when:** the Moon Base preset shows a visibly different flame from ISS, its brief opens instantly
 with citations, and a custom point produces a brief in under 15 seconds.
 
-### Phase 6: Ask Flashpoint, the SI assistant (moved to Sun Nov 15, before the 12:00 freeze)
+### Phase 6: Ask Flashpoint, the SI assistant (moved to Sun Nov 15)
 1. `/api/chat`: the AI API is the **main system**. Its system prompt holds the catalogue and the test rows it needs,
    and the rule "answer only from these records, cite accessions like [PSI-25], say when they do not cover the question."
 2. Cap output length, cap requests per visitor, reject oversized input. The URL is public and the key costs money.
@@ -356,7 +358,8 @@ fallback answer that is labelled as one.
 4. Loading, empty and error states. The 2D map must be usable at phone width.
 5. Run a code review and fix only real bugs.
 
-**Feature freeze at 12:00.** After this, bug fixes and text only.
+**No feature freeze** (decided Sun Nov 15). Work continues until submission at 15:30; leave enough time to record
+the demo and fill in the project page.
 
 ### Phase 8: pitch and submission (12:00 to 15:00) [strong model]
 Rules: `docs/challenge/submission-and-awards.md`. Exceeding a demo limit removes us from Global Judging.
@@ -376,7 +379,7 @@ Rules: `docs/challenge/submission-and-awards.md`. Exceeding a demo limit removes
 ## If we fall behind
 
 Cut in this order, top first. Never cut the map and probe panel, and never cut the AI assistant: if its API is not
-live by the freeze, say so in the submission and let the labelled fallback answer. Never present the fallback as the
+live by submission, say so in the submission and let the labelled fallback answer. Never present the fallback as the
 main system.
 
 1. Live briefs for custom points (keep the four precomputed ones).
@@ -386,4 +389,4 @@ main system.
 5. Investigation detail pages (link straight to PSI).
 
 Checkpoints: map live with real data by Sat 17:30. If it is not, skip the predictor in Phase 5.
-Anything unfinished at Sun 12:00 is cut, not finished.
+Anything unfinished at submission (Sun 15:30) is cut, not finished.

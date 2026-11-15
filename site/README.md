@@ -50,6 +50,23 @@ What changed, and why:
 
 Old links still work: `#home` opens Analysis, `#resources` opens Advanced mode, `#si` opens the assistant.
 
+## The calm layer and the evidence meter (Sun Nov 15)
+
+`assets/calm.js` and `assets/calm.css` change the order and emphasis of the page without changing its content or data.
+Add `?calm=0` to the address to see the page without them; removing their two lines in `index.html` undoes them.
+
+- **Landing:** the evidence meter sits beside the headline. Then the three ways in, the four gaps (first sentence each,
+  the rest behind "More"), and four folded rows: the small maps, the gravity illustration, the challenge answers, and
+  where the numbers come from. The page is about a third shorter and has about half the words.
+- **Evidence meter:** a slider from ISS air (14.7 psi, 21% oxygen) through Moon Base air (10.2 psi, 30%) to spacesuit air
+  (4.3 psi, 100%), following straight lines between those three atmospheres from the challenge statement. The count is the
+  number of placeable tests near the chosen air, by the same rule as Analysis: 312 at the ISS, 68 at the Moon Base, 0 at
+  the spacesuit. It plays once from the ISS to the Moon Base on load, unless the visitor asked for reduced motion.
+- **Analysis:** "What NASA tested near this air" is a full-width row above the map. The "Go to" row is hidden because the
+  journey steps repeat it. One primary action shows; the other three are behind "More you can do with this point".
+- **Known cost:** the browser checks in `scripts/` click some controls that are now inside folded rows. Run them with
+  `?calm=0`, or update them to open the row first.
+
 ## The SI assistant (Sun Nov 15)
 
 The chat panel is answered by an AI model through `/api/chat` (`api/chat.js`, a Vercel serverless function).

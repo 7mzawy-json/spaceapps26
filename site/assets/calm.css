@@ -9,30 +9,23 @@
   border: 1px solid var(--line-strong); border-radius: 16px; background: linear-gradient(140deg, var(--surface), var(--well)); }
 .calm-lead .eyebrow { color: var(--accent); }
 .calm-prompt { font-size: clamp(18px, 1.9vw, 22px); line-height: 1.25; font-weight: 500; letter-spacing: -.02em; color: var(--ink); }
-/* The evidence meter: a big count, a small map, and one slider. */
-.calm-meter { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 22px; align-items: center; }
-.calm-big { display: flex; flex-direction: column; gap: 8px; }
-.calm-big output { min-width: 3ch; font: 500 clamp(64px, 8vw, 104px)/.85 var(--mono); letter-spacing: -.05em; font-variant-numeric: tabular-nums; color: var(--ink); }
-.calm-lead.none .calm-big output { color: var(--accent); }
-.calm-big span { max-width: 15ch; font-size: 14px; line-height: 1.35; color: var(--muted); }
-#calmMap { display: block; width: 100%; height: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--well); }
-#calmMap circle { fill: var(--muted); opacity: .75; }
-#calmMap circle.on { fill: var(--d-burn); opacity: 1; }
-#calmMap .calm-path { fill: none; stroke: var(--line-strong); stroke-width: 1; stroke-dasharray: 3 4; }
-#calmMap .calm-ring { fill: rgba(252, 61, 33, .10); stroke: var(--accent-mark); stroke-width: 1.5; }
-#calmMap text { font: 500 9px var(--mono); fill: var(--muted); }
-.calm-slide { display: grid; gap: 2px; }
-.calm-slide span { font: 500 14px var(--mono); color: var(--ink); }
-.calm-slide input { width: 100%; min-height: 44px; margin: 0; accent-color: var(--accent-mark); }
-.calm-stops { position: relative; height: 44px; margin-top: -14px; }
-.calm-stops button { position: absolute; top: 0; min-height: 44px; padding: 0 2px; border: 0; background: none; cursor: pointer; font: 500 12px var(--sans); color: var(--muted); }
-.calm-stops button:hover { color: var(--ink); text-decoration: underline; }
-.calm-stops button[data-p="4.3"] { left: 0; }
-.calm-stops button[data-p="10.2"] { left: 56.7%; transform: translateX(-50%); }
-.calm-stops button[data-p="14.7"] { right: 0; }
+/* The SI assistant beside the headline: one question box, three starters, and the answer in place. */
+.calm-ask { display: flex; gap: 8px; }
+.calm-ask input { flex: 1; min-width: 0; min-height: 48px; padding: 0 .9rem; border: 1px solid var(--line-strong); border-radius: var(--r); background: var(--surface); color: var(--ink); }
+.calm-ask .btn { min-height: 48px; }
+.calm-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.calm-chips .chip { min-height: 44px; font-size: 13px; }
+.calm-ask :disabled, .calm-chips :disabled { opacity: .55; cursor: wait; }
+.calm-answer { display: grid; gap: 10px; align-content: start; min-height: 132px; padding-top: 16px; border-top: 1px solid var(--line); }
 .calm-leadtext { font-size: 14px; line-height: 1.6; color: var(--muted); }
-.calm-leadtext b { font: 500 15px var(--mono); color: var(--ink); }
-.calm-lead .btn { align-self: flex-start; min-height: 44px; gap: 8px; }
+.calm-q { font: 500 13px var(--mono); color: var(--muted); }
+.calm-q::before { content: "You asked: "; }
+.calm-wait { font-size: 14px; color: var(--muted); }
+.calm-reply { font-size: 15px; line-height: 1.6; color: var(--ink); white-space: pre-line; }
+.calm-reply .did { display: block; margin-top: 8px; font-size: 12px; font-weight: 600; color: var(--brand); white-space: normal; }
+.calm-reply .why { display: block; margin-top: 6px; font-size: 12px; color: var(--muted); white-space: normal; }
+.calm-reply .answer-sources a { font-size: 12px; }
+.calm-lead .btn.ghost { align-self: flex-start; min-height: 44px; gap: 8px; }
 
 .calm .cards { padding-bottom: 64px; }
 .calm .findings { padding-bottom: 56px; }
@@ -83,7 +76,5 @@
   .calm-verdict .cover { grid-template-columns: 1fr; gap: 14px; }
   .calm-verdict .cov, .calm-verdict .cov:first-child, .calm-verdict .cov:last-child { padding: 0 0 14px; border-left: 0; border-bottom: 1px solid var(--line); }
   .calm-verdict .cov:last-child { padding-bottom: 0; border-bottom: 0; }
-  .calm-meter { grid-template-columns: 1fr; gap: 14px; }
-  .calm-big { flex-direction: row; align-items: flex-end; gap: 14px; }
 }
 @media (prefers-reduced-motion: reduce) { .calm-fold > summary::after { transition: none; } }

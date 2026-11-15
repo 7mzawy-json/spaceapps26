@@ -28,17 +28,17 @@
   var findings = main.querySelector('.findings'), strip = main.querySelector('.inv-strip-sec'), asked = main.querySelector('.asked');
   var ribbon = main.querySelector('.evidence-ribbon'), ask = main.querySelector('.closing-question');
   if (hero && chamber && cards && findings && strip && asked && ribbon && ask) {
-    // 1. The evidence meter, where the eye lands first: lower the cabin pressure and watch the nearby tests thin out.
-    var lead = el('aside', 'calm-lead', '<p class="eyebrow"><i></i> THE EVIDENCE METER</p>' +
-      '<p class="calm-prompt">Lower the cabin pressure. Watch the evidence thin out.</p>' +
-      '<div class="calm-meter"><p class="calm-big"><output id="calmCount" for="calmSlide">...</output><span>NASA fire tests near this air</span></p>' +
-      '<svg id="calmMap" viewBox="0 0 300 170" role="img" aria-label="Small map of pressure against oxygen. The ring is the air chosen with the slider, and the bright dots are the tests near it."></svg></div>' +
-      '<div class="calm-slide"><span id="calmAir">14.7 psi, 21% oxygen</span>' +
-      '<input id="calmSlide" type="range" min="4.3" max="14.7" step="0.1" value="14.7" aria-label="Cabin pressure, from a spacesuit up to the ISS"></div>' +
-      '<div class="calm-stops"><button type="button" data-p="4.3">Spacesuit</button><button type="button" data-p="10.2">Moon Base</button><button type="button" data-p="14.7">ISS</button></div>' +
-      '<p class="calm-leadtext" id="calmLeadText">Loading NASA tests.</p>' +
-      '<button class="btn ghost" type="button" id="calmSeeMap">See this air on the map <span aria-hidden="true">&rarr;</span></button>');
-    lead.setAttribute('aria-label', 'The evidence meter');
+    // 1. The SI assistant, where the eye lands first: ask a question and read the answer without leaving the page.
+    var lead = el('aside', 'calm-lead', '<p class="eyebrow"><i></i> ASK THE SI ASSISTANT</p>' +
+      '<p class="calm-prompt">Ask NASA\'s fire tests a question.</p>' +
+      '<form class="calm-ask" id="calmAsk"><input id="calmAskIn" autocomplete="off" maxlength="500" placeholder="What was tested for a Moon Base?" aria-label="Your question for the SI assistant">' +
+      '<button class="btn" type="submit" id="calmAskGo">Ask</button></form>' +
+      '<div class="calm-chips" id="calmChips"><button type="button" class="chip">What was tested for a Moon Base?</button>' +
+      '<button type="button" class="chip">Is spacesuit air tested?</button><button type="button" class="chip">Why are flames round in space?</button></div>' +
+      '<div class="calm-answer" id="calmAnswer" aria-live="polite"><p class="calm-leadtext">It answers from NASA\'s test rows near the air you ask about, names the tests it used, and moves the map there. ' +
+      'Answers are AI-generated (Google Gemini), and your question is sent to Google.</p></div>' +
+      '<button class="btn ghost" type="button" id="calmSeeMap" hidden>See it on the map <span aria-hidden="true">&rarr;</span></button>');
+    lead.setAttribute('aria-label', 'Ask the SI assistant');
     hero.insertBefore(lead, chamber);
 
     // 2. One order for the page. The rest waits behind four plain rows.
@@ -50,6 +50,7 @@
       fold('How this answers the challenge', 'NASA\'s three asks, and where each one is on the site', asked),
       fold('Where the numbers come from', 'Every value traces to a NASA file and line', ribbon));
     hero.after(cardsIntro, cards, findings, more, ask);
+    ask.classList.add('calm-hide');   // the same question box now sits beside the headline
 
     // 3. Each gap: its first sentence shows, the rest is one tap away. The page's own paragraph stays the source.
     findings.querySelectorAll('.finding-grid article p[id]').forEach(function (p) {
@@ -63,63 +64,35 @@
       new MutationObserver(sync).observe(p, { childList: true, characterData: true, subtree: true }); sync();
     });
 
-    // The meter. Every number is counted here from NASA's rows with the site's own "near" rule; nothing is typed in.
-    // The slider follows straight lines between the three atmospheres in the challenge statement.
-    var OFF = window.FlashpointOffline, STOPS = [[4.3, 100, 'Spacesuit'], [10.2, 30, 'Moon Base'], [14.7, 21, 'ISS']];
-    function oxygenAt(p) {
-      var a = p <= 10.2 ? STOPS[0] : STOPS[1], b = p <= 10.2 ? STOPS[1] : STOPS[2];
-      return a[1] + (b[1] - a[1]) * (p - a[0]) / (b[0] - a[0]);
+    // The card has no assistant of its own. It sends the question through the chat panel's own form and shows the reply
+    // that panel receives, so there is one assistant, one set of rules and one conversation.
+    var msgs = $('msgs'), chatBox = $('ask'), chatForm = $('compose'), out = $('calmAnswer'), seeMap = $('calmSeeMap'), waiting = null;
+    function busy(on) { $('calmAskIn').disabled = on; $('calmAskGo').disabled = on; $('calmChips').querySelectorAll('.chip').forEach(function (c) { c.disabled = on; }); }
+    function askHero(q) {
+      q = q.trim(); if (!q || waiting != null || !msgs || !chatBox || !chatForm) return;
+      waiting = msgs.querySelectorAll('.msg.bot').length; busy(true); seeMap.hidden = true;
+      out.textContent = '';
+      var asked = el('p', 'calm-q'); asked.textContent = q;
+      var wait = el('p', 'calm-wait'); wait.textContent = 'Reading NASA\'s test rows near that air.';
+      out.append(asked, wait);
+      chatBox.value = q;
+      if (chatForm.requestSubmit) chatForm.requestSubmit(); else chatForm.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
     }
-    var slide = $('calmSlide'), run = 0, touched = false, reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    function fail() { $('calmLeadText').textContent = 'The test data did not load, so the meter cannot count.'; slide.disabled = true; $('calmCount').textContent = ''; }
-    if (!OFF) fail();
-    else fetch('../data/tests.web.json').then(function (r) { return r.json(); }).then(function (rows) {
-      var NS = 'http://www.w3.org/2000/svg', svg = $('calmMap'), W = 300, H = 170, M = 10;
-      var X = function (psi) { return M + psi / 16 * (W - 2 * M); }, Y = function (o2) { return H - M - (o2 - 10) / 90 * (H - 2 * M); };
-      function draw(tag, attrs, text) { var e = document.createElementNS(NS, tag); for (var k in attrs) e.setAttribute(k, attrs[k]); if (text) e.textContent = text; svg.appendChild(e); return e; }
-      // The rows that can be placed: oxygen and pressure recorded, and the oxygen is the chamber's (the rule the Analysis map uses).
-      var placed = rows.filter(function (r) { return r.o2_pct != null && r.pressure_psi != null && r.oxygen_from !== 'burner'; });
-      var solid = rows.filter(function (r) { return r.fuel_phase === 'solid'; }), noSolidP = solid.every(function (r) { return r.pressure_psi == null; });
-      draw('polyline', { 'class': 'calm-path', points: STOPS.map(function (st) { return X(st[0]) + ',' + Y(st[1]); }).join(' ') });
-      var dots = placed.map(function (r) { return r.pressure_psi <= 16 ? draw('circle', { cx: X(r.pressure_psi), cy: Y(r.o2_pct), r: 2.4 }) : null; });
-      var ring = draw('ellipse', { 'class': 'calm-ring', rx: OFF.P_SCALE * OFF.NEAR_DISTANCE / 16 * (W - 2 * M), ry: OFF.O2_SCALE * OFF.NEAR_DISTANCE / 90 * (H - 2 * M) });
-      STOPS.forEach(function (st) { draw('text', { x: X(st[0]) + (st[2] === 'ISS' ? -6 : 8), y: Y(st[1]) + (st[2] === 'Spacesuit' ? 12 : -8), 'text-anchor': st[2] === 'ISS' ? 'end' : 'start' }, st[2]); });
-      function set(p) {
-        var o = oxygenAt(p), n = { gas: 0, liquid: 0 }, total = 0;
-        placed.forEach(function (r, i) {
-          var near = Math.sqrt(Math.pow((r.o2_pct - o) / OFF.O2_SCALE, 2) + Math.pow((r.pressure_psi - p) / OFF.P_SCALE, 2)) <= OFF.NEAR_DISTANCE;
-          if (dots[i]) dots[i].setAttribute('class', near ? 'on' : '');
-          if (near) { total++; n[r.fuel_phase] = (n[r.fuel_phase] || 0) + 1; }
-        });
-        ring.setAttribute('cx', X(p)); ring.setAttribute('cy', Y(o));
-        var air = p.toFixed(1) + ' psi, ' + o.toFixed(0) + '% oxygen';
-        $('calmCount').textContent = total; $('calmAir').textContent = air; slide.setAttribute('aria-valuetext', air + ', ' + total + ' tests near');
-        lead.classList.toggle('none', total === 0);
-        $('calmLeadText').innerHTML = '<b>' + n.gas + '</b> gas flames and <b>' + n.liquid + '</b> fuel droplets. ' +
-          (noSolidP ? 'Cabin materials: none can be placed anywhere, because all <b>' + solid.length + '</b> solid-material tests record no pressure.' : '');
-        return total;
-      }
-      function go(p) { slide.value = p; set(+slide.value); }
-      function glide(to, ms) {
-        var from = +slide.value, t0 = performance.now(), me = ++run;
-        if (reduce) { go(to); return; }
-        (function step(now) { var k = Math.min(1, (now - t0) / ms), e = k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2; go(from + (to - from) * e); if (k < 1 && me === run) requestAnimationFrame(step); })(t0);
-      }
-      slide.addEventListener('input', function () { touched = true; run++; set(+slide.value); });
-      lead.querySelectorAll('.calm-stops button').forEach(function (b) { b.addEventListener('click', function () { touched = true; glide(+b.dataset.p, 700); }); });
-      // Self-check: the meter's count at the ISS must equal the count the Analysis page shows there.
-      console.assert(set(14.7) === OFF.evidenceAt(rows, { o2_pct: 21, pressure_psi: 14.7 }, { k: 1 }).nearCount, 'evidence meter disagrees with the Analysis count');
-      // Show the idea once, unless the visitor has already taken the slider or asked for less motion.
-      if (!reduce) setTimeout(function () { if (!touched && !document.querySelector('.page.open')) glide(10.2, 2600); }, 1400);
-    }).catch(fail);
-
-    $('calmSeeMap').addEventListener('click', function () {
-      var p = +slide.value, o = oxygenAt(p), nav = main.querySelector('.home-nav a[data-go="analysis"]');
+    if (msgs) new MutationObserver(function () {
+      if (waiting == null) return;
+      var bots = msgs.querySelectorAll('.msg.bot');
+      if (bots.length <= waiting) return;
+      waiting = null; busy(false);
+      var reply = bots[bots.length - 1].cloneNode(true); reply.className = 'calm-reply';
+      var wait = out.querySelector('.calm-wait'); if (wait) wait.remove();
+      out.appendChild(reply); seeMap.hidden = false;
+    }).observe(msgs, { childList: true });
+    $('calmAsk').addEventListener('submit', function (e) { e.preventDefault(); var box = $('calmAskIn'), q = box.value; box.value = ''; askHero(q); });
+    $('calmChips').querySelectorAll('.chip').forEach(function (c) { c.addEventListener('click', function () { askHero(c.textContent); }); });
+    seeMap.addEventListener('click', function () {
+      var nav = main.querySelector('.home-nav a[data-go="analysis"]'), open = document.querySelector('.bar [data-ask]'), chat = $('chat');
       if (nav) nav.click();
-      [['probeO', o.toFixed(1)], ['probeP', p.toFixed(1)]].forEach(function (kv) {
-        var box = $(kv[0]); if (!box) return;
-        box.value = kv[1]; box.dispatchEvent(new Event('input', { bubbles: true })); box.dispatchEvent(new Event('change', { bubbles: true }));
-      });
+      if (open && chat && chat.hidden) open.click();   // carry the conversation on beside the map
     });
   }
 

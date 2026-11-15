@@ -50,22 +50,23 @@ What changed, and why:
 
 Old links still work: `#home` opens Analysis, `#resources` opens Advanced mode, `#si` opens the assistant.
 
-## The calm layer and the evidence meter (Sun Nov 15)
+## The calm layer (Sun Nov 15)
 
 `assets/calm.js` and `assets/calm.css` change the order and emphasis of the page without changing its content or data.
 Add `?calm=0` to the address to see the page without them; removing their two lines in `index.html` undoes them.
 
-- **Landing:** the evidence meter sits beside the headline. Then the three ways in, the four gaps (first sentence each,
-  the rest behind "More"), and four folded rows: the small maps, the gravity illustration, the challenge answers, and
-  where the numbers come from. The page is about a third shorter and has about half the words.
-- **Evidence meter:** a slider from ISS air (14.7 psi, 21% oxygen) through Moon Base air (10.2 psi, 30%) to spacesuit air
-  (4.3 psi, 100%), following straight lines between those three atmospheres from the challenge statement. The count is the
-  number of placeable tests near the chosen air, by the same rule as Analysis: 312 at the ISS, 68 at the Moon Base, 0 at
-  the spacesuit. It plays once from the ISS to the Moon Base on load, unless the visitor asked for reduced motion.
+- **Landing:** the SI assistant sits beside the headline: a question box, three starter questions, and the answer shown in
+  place with its cited tests and sources. It has no assistant of its own. It sends the question through the chat panel's
+  form and shows the reply that panel receives, so there is one assistant and one conversation. "See it on the map" opens
+  Analysis with the chat beside it. The question box that was at the bottom of the page is hidden, since it repeats this.
+- **Below it:** the three ways in, the four gaps (first sentence each, the rest behind "More"), and four folded rows: the
+  small maps, the gravity illustration, the challenge answers, and where the numbers come from.
 - **Analysis:** "What NASA tested near this air" is a full-width row above the map. The "Go to" row is hidden because the
   journey steps repeat it. One primary action shows; the other three are behind "More you can do with this point".
 - **Known cost:** the browser checks in `scripts/` click some controls that are now inside folded rows. Run them with
   `?calm=0`, or update them to open the row first.
+- An evidence meter (a pressure slider with a live count of nearby tests) stood in the hero for one commit, `fb977be`,
+  and was replaced by the assistant at 7mzawy-json's request. It is in the git history if wanted.
 
 ## The SI assistant (Sun Nov 15)
 

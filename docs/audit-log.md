@@ -5,7 +5,7 @@ message which finding you fixed (for example "Fixes A-012"). The auditor re-chec
 
 ## Summary
 
-Last run: 15/11/2026, 11:41:48 Asia/Kuwait, at commit 01cd9cd. Open: 3 (0 critical, 2 high). Fixed since last run: 0.
+Last run: 15/11/2026, 12:50:40 Asia/Kuwait, at commit 9a6e55c. Open: 7 (0 critical, 2 high). Fixed since last run: 0.
 
 ## Findings
 
@@ -165,6 +165,54 @@ Last run: 15/11/2026, 11:41:48 Asia/Kuwait, at commit 01cd9cd. Open: 3 (0 critic
 - **Confidence:** Certain
 - **Status:** Open
 
+### A-14: Hidden lesson videos fetch every poster on initial load
+
+- **Severity:** Medium
+- **Area:** Redundancy
+- **Where:** site/learn.html:228
+- **Evidence:** Live Chromium fetched all six lesson JPG posters before Watch was opened: 482,602 decoded bytes, 484,402 transfer bytes combined. Each video has a literal poster URL despite preload=none.
+- **Why it matters:** Visitors using only the experiments pay almost half a megabyte for hidden posters.
+- **Suggested fix:** Assign the unchanged poster file on first opening its Watch panel. Keep captions, playback and deep links working; verify first-open and return-to-Watch behavior.
+- **Owner:** Interface (site/, public/)
+- **Confidence:** Certain
+- **Status:** Open
+
+### A-15: Paused flow illustrations continue repainting every frame
+
+- **Severity:** Medium
+- **Area:** Redundancy
+- **Where:** site/assets/studies.js:43
+- **Evidence:** In live Learn lesson 1.2, Pause motion set data-paused=true, but an in-memory clearRect counter recorded 120 study-canvas redraws over two seconds. tick() stops advancing t when paused but still calls draw(), rebuilding paths, gradients and shadows.
+- **Why it matters:** Paused and initially reduced-motion views consume rendering work without advancing the image.
+- **Suggested fix:** Draw only while running or when state is dirty. Retain redraws for gravity, fan, theme, resize and visibility changes. Idle the loop while hidden. Verify paused screenshots and all controls, including deliberate motion opt-in.
+- **Owner:** Interface (site/, public/)
+- **Confidence:** Certain
+- **Status:** Open
+
+### A-16: Landing eagerly builds thousands of hidden investigation nodes
+
+- **Severity:** Medium
+- **Area:** Redundancy
+- **Where:** site/assets/investigations.js:294
+- **Evidence:** Initial live landing had 8,757 elements. invCards already contained 1,552 elements and the folded invStrip contained 936; both returned false from checkVisibility(). render() unconditionally calls findings(), draw() and strip(). These paths also repeatedly call facts() for the unchanged data.
+- **Why it matters:** At least 2,488 elements for these unopened views add startup work and retained memory. No measured millisecond or heap saving is claimed.
+- **Suggested fix:** Keep data and counts ready, but build each view on first reveal and reuse it. Cache facts by investigation for the loaded dataset. Preserve direct navigation, filters, Compare, accessibility and print/export behavior. Measure first-open latency as well as landing improvements.
+- **Owner:** Interface (site/, public/)
+- **Confidence:** Certain
+- **Status:** Open
+
+### A-17: Learn fetches and parses the same dataset twice
+
+- **Severity:** Low
+- **Area:** Redundancy
+- **Where:** site/learn.html:868; site/assets/learning-labs.js:111
+- **Evidence:** Live Learn Resource Timing showed two tests.web.json entries, each with transferSize 17,325 and decodedBodySize 526,036. Both code paths call fetch and response.json separately. Landing also fetched tests.meta.json twice through app.js:473 and investigations.js:310, each with transferSize 3,051 and decodedBodySize 6,263.
+- **Why it matters:** Duplicate requests and parsing waste work and memory. Cache behavior may reduce later wire costs; decoded bytes are not network bytes.
+- **Suggested fix:** Share one loading promise and parsed dataset per document, with both consumers subscribing to success or failure. Share metadata too. Preserve independent error messages and retry behavior, and prevent consumers from mutating shared rows. Verify counts, filters and outcomes.
+- **Owner:** Interface (site/, public/)
+- **Confidence:** Certain
+- **Status:** Open
+
 ## Run evidence and limits
 
 First run. No earlier audit log existed, so there were no findings to close. Findings are ordered by submission priority.
@@ -218,3 +266,14 @@ First run. No earlier audit log existed, so there were no findings to close. Fin
 - All seven `scripts/check_data.py` checks passed. Raw cells, unit conversions, missing values and retained web rows remain consistent. Prior verification of the 24 copied NASA objectives and dataset counts remains applicable; it is not proof of every AI paraphrase.
 - Three new findings: two High and one Low. No Critical discrepancy established in this pass. The blanket no-tests statement is unsupported, rather than a claim that a specific missing experiment has been found.
 - Limitations: no frame-by-frame review of the six videos or comparison of every narration sentence; no exhaustive combustion literature review; no verification of every possible generated SI reply. Current mission plans and all numerical model constants were not independently revalidated. The source guide is historical and its statements should retain their date and experimental scope.
+
+## Loading, rendering and resilience audit
+
+- New coverage: initial resources, hidden DOM, paused rendering, video container layout, lesson media lifecycle and blocked-data behavior. Four optimization findings: three Medium and one Low. No implementation changed. Recommendations retain the content and features but require regression testing when implemented.
+- Rechecked A-011, A-012 and A-013: all remain open in current source. No duplicates added. Main history was rewritten before this run; the current head was 9a6e55c. The cleanup moved the auditor brief to archive/before-cleanup. Retained its previously read audit-only instructions. Earlier log hashes are historical records, not claims about current ancestry.
+- Measurements used live Chromium with this environment's certificate-ignore setting. Resource Timing values describe one run, not universal transfer budgets. Canvas instrumentation was in memory. No CPU or memory reduction is claimed without measuring an implementation.
+- No MP4 appeared in initial Learn resource requests. All six MP4s already have their moov atom immediately after ftyp and before media data, so a fast-start remux is unnecessary. A lesson video played; changing lessons paused it and removed the media source. Preserve that behavior.
+- Blocking tests.web.json produced no page script error. Learn reported data failure and did not remain at counting placeholders. A shared loader must preserve these error states for both consumers.
+- The main dataset is already compressed: 526,036 decoded bytes versus 17,325 measured transfer bytes, including timing overhead. Blind JSON minification is lower priority than measured poster, rendering and duplicate-load costs. No lossy image/video conversion is recommended under the requirement to preserve functionality.
+- All seven check_data.py checks and all check_offline_native.mjs checks passed. Eight check_investigations.py checks passed; optional raw-catalogue checks skipped because the local cache was absent.
+- Earlier full browser suites were not rerun because their navigation predates the current UI. No new full accessibility, security, cross-browser, physical-phone or generated-answer audit is claimed. No additional verified functional failure was found in these targeted resilience checks.

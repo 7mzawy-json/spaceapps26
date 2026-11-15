@@ -935,6 +935,9 @@
     FS = freshFilters(); FS.inv[name] = true; syncFilters(); refresh(); showMode('advanced'); showResView('data');
     $('page-analysis').scrollTop = 0;
   }
+  // Used by the investigation cards (assets/investigations.js).
+  window.FlashpointShowTests = showTestsOf;
+  window.FlashpointOpenCards = function () { showMode('advanced'); showResView('cat'); $('page-analysis').scrollTop = 0; };
   function dataInit(rows) {
     var fuels = {}, invs = {};
     DATA = rows.map(function (r) {
@@ -1039,7 +1042,12 @@
 
   /* ---------- Load the data once, then fill every page ---------- */
   loadRows(function (rows) {
-    if (rows) dataInit(rows);
+    if (rows) {
+      // The table's test counts come from the rows themselves, never from typed-in numbers.
+      CAT.forEach(function (c) { c[4] = rows.filter(function (r) { return r.accession === c[0]; }).length; });
+      drawCat();
+      dataInit(rows);
+    }
     else setNotes(['Could not load data/tests.web.json. Open the site through a web server started in the repo root.']);
     if (!rows || !OFF) {
       var msg = !OFF ? 'The offline engine (public/offline/offline-answer.js) did not load.' : 'Could not load data/tests.web.json. Open the site through a web server started in the repo root.';

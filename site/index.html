@@ -19,6 +19,7 @@
 <link rel="stylesheet" href="assets/site.css">
 <link rel="stylesheet" href="assets/refinement.css">
 <link rel="stylesheet" href="assets/learning-labs.css">
+<link rel="stylesheet" href="assets/investigations.css">
 <!-- Rule-based answer engine: the FALLBACK, NOT THE MAIN SYSTEM. It answers only when the SI assistant (/api/chat) is unavailable. -->
 <script src="../public/offline/offline-answer.js"></script>
 <script>try { if (localStorage.getItem('fp-theme') === 'light') delete document.documentElement.dataset.theme; } catch (e) {}</script>
@@ -205,6 +206,7 @@
           <tbody id="homeRank"><tr><td colspan="6">Loading NASA tests.</td></tr></tbody>
         </table></div>
         <p class="note">Ranked by how many of an investigation's tests sit near the point, then by how close its closest test is. Investigations whose tables give no pressure cannot be placed, so they are listed after the ranked ones with what they do record. SAME and SAME-R (smoke detection) hold smoke measurements, not flame tests, and cannot be ranked by atmosphere.</p>
+        <p><button class="btn ghost sm" type="button" data-open-cards>See all 24 investigations as cards</button></p>
       </details>
 
       <details class="panel s12 evidence-details"><summary id="homeNearH">The five nearest NASA tests <span>Inspect individual rows</span></summary>
@@ -229,8 +231,25 @@
         <div class="seg" id="resView"><button aria-pressed="true" data-v="cat">Investigations</button><button data-v="data">Test data and graphs</button></div>
       </div>
 
-      <!-- view 1: the catalogue of investigations -->
+      <!-- view 1: the catalogue of investigations, as cards (summaries, small maps, outcomes) or as a table -->
       <div class="s12 sub" id="resCat">
+      <div class="s12 toolbar inv-toolbar">
+        <span class="lbl">Show as</span>
+        <div class="seg" id="invView"><button aria-pressed="true" data-iv="cards" type="button">Cards</button><button aria-pressed="false" data-iv="table" type="button">Table</button></div>
+      </div>
+      <div class="s12" id="invCardsView">
+        <div class="panel inv-findings" id="invFindings"><p class="note">Loading NASA's catalogue and test rows.</p></div>
+        <div class="toolbar inv-filter">
+          <span class="lbl">Fire-safety stage</span>
+          <div style="display:flex;gap:.4rem;flex-wrap:wrap" id="invStage"><button class="chip" aria-pressed="true" data-st="all" type="button">All</button><button class="chip" aria-pressed="false" data-st="prevent" type="button">Prevent</button><button class="chip" aria-pressed="false" data-st="detect" type="button">Detect</button><button class="chip" aria-pressed="false" data-st="suppress" type="button">Suppress</button><button class="chip" aria-pressed="false" data-st="basics" type="button">Combustion basics</button></div>
+          <label class="check"><input type="checkbox" id="invOnly"> Only investigations with test rows</label>
+          <span class="note" id="invCount"></span>
+        </div>
+        <p class="note inv-howto">Each small map uses the main map's axes: total pressure across (0 to 16 psi), oxygen up, the curve of sea-level oxygen, and the ISS and Moon Base points. Dots are tests: filled amber kept burning, teal ring went out or did not ignite, small grey not recorded. Grouped by the hardware the tests ran on, as the challenge lists it. Stage tags follow the challenge statement and are the team's call.</p>
+        <div id="invCards"></div>
+        <div class="inv-cmpbar" id="invCmpBar" hidden><span id="invCmpTxt"></span><button class="btn sm" id="invCmpGo" type="button" disabled>Compare side by side</button><button class="btn ghost sm" id="invCmpClear" type="button">Clear</button></div>
+      </div>
+      <div class="s12 sub" id="invTableView" hidden>
       <div class="panel s8">
         <div class="toolbar">
           <input class="search" id="catSearch" placeholder="Search name, accession, platform or fuel" aria-label="Search investigations">
@@ -279,6 +298,7 @@
       </div>
       </div>
 
+      </div>
       <!-- view 2: every test row, with filters, a graph builder and a table -->
       <div class="s12 sub" id="resData" hidden>
         <div class="panel s4 filters">
@@ -392,8 +412,16 @@
   </div>
   <form class="compose" id="compose"><input id="ask" autocomplete="off" placeholder="Ask, or tell it where to move the point" aria-label="Message"><button class="btn" type="submit">Send</button></form>
 </aside>
+<div class="brief inv-cmpdlg" id="invCmp" role="dialog" aria-modal="true" aria-labelledby="invCmpTitle" hidden>
+  <div class="brief-card inv-cmp-card">
+    <div class="brief-tools"><button class="btn ghost" id="invCmpClose" type="button">Close</button></div>
+    <span class="kind">Compare</span><h2 id="invCmpTitle">Investigations side by side</h2>
+    <div id="invCmpBody"></div>
+  </div>
+</div>
 <script src="assets/app.js"></script>
 <script src="assets/studies.js"></script>
 <script src="assets/refinement.js"></script>
+<script src="assets/investigations.js"></script>
 </body>
 </html>

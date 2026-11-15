@@ -1,12 +1,14 @@
-# Only the site and the files it reads go online: index.html, site/, public/, data/tests.web.json,
-# data/tests.meta.json and docs/ai-usage-log.md (linked from the footer).
+# Only the site and the files it reads go online: index.html, site/ (except its README), public/, data/tests.web.json,
+# data/tests.meta.json and docs/ai-usage-log.md (linked from the footer). Everything else in docs/ stays private,
+# including notes added later, so a new doc is never published by accident.
 # Drafts, plans, personal folders, the full source data and the build scripts stay in the repo only.
 /temp
 /alanzim
 /scripts
 /lib
-/docs/challenge
-/docs/data-inventory.md
+/docs/*
+!/docs/ai-usage-log.md
+/site/README.md
 /data/tests.json
 /ROADMAP.md
 /AGENTS.md
@@ -15,5 +17,3 @@
 /.env.example
 /Codex
 /.qa
-/docs/agents
-/docs/audit-log.md

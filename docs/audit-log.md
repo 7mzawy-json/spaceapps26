@@ -5,7 +5,7 @@ message which finding you fixed (for example "Fixes A-012"). The auditor re-chec
 
 ## Summary
 
-Last run: 15/11/2026, 11:18:19 Asia/Kuwait, at commit ba28df7. Open: 0 (0 critical, 0 high). Fixed since last run: 5.
+Last run: 15/11/2026, 11:41:48 Asia/Kuwait, at commit 01cd9cd. Open: 3 (0 critical, 2 high). Fixed since last run: 0.
 
 ## Findings
 
@@ -129,6 +129,42 @@ Last run: 15/11/2026, 11:18:19 Asia/Kuwait, at commit ba28df7. Open: 0 (0 critic
 - **Confidence:** Certain
 - **Status:** Fixed in ba28df7
 
+### A-011: Saffire-I and Saffire-III are labelled as ISS experiments
+
+- **Severity:** High
+- **Area:** Science
+- **Where:** `site/assets/app.js:437` and `site/assets/app.js:438`
+- **Evidence:** The catalogue rows give PSI-98 and PSI-100 platform `ISS`. Fresh NASA PSI investigation records say each experiment was performed on the Cygnus resupply vehicle after it deberthed from the ISS; their experimentHardware fields also name Cygnus. Sources: https://psi.nasa.gov/geode-py/ws/repo/investigations/PSI-98 and https://psi.nasa.gov/geode-py/ws/repo/investigations/PSI-100 .
+- **Why it matters:** The table misstates where the burns occurred, and the platform filter places these records in the wrong group. The cards already describe Cygnus, creating an internal contradiction.
+- **Suggested fix:** Set the two displayed platforms to Cygnus spacecraft and verify that all three Saffire investigations appear under that filter.
+- **Owner:** Interface (site/, public/)
+- **Confidence:** Certain
+- **Status:** Open
+
+### A-012: An empty map area is described as a place nobody has tested
+
+- **Severity:** High
+- **Area:** Honest claims
+- **Where:** `site/learn.html:571`, lesson 2.1
+- **Evidence:** The lesson states: `Empty areas of the map are the finding: places people may live that nobody has tested.` The preceding sentences explain that solid tests cannot be plotted because their pressures are absent. The map also excludes inverse flames and investigations outside the selected dataset. These omissions cannot establish that no experiment anywhere tested those conditions.
+- **Why it matters:** This turns absence of plotted records into an unsupported universal research claim. It overstates the evidence gaps that the project asks judges to trust.
+- **Suggested fix:** Say that empty areas have no plotted tests in this collection, and that missing coordinates and excluded studies limit what can be concluded. Do not claim no research exists without a broader literature review.
+- **Owner:** Story (docs/, page text)
+- **Confidence:** Certain
+- **Status:** Open
+
+### A-013: Several assistant citations point to the wrong page of the NASA guide
+
+- **Severity:** Low
+- **Area:** Science
+- **Where:** `api/chat.js:44`, `api/chat.js:45`, `lib/offline-answer.ts:44`, `lib/offline-answer.ts:56`
+- **Evidence:** The BASS ground-test conservatism and suppressant-jet claims cite page 30. In the linked NASA Researcher's Guide, the passages `NASA-STD-6001 Test 1 is not conservative` and `The local jet entrains air and sustains the flame` are on printed page 31, also PDF page 31. Page 30 introduces recent findings. Checked https://www.nasa.gov/wp-content/uploads/2016/05/np-2015-10-034-jsc_combustion_in_reduced_gravity-iss-mini-book-011116-508.pdf .
+- **Why it matters:** The scientific claims are supported, but readers following the displayed page references land on the wrong page.
+- **Suggested fix:** Correct these references to page 31 and check the related 10 cm/s citation against the same page. Regenerate the browser fallback after updating its source.
+- **Owner:** Data (scripts/, data/, lib/)
+- **Confidence:** Certain
+- **Status:** Open
+
 ## Run evidence and limits
 
 First run. No earlier audit log existed, so there were no findings to close. Findings are ordered by submission priority.
@@ -173,3 +209,12 @@ First run. No earlier audit log existed, so there were no findings to close. Fin
 - A-009: Tab and Shift+Tab both remained inside Compare. Escape closed it and restored focus to invCmpGo. Reviewed background inertness and focus restoration code.
 - A-010: the live cards show the normalized-distance formula and explain the two axis limits correctly.
 - All five original reproductions passed. No new findings. Prior acceptance closures and earlier verification limits remain unchanged. Browser checks used the same environment certificate-ignore setting as earlier runs.
+
+## Webpage fact-check run
+
+- Read the human-facing text of index.html, learn.html and sim.html, and checked selected assistant source notes. No prior closed issue was reopened. This is a factual-content review, not a complete UI regression run.
+- Independently downloaded the NASA combustion guide and consulted live PSI records. The guide supports the buoyancy explanation (page 8), lower FLEX flammability limits and reduced suppressant margin (page 12), water-mist units sent in December 2015 (page 26), and material flammability, ventilation and suppressant entrainment statements (page 31). Citation-location problems are recorded separately from truth of the underlying claims.
+- Checked the displayed propane combustion equation, dry oxygen partial-pressure arithmetic, buoyancy units, nitrogen-to-oxygen ratios and normalized evidence distance. These are internally consistent under their stated idealized assumptions. Model heat factors and pressure scaling are illustrations or approximations, not independently validated predictions. Equal oxygen partial pressure is correctly distinguished from breathing suitability and material safety.
+- All seven `scripts/check_data.py` checks passed. Raw cells, unit conversions, missing values and retained web rows remain consistent. Prior verification of the 24 copied NASA objectives and dataset counts remains applicable; it is not proof of every AI paraphrase.
+- Three new findings: two High and one Low. No Critical discrepancy established in this pass. The blanket no-tests statement is unsupported, rather than a claim that a specific missing experiment has been found.
+- Limitations: no frame-by-frame review of the six videos or comparison of every narration sentence; no exhaustive combustion literature review; no verification of every possible generated SI reply. Current mission plans and all numerical model constants were not independently revalidated. The source guide is historical and its statements should retain their date and experimental scope.

@@ -1,0 +1,74 @@
+/* Flashpoint "calm" layer (preview). AI-assisted (Claude Code). Pairs with calm.js; every rule is scoped to html.calm
+   or to a class that calm.js adds, so removing the two files returns the page to exactly what it was. */
+.calm-hide { display: none !important; }
+
+/* Preview only: the switch between the calmer layout and the current site. */
+.calm-switch { position: fixed; left: 12px; bottom: 12px; z-index: 500; min-height: 44px; display: inline-flex; align-items: center; padding: 0 14px;
+  border-radius: 999px; background: var(--ink); color: var(--bg); font: 500 13px var(--sans); text-decoration: none; box-shadow: 0 8px 24px -8px rgba(0, 0, 0, .5); }
+.calm-switch:hover { text-decoration: underline; }
+
+/* ---------- Landing ---------- */
+.calm .mission-hero { padding: 56px 0 44px; align-items: stretch; }
+.calm .hero-copy { align-self: center; }
+.calm-lead { display: flex; flex-direction: column; justify-content: center; gap: 16px; min-width: 0; padding: 30px 32px;
+  border: 1px solid var(--line-strong); border-radius: 16px; background: linear-gradient(140deg, var(--surface), var(--well)); }
+.calm-lead .eyebrow { color: var(--accent); }
+.calm-big { display: flex; align-items: center; gap: 20px; }
+.calm-big b { font: 500 clamp(72px, 9vw, 112px)/.85 var(--mono); letter-spacing: -.05em; color: var(--accent); }
+.calm-big span { max-width: 15ch; font-size: clamp(18px, 1.9vw, 23px); line-height: 1.25; font-weight: 500; letter-spacing: -.02em; color: var(--ink); }
+.calm-leadtext { font-size: 14px; line-height: 1.65; color: var(--muted); }
+.calm-leadtext b { font: 500 15px var(--mono); color: var(--ink); }
+.calm-lead .btn { align-self: flex-start; min-height: 44px; gap: 8px; }
+
+.calm .cards { padding-bottom: 64px; }
+.calm .findings { padding-bottom: 56px; }
+.calm .finding-grid .calm-short { margin-top: 12px; font-size: 15px; line-height: 1.55; color: var(--ink); }
+.calm .finding-grid .calm-short b { font: 500 15px var(--mono); }
+.calm-rest summary { min-height: 44px; display: inline-flex; align-items: center; cursor: pointer; font-size: 13px; font-weight: 500; color: var(--brand); }
+.calm .finding-grid .calm-rest p { margin-top: 0; }
+
+/* The rows that keep secondary material one tap away. */
+.calm-more { padding-bottom: 64px; }
+.calm-more > .eyebrow { margin-bottom: 14px; }
+.calm-fold { border-top: 1px solid var(--line); }
+.calm-fold:last-child { border-bottom: 1px solid var(--line); }
+.calm-fold > summary { list-style: none; display: flex; align-items: center; gap: 18px; min-height: 68px; padding: 10px 0; cursor: pointer; }
+.calm-fold > summary > div { flex: 1; min-width: 0; display: flex; align-items: baseline; flex-wrap: wrap; gap: 2px 18px; }
+.calm-fold > summary::-webkit-details-marker { display: none; }
+.calm-fold > summary b { font-size: 18px; font-weight: 500; letter-spacing: -.02em; color: var(--ink); }
+.calm-fold > summary span { font-size: 14px; color: var(--muted); }
+.calm-fold > summary::after { content: ""; flex: none; width: 9px; height: 9px; margin: 0 6px 4px 0; border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted); transform: rotate(45deg); transition: transform var(--fast); }
+.calm-fold[open] > summary::after { transform: rotate(-135deg); margin-bottom: -4px; }
+.calm-fold > summary:hover b { color: var(--brand); }
+.calm-fold-body { padding: 6px 0 40px; }
+.calm .calm-fold-body > section { padding: 0; margin: 0; border: 0; }
+.calm .calm-fold-body .hero-chamber { max-width: 560px; }
+
+/* ---------- Analysis ---------- */
+.calm-verdict { padding: 22px 26px; }
+.calm-vhead { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 16px; margin-bottom: 18px; }
+.calm-vhead h2 { font-size: 20px; font-weight: 500; letter-spacing: -.02em; color: var(--ink); }
+.calm-vhead p { font: 500 14px var(--mono); color: var(--accent); }
+.calm-verdict .cover { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; }
+.calm-verdict .cov { align-content: start; padding: 0 26px; border-bottom: 0; border-left: 1px solid var(--line); }
+.calm-verdict .cov:first-child { padding-left: 0; border-left: 0; }
+.calm-verdict .cov:last-child { padding-right: 0; }
+#page-analysis .calm-verdict .cov b { font-size: 16px; }
+#page-analysis .calm-verdict .cov p { font-size: 13px; line-height: 1.6; }
+#page-analysis .calm-verdict .rate { font-size: 12px; padding: 4px 9px; }
+.calm-verdict details.method { margin-top: 16px; padding-top: 6px; border-top: 1px solid var(--line); }
+/* the two readouts that only repeat the boxes above them */
+.calm #anSimple .readout > div:nth-child(-n+2) { display: none; }
+.calm-acts { margin-top: 10px; }
+.calm-acts summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; font-size: 13px; font-weight: 500; color: var(--brand); }
+.calm-acts .acts { margin-top: 4px; }
+
+@media (max-width: 860px) {
+  .calm .mission-hero { padding-top: 36px; }
+  .calm-lead { padding: 24px; }
+  .calm-verdict .cover { grid-template-columns: 1fr; gap: 14px; }
+  .calm-verdict .cov, .calm-verdict .cov:first-child, .calm-verdict .cov:last-child { padding: 0 0 14px; border-left: 0; border-bottom: 1px solid var(--line); }
+  .calm-verdict .cov:last-child { padding-bottom: 0; border-bottom: 0; }
+  .calm-switch { left: 8px; right: 8px; bottom: 8px; justify-content: center; font-size: 12px; }
+}
+@media (prefers-reduced-motion: reduce) { .calm-fold > summary::after { transition: none; } }

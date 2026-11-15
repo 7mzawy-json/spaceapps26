@@ -43,11 +43,12 @@ Pressure conversions used: 1 atm = 14.696 psi, 1 bar = 14.504 psi, 1 mmHg = 0.01
 ## What this means
 
 - **The finding.** Every test that varies pressure burns a gas or a droplet. The solid materials that burn in a cabin
-  (BASS, BASS-II, SAFFIRE) were tested only at cabin pressure and at most 22% O2. NASA has low-pressure,
+  (BASS, BASS-II, SAFFIRE) have no pressure in NASA's tables, and their oxygen went no higher than 22%. NASA has low-pressure,
   high-oxygen flame data, but none for cabin materials at Moon Base conditions. Add `fuel_phase` (gas, droplet,
   solid) as a map toggle so this shows at a glance.
-- **Solid rows** can still be plotted with `pressure_from: "investigation"` (ISS or Cygnus cabin, about 14.7 psi),
-  as the roadmap allows.
+- **Solid rows:** superseded (Nov 15). This line once suggested plotting them at an assumed cabin pressure of about
+  14.7 psi. Do not: no investigation text states their pressure, so `pressure_psi` stays null and they are not
+  plotted (see `field_notes.pressure_from` in `data/tests.meta.json`). Pressure stays null unless a cited source gives it.
 - **3D view gate will likely fail.** The pressure-varying tests ran in quiescent chambers with no flow figure, so
   far fewer than half the rows have `flow_cm_s`. Leave `flow_cm_s` null there; do not assume 0.
 - **Outcome is weaker than it looks.** These fuels were chosen to burn. CFI-G ignited versus failed to ignite

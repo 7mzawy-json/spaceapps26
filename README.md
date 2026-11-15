@@ -41,8 +41,8 @@ a PSI accession, a source file and a line. Missing values stay empty and are nev
 
 ## Use of AI
 
-AI tools were used to write code, text, the lesson videos' narration and the investigation summaries. Every use, and
-what a person checked, is logged in [docs/ai-usage-log.md](docs/ai-usage-log.md). AI-written text and data say so on
+AI tools were used to write code, text, the lesson videos' narration and the investigation summaries. How the team directed
+and reviewed that work is logged in [docs/ai-usage-log.md](docs/ai-usage-log.md). AI-written text and data say so on
 the page and in the files.
 
 ## Run it locally

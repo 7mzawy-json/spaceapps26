@@ -120,7 +120,7 @@ var FlashpointOffline = (() => {
     },
     groundTestNotConservative: {
       text: "Results from BASS on the ISS indicate that NASA's standard ground flammability test (NASA-STD-6001 Test 1) is not conservative for microgravity.",
-      source: `${GUIDE}, p. 30`
+      source: `${GUIDE}, p. 31`
     },
     easierIgnition: {
       text: "Materials ignite more easily in low gravity because less heat is carried away from the surface; the heat flux needed to ignite can be about half the normal-gravity value.",
@@ -132,7 +132,7 @@ var FlashpointOffline = (() => {
     },
     localSuppressant: {
       text: "Spraying suppressant only at the flame may not put it out: the jet draws in fresh air and keeps the flame alive.",
-      source: `${GUIDE}, p. 30`
+      source: `${GUIDE}, p. 31`
     },
     inertGasMargin: {
       text: "FLEX found that flammability limits are lower in reduced gravity, so inert-gas suppressant standards written for Earth give less safety margin in space.",

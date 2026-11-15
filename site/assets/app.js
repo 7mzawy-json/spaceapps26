@@ -73,7 +73,14 @@
       });
     }
     set(state.p, state.o);
-    return { set: set, moveTo: moveTo, state: state, root: svg.parentNode, dots: dots };
+    // Rings around the tests an answer cites, so the answer can be checked against the map.
+    var markG = null;
+    function mark(rows) {
+      if (!markG) markG = el('g', { 'class': 'cited' }, plot);
+      while (markG.firstChild) markG.removeChild(markG.firstChild);
+      rows.forEach(function (r) { if (r.o2_pct != null && r.pressure_psi != null && r.pressure_psi <= 16) el('circle', { cx: x(r.pressure_psi), cy: y(r.o2_pct), r: 9 }, markG); });
+    }
+    return { set: set, moveTo: moveTo, state: state, root: svg.parentNode, dots: dots, mark: mark };
   }
 
   function segInit(seg, onPick) {
@@ -309,13 +316,38 @@
     movePoint(o, p, label);
     var extra = ' Oxygen partial pressure is now ' + pp.toFixed(2) + ' psi, ' + (pp / SEA_PPO2).toFixed(2) + ' times sea level.';
     if (q && q.gravity && q.gravity !== '0g') extra += ' Every NASA test in the data ran in microgravity, so there is no test at another gravity level. The flame lab illustrates what gravity would change.';
-    return { reply: label + '.' + extra, did: label };
+    return { reply: label + '.' + extra, did: label, o: o, p: p };
   }
   function addMsg(cls, text, did, why) {
     var m = document.createElement('div'); m.className = 'msg ' + cls; m.textContent = text;
     if (did) { var s = document.createElement('span'); s.className = 'did'; s.textContent = 'Moved the point on the map'; m.appendChild(s); }
     if (why) { var w = document.createElement('span'); w.className = 'why'; w.textContent = why; m.appendChild(w); }
     $('msgs').appendChild(m); $('msgs').scrollTop = $('msgs').scrollHeight; return m;
+  }
+  // What the SI assistant is given: the air in question and what NASA's rows say near it, counted here with the same
+  // rules the page shows. It is told to answer from this and nothing else (see api/chat.js).
+  var siRows = [];
+  function siContext(p, o) {
+    var ev = OFF.evidenceAt(ROWS, { o2_pct: o, pressure_psi: p }, { k: 6 }), rank = rankAt(p, o), s = solidSummary();
+    siRows = ev.nearest.map(function (n) { return n.row; });
+    return {
+      point: { o2_pct: +o.toFixed(1), pressure_psi: +p.toFixed(1), oxygen_partial_pressure_psi: +(o / 100 * p).toFixed(2), times_sea_level: +(o / 100 * p / SEA_PPO2).toFixed(2) },
+      near_rule: 'A test counts as near when sqrt((oxygen difference / ' + OFF.O2_SCALE + ')^2 + (pressure difference / ' + OFF.P_SCALE + ')^2) <= ' + OFF.NEAR_DISTANCE + '. Inverse flames (oxygen from the burner) are left out.',
+      evidence_by_fuel: coverAt(p, o).map(function (c) { return { fuel: c.label, rating: RATE[c.rating], tests_near: c.n, note: c.text }; }),
+      nearest_tests: ev.nearest.map(function (n) { var r = n.row; return { test_id: String(r.test_id), investigation: r.investigation, accession: r.accession, fuel: (r.fuel || '').replace(/\s+/g, ' ').trim(),
+        fuel_type: r.fuel_phase === 'liquid' ? 'fuel droplet' : r.fuel_phase, oxygen_pct: r.o2_pct, pressure_psi: r.pressure_psi, other_gases: gasKind(r), outcome: outcomeText(r), counts_as_near: n.distance <= OFF.NEAR_DISTANCE }; }),
+      investigations_ranked: rank.placed.map(function (r) { return { name: r.name, accession: r.acc, what_it_is_for: r.role, tests_near: r.near, tests_total: r.total }; }),
+      investigations_that_cannot_be_placed: rank.unplaced.map(function (r) { return { name: r.name, accession: r.acc, what_it_is_for: r.role, tests_total: r.total, reason: 'no pressure in the NASA table' }; }),
+      totals: { test_rows: ROWS.length, solid_material_tests: s.n, solid_material_tests_with_pressure: s.withP, highest_oxygen_in_a_solid_test_pct: s.hi, gravity_of_every_test: 'microgravity' }
+    };
+  }
+  function askSI(text, p, o, final) {
+    var ctrl = new AbortController(), timer = setTimeout(function () { ctrl.abort(); }, 22000);
+    var page = (document.querySelector('.page.open') || { id: 'page-dashboard' }).id.slice(5);
+    return fetch(CHAT_ENDPOINT, { method: 'POST', headers: { 'content-type': 'application/json' }, signal: ctrl.signal,
+      body: JSON.stringify({ question: text, page: page, final: !!final, context: siContext(p, o) }) })
+      .then(function (res) { clearTimeout(timer); if (!res.ok) throw new Error('status ' + res.status); return res.json(); }, function (e) { clearTimeout(timer); throw e; })
+      .then(function (d) { if (!d || typeof d.answer !== 'string' || !d.answer) throw new Error('empty answer'); return d; });
   }
   function send(text) {
     text = text.trim(); if (!text) return;
@@ -328,9 +360,27 @@
       setTimeout(function () { typing.remove(); addMsg('bot', r.reply, r.did); }, reduce ? 0 : 650);
       return;
     }
-    (CHAT_ENDPOINT ? OFF.askWithFallback(text, ROWS, { endpoint: CHAT_ENDPOINT, timeoutMs: 8000 }) : Promise.resolve(OFF.answerOffline(text, ROWS))).then(function (ans) {
+    var at = r.did ? { o: r.o, p: r.p } : { o: home.state.o, p: home.state.p };
+    home.mark([]);
+    askSI(text, at.p, at.o, !!r.did).then(function (d) {
+      // The assistant may mean a different air than the map shows (a rover, say). Move there, then ask once more with that air's evidence.
+      if (!r.did && d.move && (Math.abs(d.move.o2_pct - at.o) > 0.5 || Math.abs(d.move.pressure_psi - at.p) > 0.1)) {
+        r.did = 'Moved to the air in your question (' + d.move.o2_pct + '% oxygen, ' + d.move.pressure_psi + ' psi)';
+        movePoint(d.move.o2_pct, d.move.pressure_psi, r.did);
+        return askSI(text, d.move.pressure_psi, d.move.o2_pct, true).catch(function () { return d; });
+      }
+      return d;
+    }).then(function (d) {
       typing.remove();
-      if (ans.mode === 'si') { var d = ans.data || {}; addMsg('bot', String(d.answer || d.text || JSON.stringify(d)), r.did, 'Answered by the Flashpoint SI assistant (AI-generated). Check the cited NASA records.'); return; }
+      var msg = addMsg('bot', d.answer, r.did, 'Answered by the Flashpoint SI assistant (AI-generated, Google Gemini). Check it against the cited NASA records.');
+      var cited = (d.cites || []).map(function (id) { return siRows.filter(function (x) { return String(x.test_id) === id; })[0]; }).filter(Boolean);
+      if (!cited.length) return;
+      var box = document.createElement('div'); box.className = 'answer-sources';
+      cited.forEach(function (x) { var a = document.createElement('a'); a.href = PSI_PAGE + x.accession; a.target = '_blank'; a.rel = 'noopener'; a.textContent = x.investigation + ' ' + x.test_id; box.appendChild(a); });
+      msg.appendChild(box); home.mark(cited);
+    }, function () { showFallback(OFF.answerOffline(text, ROWS, 'the SI assistant was unavailable')); });
+    function showFallback(ans) {
+      typing.remove();
       var did = r.did;
       // If the point did not move yet, move it to the point the answer looked at (within the map's range).
       if (!did && ans.probe) {
@@ -350,7 +400,7 @@
       (ans.citations || []).filter(function(c) { return c.url; }).forEach(function(c) {
         var a = document.createElement('a'); a.href = c.url; a.target = '_blank'; a.rel = 'noopener'; a.textContent = c.label; sources.appendChild(a);
       }); msg.appendChild(sources);
-    });
+    }
   }
   function openChat() { if (chat.hidden) { chatFrom = document.activeElement; chat.hidden = false; } $('ask').focus(); }
   function closeChat() { chat.hidden = true; if (chatFrom && chatFrom.focus) chatFrom.focus(); }

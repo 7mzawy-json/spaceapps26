@@ -427,3 +427,8 @@ body:not(.in-page) .chatdock { top: 1rem; }
 .chatdock .chat-head > div { flex: 1; min-width: 0; }
 .chatdock .msg { max-width: 92%; font-size: var(--t-sm); }
 @media (max-width: 767px) { .chatdock { left: .5rem; right: .5rem; width: auto; bottom: .5rem; top: calc(var(--bar-h) + .5rem); } }
+
+/* Rings around the tests an SI answer cites. */
+.map .cited circle { fill: none; stroke: var(--ink); stroke-width: 2; transform-box: fill-box; transform-origin: center; animation: cited 1.4s ease-out 3; }
+@keyframes cited { from { transform: scale(2.4); opacity: 0; } to { transform: none; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .map .cited circle { animation: none; } }

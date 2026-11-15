@@ -5,7 +5,7 @@ message which finding you fixed (for example "Fixes A-012"). The auditor re-chec
 
 ## Summary
 
-Last run: 2026-11-15 11:03 Asia/Kuwait, at commit bf5cea9. Open: 5 (1 critical, 2 high). Fixed since last run: 3. Two more closed by user acceptance.
+Last run: 15/11/2026, 11:18:19 Asia/Kuwait, at commit ba28df7. Open: 0 (0 critical, 0 high). Fixed since last run: 5.
 
 ## Findings
 
@@ -79,7 +79,7 @@ Last run: 2026-11-15 11:03 Asia/Kuwait, at commit bf5cea9. Open: 5 (1 critical, 
 - **Suggested fix:** Keep the requested atmosphere for evidence lookup even if the map cannot display it. Explicitly label the display limit, or reject an unsupported input before calling the model. Do not silently substitute 16 psi. Recount from the existing rows at the requested values.
 - **Owner:** Interface (site/, public/)
 - **Confidence:** Certain
-- **Status:** Open
+- **Status:** Fixed in 738d0b8
 
 ### A-007: Overlapping SI requests lose the first answer's citations
 
@@ -91,7 +91,7 @@ Last run: 2026-11-15 11:03 Asia/Kuwait, at commit bf5cea9. Open: 5 (1 critical, 
 - **Suggested fix:** Capture citation rows separately for each request and carry them through both SI calls and response rendering. Alternatively serialize submissions across both assistant entry points.
 - **Owner:** Interface (site/, public/)
 - **Confidence:** Certain
-- **Status:** Open
+- **Status:** Fixed in 738d0b8
 
 ### A-008: Investigation cards confuse omitted rows with missing NASA tables
 
@@ -103,7 +103,7 @@ Last run: 2026-11-15 11:03 Asia/Kuwait, at commit bf5cea9. Open: 5 (1 critical, 
 - **Suggested fix:** Use `Rows included in Flashpoint` and `No rows included in this dataset`, and retain the specific exclusion reason and PSI link. Distinguish actual absence of a table from rows excluded for different measurements or missing map coordinates.
 - **Owner:** Interface (site/, public/)
 - **Confidence:** Certain
-- **Status:** Open
+- **Status:** Fixed in ba28df7
 
 ### A-009: Compare lets keyboard focus leave its modal
 
@@ -115,7 +115,7 @@ Last run: 2026-11-15 11:03 Asia/Kuwait, at commit bf5cea9. Open: 5 (1 critical, 
 - **Suggested fix:** Use a native modal dialog or implement focus containment and background inertness, while retaining Escape and focus restoration.
 - **Owner:** Interface (site/, public/)
 - **Confidence:** Certain
-- **Status:** Open
+- **Status:** Fixed in ba28df7
 
 ### A-010: The cards describe the elliptical evidence rule as an OR rule
 
@@ -127,7 +127,7 @@ Last run: 2026-11-15 11:03 Asia/Kuwait, at commit bf5cea9. Open: 5 (1 critical, 
 - **Suggested fix:** State the normalized-distance formula, or explain that both differences combine within the ellipse. Use the same wording as the existing Analysis method explanation; changing `or` to `and` alone still describes a rectangle.
 - **Owner:** Story (docs/, page text)
 - **Confidence:** Certain
-- **Status:** Open
+- **Status:** Fixed in ba28df7
 
 ## Run evidence and limits
 
@@ -163,3 +163,13 @@ First run. No earlier audit log existed, so there were no findings to close. Fin
 - Publishing recheck: the three refinement reports, site README and new logo-draft comparison all returned 404. Reviewed the new API's secret handling and capped inputs. A pattern scan of 400 reachable history blobs found no common AWS, GitHub, OpenAI-style or private-key signatures. It is not an exhaustive secret or personal-data guarantee, nor a load test of API rate limiting.
 - Reviewed references, AI labels, quoted objectives, active UI text and new controls. No additional proven library-credit or redundancy issue was established. The source objectives include NASA's original punctuation; no new author-written dash finding is added.
 - Live browser testing used this environment's certificate-ignore setting as in run one. Actual submission fields, human permissions, final demo, physical devices, Safari, Firefox, screen-reader output, exhaustive contrast and all external links remain unchecked for the reasons recorded in run one. Historical lane ownership cannot be inferred reliably from commit authors.
+
+## Fix verification run
+
+- Checked A-006 through A-010 against commits 738d0b8 and ba28df7 and the live deployment. This was a targeted fix verification, not a new full audit.
+- A-006: the live client sent 21% oxygen and 30 psi unchanged, with 21 nearby tests. A controlled response showed the explicit map-edge notice. Verified request construction and rendering; did not evaluate a new generated model answer.
+- A-007: held simultaneous ISS and Moon Base requests in Chromium, then supplied controlled responses citing each request\'s first test. The two answers retained ACME CFI-G 21137 D1 and FLEX 219F001 links respectively.
+- A-008: live SPICE tile now says "No rows included in Flashpoint" and retains the missing-coordinate reason. Reviewed the corrected grouping, headline and comparison labels.
+- A-009: Tab and Shift+Tab both remained inside Compare. Escape closed it and restored focus to invCmpGo. Reviewed background inertness and focus restoration code.
+- A-010: the live cards show the normalized-distance formula and explain the two axis limits correctly.
+- All five original reproductions passed. No new findings. Prior acceptance closures and earlier verification limits remain unchanged. Browser checks used the same environment certificate-ignore setting as earlier runs.

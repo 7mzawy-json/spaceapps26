@@ -32,6 +32,7 @@ button { font: inherit; }
 
 /* top bar, buttons, header band and footer: assets/frame.css, the main site's own rules */
 .btn { justify-content: center; text-decoration: none; }
+.lesson .btn { white-space: normal; text-align: center; }   /* long "open this in the site" links wrap on phones */
 .btn[aria-pressed="true"] { background: var(--brand-fill); color: var(--on-fill); border-color: var(--brand-fill); }
 
 /* layout */
@@ -65,15 +66,11 @@ button { font: inherit; }
 .lesson li { margin-bottom: .3em; }
 
 .stage { background: var(--well); border: 1px solid var(--line); border-radius: 12px; padding: 14px; }
-.stage.dark { background: var(--chamber); border-color: transparent; color: var(--on-chamber); }
 .stage svg { display: block; width: 100%; height: auto; }
 .stage .ctl { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 10px; }
 .stage label { font-size: var(--t-sm); display: flex; gap: 10px; align-items: center; width: 100%; }
 .stage input[type=range] { flex: 1; accent-color: var(--brand-fill); }
 .stage .cap { font-size: var(--t-xs); color: var(--muted); margin: 8px 0 0; }
-.stage.dark .cap { color: #9db0d6; }
-.stage.dark .btn.ghost { color: #e9eef8; border-color: #5d7bb5; }
-.stage.dark .btn[aria-pressed="true"] { background: #2a62d6; border-color: #2a62d6; color: #fff; }
 
 .formula { border-left: 3px solid var(--brand-fill); background: var(--brand-soft); padding: 12px 14px; border-radius: 0 var(--r) var(--r) 0; margin: 6px 0 12px; }
 .formula .eq { font: 500 1.05rem/1.7 var(--mono); color: var(--ink); overflow-wrap: anywhere; }
@@ -88,12 +85,13 @@ button { font: inherit; }
 .why { border-left: 3px solid var(--accent-mark); background: var(--accent-soft); padding: 12px 14px; border-radius: 0 var(--r) var(--r) 0; margin: 6px 0 12px; font-size: var(--t-sm); }
 .try { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 14px; padding-top: 14px; border-top: 1px dashed var(--line); font-size: var(--t-sm); color: var(--muted); }
 
+.data-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 0 24px; align-items: start; margin-top: 8px; }
+.data-row > h4 { grid-column: 1 / -1; }
+.data-row > [hidden] { display: none; }
 .readout { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; margin-top: 10px; }
 .readout div { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 8px 10px; }
-.stage.dark .readout div { background: #0b2150; border-color: #1d3a72; }
 .readout b { display: block; font: 500 var(--t-lg) var(--mono); }
 .readout span { font-size: var(--t-xs); color: var(--muted); }
-.stage.dark .readout span { color: #9db0d6; }
 
 /* quick check */
 .check { margin-top: 14px; background: var(--well); border-radius: var(--r); padding: 12px 14px; }
@@ -258,9 +256,11 @@ dl.gl dt { font-weight: 600; } dl.gl dd { margin: 0; color: var(--muted); }
                 <text x="160" y="144" text-anchor="middle" style="font-size:12px">and the fire goes out</text>
               </svg>
             </div>
-            <h4>IN NASA'S DATA</h4>
-            <div class="data" id="d1">Counting the tests...</div>
           </div>
+        </div>
+        <div class="data-row">
+          <h4>IN NASA'S DATA</h4>
+          <div class="data" id="d1">Counting the tests...</div>
         </div>
         <div class="why"><b>Why it matters.</b> NASA tests three kinds of fuel because they burn differently: gases (a leak),
           liquid droplets (a spray or a spill) and solids (fabric, plastic, wiring). A cabin is full of solids, so they matter most for safety.</div>
@@ -298,18 +298,20 @@ dl.gl dt { font-weight: 600; } dl.gl dd { margin: 0; color: var(--muted); }
             </div>
           </div>
           <div>
-            <div class="stage dark">
+            <div class="stage">
               <svg id="flame" viewBox="0 0 320 220" role="img" aria-label="A flame that changes shape with gravity">
                 <defs>
-                  <radialGradient id="gSph" cx="50%" cy="50%" r="50%"><stop offset=".45" stop-color="#ff9a3c" stop-opacity=".35"/><stop offset=".78" stop-color="#3d7bff" stop-opacity=".85"/><stop offset="1" stop-color="#3d7bff" stop-opacity="0"/></radialGradient>
+                  <radialGradient id="gSph" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#ffd27a" stop-opacity=".3"/><stop offset=".5" stop-color="#ff9a3c" stop-opacity=".14"/><stop offset=".76" stop-color="#3d7bff" stop-opacity=".55"/><stop offset=".9" stop-color="#5b92ff" stop-opacity=".95"/><stop offset="1" stop-color="#3d7bff" stop-opacity="0"/></radialGradient><linearGradient id="gCore" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#fff4cf"/><stop offset=".6" stop-color="#ffd36b"/><stop offset="1" stop-color="#ffb23e" stop-opacity=".2"/></linearGradient><radialGradient id="gHalo" cx="50%" cy="60%" r="50%"><stop offset="0" stop-color="#ff9a3c" stop-opacity=".4"/><stop offset="1" stop-color="#ff9a3c" stop-opacity="0"/></radialGradient><filter id="gWarp" x="-30%" y="-30%" width="160%" height="160%"><feTurbulence type="fractalNoise" baseFrequency="0.02 0.05" numOctaves="2" seed="7" result="n"><animate attributeName="baseFrequency" dur="5s" values="0.02 0.05;0.028 0.07;0.02 0.05" repeatCount="indefinite"/></feTurbulence><feDisplacementMap in="SourceGraphic" in2="n" scale="10" xChannelSelector="R" yChannelSelector="G"/></filter>
                   <radialGradient id="gTear" cx="50%" cy="75%" r="70%"><stop offset="0" stop-color="#fff2c4"/><stop offset=".4" stop-color="#ffb23e"/><stop offset=".8" stop-color="#FC3D21" stop-opacity=".8"/><stop offset="1" stop-color="#FC3D21" stop-opacity="0"/></radialGradient>
                 </defs>
+                <ellipse id="flameHalo" cx="160" cy="105" rx="95" ry="100" fill="url(#gHalo)" opacity="0"/>
                 <g id="flameBody">
                   <path id="flamePath" class="glow" fill="url(#gSph)" d=""/>
+                  <path id="flameCore" fill="url(#gCore)" d="" opacity="0"/>
                 </g>
-                <circle cx="160" cy="150" r="6" fill="#cfd8ea"/>
-                <g id="arrows" stroke="#9db0d6" stroke-width="1.5" fill="none" opacity="0"></g>
-                <text id="gLabel" x="14" y="24" style="fill:#fff;font-size:14px;font-weight:600">0 g</text>
+                <circle cx="160" cy="150" r="5" fill="var(--muted)"/>
+                <g id="arrows" stroke="var(--muted)" stroke-width="1.5" fill="none" opacity="0"></g>
+                <text id="gLabel" x="14" y="24" style="fill:var(--ink);font-size:14px;font-weight:600">0 g</text>
               </svg>
               <div class="ctl">
                 <button class="btn ghost sm" type="button" data-g="0" aria-pressed="true">Space 0 g</button>
@@ -323,10 +325,12 @@ dl.gl dt { font-weight: 600; } dl.gl dd { margin: 0; color: var(--muted); }
               </div>
               <p class="cap">Illustration: the shape follows the formula's direction, not a measured flame.</p>
             </div>
-            <h4>IN NASA'S DATA</h4>
-            <div class="data" id="d2">Counting the tests...</div>
-            <div class="data" id="d2g" hidden></div>
           </div>
+        </div>
+        <div class="data-row">
+          <h4>IN NASA'S DATA</h4>
+          <div class="data" id="d2">Counting the tests...</div>
+          <div class="data" id="d2g" hidden></div>
         </div>
         <div class="why"><b>Why it matters.</b> A Moon Base sits at 1/6 of Earth's gravity, Mars at about 3/8. NASA's PSI database has no
           partial-gravity fire tests yet, so this collection cannot supply a measured result for either location. Experiments at the relevant gravity are needed.</div>
@@ -490,9 +494,11 @@ dl.gl dt { font-weight: 600; } dl.gl dd { margin: 0; color: var(--muted); }
               </div>
               <p class="cap">Spread distance grows with the square root of D &times; time.</p>
             </div>
-            <h4>IN NASA'S DATA</h4>
-            <div class="data" id="d5">Counting the tests...</div>
           </div>
+        </div>
+        <div class="data-row">
+          <h4>IN NASA'S DATA</h4>
+          <div class="data" id="d5">Counting the tests...</div>
         </div>
         <div class="why"><b>Why it matters.</b> NASA's challenge statement expects a Moon Base at 10.2 psi or less, lower than the ISS. Oxygen percent and
           pressure would both differ from Earth's, and they act on a flame in different ways. A test is evidence for that cabin only when both are close.</div>
@@ -805,6 +811,11 @@ dl.gl dt { font-weight: 600; } dl.gl dd { margin: 0; color: var(--muted); }
   }
   function setG(g) {
     $('flamePath').setAttribute('d', flameShape(g));
+    // On Earth the flame gets a bright sooty core and a warm halo; the warp filter adds the flicker of a real flame.
+    var warm = g > 0.05, kk = Math.min(1, Math.sqrt(g));
+    $('flameCore').setAttribute('d', flameShape(g).replace(/(\d+\.\d) (\d+\.\d)/g, function (m, x, y) { return (160 + (x - 160) * .55).toFixed(1) + ' ' + (150 + (y - 150) * .62).toFixed(1); }));
+    $('flameCore').setAttribute('opacity', warm ? .95 : 0); $('flameHalo').setAttribute('opacity', warm ? .4 + .6 * kk : 0);
+    if (warm) $('flameBody').setAttribute('filter', 'url(#gWarp)'); else $('flameBody').removeAttribute('filter');
     $('flamePath').setAttribute('fill', g > 0.05 ? 'url(#gTear)' : 'url(#gSph)');
     $('flameBody').classList.toggle('flick', g > 0.05);
     var rhoHot = G_RHO_AIR * T_AIR / T_HOT, F = (G_RHO_AIR - rhoHot) * g * G0;
@@ -812,9 +823,10 @@ dl.gl dt { font-weight: 600; } dl.gl dd { margin: 0; color: var(--muted); }
     $('gLabel').textContent = g === 0 ? '0 g: a sphere, oxygen diffuses in' : g + ' g: hot gas rises, air rushes in below';
     var ar = $('arrows'); ar.textContent = '';
     if (g > 0) { ar.setAttribute('opacity', Math.min(1, .3 + g)); [[110, 200, 140, 168], [210, 200, 180, 168]].forEach(function (p) { el('path', { d: 'M' + p[0] + ' ' + p[1] + ' L' + p[2] + ' ' + p[3], 'marker-end': '' }, ar); }); el('path', { d: 'M160 40 L160 14' }, ar); }
-    document.querySelectorAll('[data-g]').forEach(function (b) { b.setAttribute('aria-pressed', String(+b.dataset.g === g)); });
+    document.querySelectorAll('.stage [data-g]').forEach(function (b) { b.setAttribute('aria-pressed', String(+b.dataset.g === g)); });
   }
-  document.querySelectorAll('[data-g]').forEach(function (b) { b.addEventListener('click', function () { setG(+b.dataset.g); }); });
+  document.querySelectorAll('.stage [data-g]').forEach(function (b) { b.addEventListener('click', function () { setG(+b.dataset.g); }); });
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) document.querySelectorAll('#flame animate').forEach(function (a) { a.remove(); });
   setG(0);
 
   /* 1.3 partial pressure */

@@ -58,27 +58,27 @@
 .triangle-controls button span { display:block;color:var(--muted);font-weight:400;font-size:11px;margin-top:4px; }
 .triangle-controls button[aria-pressed="true"] { color:var(--ink);border-color:var(--c);box-shadow:inset 0 -3px var(--c);background:color-mix(in srgb,var(--c) 9%,var(--surface)); }
 .triangle-view { display:flex;flex-direction:column;align-items:center;gap:6px; }
-/* Lesson 1.1 fire triangle (AI-assisted, Claude Code): each side is one supply; the flame is layered SVG with a slow flicker. */
-.tri { display:block;width:100%;max-width:340px;height:auto;overflow:visible; }
-.tri-side { fill:none;stroke-width:5;stroke-linecap:round;transition:stroke .4s,stroke-dasharray .4s,opacity .4s; }
-.tri-side[data-side="heat"] { stroke:var(--study-heat); } .tri-side[data-side="oxygen"] { stroke:var(--study-oxygen); } .tri-side[data-side="fuel"] { stroke:var(--study-fuel); }
-.tri-side.off { stroke:var(--line-strong);stroke-dasharray:3 10;stroke-width:3; }
-.tri-hit { fill:none;stroke:transparent;stroke-width:26;cursor:pointer;pointer-events:stroke; }
-.tri-label { font:600 11px var(--sans);letter-spacing:.12em;text-anchor:middle;transition:fill .4s; }
-.tri-label[data-side="heat"] { fill:var(--study-heat); } .tri-label[data-side="oxygen"] { fill:var(--study-oxygen); } .tri-label[data-side="fuel"] { fill:var(--study-fuel); }
-.tri-label.off { fill:var(--muted);opacity:.6; }
-.tri-fuel { fill:var(--study-fuel);opacity:.8; }
-.tri-flame { transform-origin:160px 199px;transition:transform .7s var(--ease,ease),opacity .7s; }
-.tri-outer,.tri-mid,.tri-core { transform-origin:160px 199px; }
+/* Lesson 1.1 fire (AI-assisted, Claude Code): layered flame tongues under a slow heat-shimmer warp, sparks and a glow.
+   Cutting any supply shrinks the flame away and leaves smoke. An illustration, not a model. */
+.tri { display:block;width:100%;max-width:300px;height:auto;overflow:visible; }
+.fire-logs rect { fill:var(--study-fuel); }
+.fire-ember { fill:#ff7a2a;opacity:.4;transition:opacity .7s; }
+.fire-glow { transition:opacity .7s; }
+.tri.out .fire-ember { opacity:.08; } .tri.out .fire-glow { opacity:0; }
+.tri-flame { transform-origin:130px 212px;transition:transform .7s var(--ease,ease),opacity .7s; }
+.tri-outer,.tri-mid,.tri-core { transform-origin:130px 212px; }
 .tri-outer { animation:triFlick 1.7s ease-in-out infinite alternate; }
 .tri-mid { animation:triFlick 1.2s ease-in-out infinite alternate-reverse; }
 .tri-core { animation:triFlick .9s ease-in-out infinite alternate; }
-@keyframes triFlick { 0% { transform:scale(1,1) skewX(0); } 40% { transform:scale(.96,1.05) skewX(-2.5deg); } 100% { transform:scale(1.03,.96) skewX(2deg); } }
-.tri.out .tri-flame { transform:scale(.15,.05);opacity:0; }
+@keyframes triFlick { 0% { transform:scale(1,1) skewX(0); } 40% { transform:scale(.96,1.06) skewX(-2.5deg); } 100% { transform:scale(1.03,.95) skewX(2deg); } }
+.tri.out .tri-flame { transform:scale(.2,.05);opacity:0; }
+.fire-sparks circle { fill:#ffcf70;opacity:0;animation:fireSpark 2.2s ease-out infinite; }
+.fire-sparks circle:nth-child(2) { animation-delay:.6s; } .fire-sparks circle:nth-child(3) { animation-delay:1.2s; } .fire-sparks circle:nth-child(4) { animation-delay:1.7s; }
+@keyframes fireSpark { 0% { opacity:0;transform:translate(0,0); } 15% { opacity:1; } 100% { opacity:0;transform:translate(6px,-70px); } }
 .tri-smoke path { fill:none;stroke:var(--muted);stroke-width:2;stroke-linecap:round;opacity:0; }
 .tri.out .tri-smoke path { animation:triSmoke 2.6s ease-out infinite; }
 .tri.out .tri-smoke path:nth-child(2) { animation-delay:.9s; } .tri.out .tri-smoke path:nth-child(3) { animation-delay:1.7s; }
-@keyframes triSmoke { 0% { opacity:0;transform:translateY(8px); } 25% { opacity:.45; } 100% { opacity:0;transform:translateY(-34px); } }
+@keyframes triSmoke { 0% { opacity:0;transform:translateY(8px); } 25% { opacity:.45; } 100% { opacity:0;transform:translateY(-40px); } }
 .triangle-state { font:11px var(--mono);color:var(--muted);text-align:center; }
 .mixture { display:grid;grid-template-columns:repeat(10,1fr);gap:9px;padding:20px 8px;min-height:190px;align-content:center; }
 .molecule { width:14px;height:14px;border-radius:50%;display:block;background:var(--study-nitrogen);box-shadow:6px 0 0 var(--study-nitrogen);margin:auto; }
@@ -140,16 +140,11 @@ body[data-learn] .toc a.explored .k { color:var(--brand);font-weight:600; }
 @media(max-width:540px) { .paired-records { grid-template-columns:1fr; } }
 .ribbon-finding small { display:block;color:var(--muted);font-size:11px;line-height:1.7;margin-top:5px; }
 .hero-chamber .chamber-caption p { margin:8px 0 0; }
-:root:not([data-theme="dark"]) .stage.dark { background:var(--well);color:var(--ink);border-color:var(--line); }
-:root:not([data-theme="dark"]) .stage.dark svg text { fill:var(--ink)!important; }
-:root:not([data-theme="dark"]) .stage.dark .cap { color:var(--muted); }
-:root:not([data-theme="dark"]) .stage.dark .btn.ghost { color:var(--ink);border-color:var(--line-strong); }
-:root:not([data-theme="dark"]) .stage.dark .btn.ghost[aria-pressed="true"] { color:var(--on-fill); }
 body[data-learn] .lesson .watch { max-width:800px;margin:0 auto; }
 @media(max-width:1100px) { .lab-layout { grid-template-columns:1fr; }.lab-controls { display:grid;grid-template-columns:1fr 1fr;gap:16px; }.lab-controls .lab-result,.lab-controls .lab-prediction,.lab-controls .lab-limit { grid-column:1/-1; } }
 @media(max-width:980px) { body[data-learn] .layout { grid-template-columns:1fr; } }
 @media(max-width:560px) { .activity-head { gap:10px; }.activity-head h4 { font-size:18px!important; }.lab-controls { display:flex; }.lesson-tabs button { padding-inline:13px;font-size:11px; }.lab-visual { padding:12px; }.lab-metrics b { font-size:21px; }.lab-buttons { gap:6px; }.lab-buttons button { font-size:11px;padding-inline:12px; }.molecule { width:10px;height:10px;box-shadow:5px 0 0 var(--study-nitrogen); }.molecule.oxygen { box-shadow:5px 0 0 var(--study-oxygen); }.mixture { gap:8px; }.diffusion-pair { gap:8px; }.record-card dl { grid-template-columns:1fr 1.2fr; }.video-settings { align-items:start;flex-direction:column; }body[data-learn] .hero h1 { font-size:29px; }.study-options { flex-wrap:wrap; }.hero-chamber .chamber-caption { padding-inline:18px; }.hero-chamber .chamber-caption strong { font-size:14px; } }
-@media(prefers-reduced-motion:reduce) { .tri-outer,.tri-mid,.tri-core,.tri.out .tri-smoke path { animation:none; }.tri.out .tri-smoke path { opacity:.3; } }
+@media(prefers-reduced-motion:reduce) { .tri-outer,.tri-mid,.tri-core,.tri.out .tri-smoke path,.fire-sparks circle { animation:none; }.tri.out .tri-smoke path { opacity:.3; } }
 /* Lesson 1.2: NASA's SAFFIRE-II burn lengths at both gravity levels (AI-assisted, Claude Code). */
 #d2g table { width:100%; border-collapse:collapse; }
 #d2g th { font-size:11px; text-align:left; padding:6px 12px 6px 0; }

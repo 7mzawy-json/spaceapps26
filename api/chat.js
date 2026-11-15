@@ -24,6 +24,7 @@ const MAX_QUESTION = 500, MAX_CONTEXT = 16000, PER_MINUTE = 12;
 // Background the model may use for general questions. Each note carries its own source: the challenge statement or a
 // NASA page from the challenge's Resources tab (see docs/challenge/ (archived)). Nothing here is a number from our test data.
 const SRC = {
+  psi: { label: 'NASA Physical Science Informatics, per-test tables', url: 'https://psi.nasa.gov/' },
   challenge: { label: 'Challenge statement, Flame in Freefall', url: 'https://www.spaceappschallenge.org/2026/challenges/flame-in-freefall/' },
   guide: (pages) => ({ label: 'NASA, A Researcher\'s Guide to Combustion Science (2015), p. ' + pages, url: 'https://www.nasa.gov/missions/station/a-researchers-guide-to-combustion-science/' }),
   glenn: { label: 'NASA Glenn Research Center, Combustion Science', url: 'https://www.nasa.gov/glenn/glenn-expertise-space-exploration/physical-sciences-program/combustion-science/' },
@@ -222,6 +223,9 @@ module.exports = async (req, res) => {
       const note = NOTES[Math.round(Number(n)) - 1];
       if (note && !sources.some((s) => s.label === note[0].label)) sources.push(note[0]);
     });
+    // An answer that states counts but names no test and no note (often solid materials, which cannot be placed) still
+    // comes from NASA's test tables, so it credits them. Every number in it has already passed the check above.
+    if (!cites.length && !sources.length && !declined && /\d/.test(answer)) sources.push(SRC.psi);
     const m = out.move, okMove = !b.final && m && Number.isFinite(m.o2_pct) && Number.isFinite(m.pressure_psi);
     const move = okMove ? { o2_pct: +clamp(m.o2_pct, 1, 100).toFixed(1), pressure_psi: +clamp(m.pressure_psi, 0.5, 150).toFixed(1) } : null;
     return res.status(200).json({ answer: shown, cites, sources: sources.slice(0, 3), move, inferred, model });

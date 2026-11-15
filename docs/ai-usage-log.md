@@ -32,6 +32,7 @@ The idea was chosen after deciding on the flame in free fall challenge. We looke
 | SI assistant, Sun Nov 15 | 7mzawy-json chose the feature, the free model tier and the rules it follows (answer only from NASA's evidence, cite tests, never call an atmosphere safe, label any inference); the team stress-tested it with 95 live questions and decided each fix | Wrote the `/api/chat` route and the checks that drop any answer whose numbers disagree with the evidence. At run time Gemini writes the answers, which are labelled AI-generated | Claude Code; Google Gemini at run time |
 | Page flow, Sun Nov 15 | 7mzawy-json found the page asked too much of a first-time visitor, set the order of importance, and put the assistant on the first screen | Reordered and folded the sections to that order | Claude Code |
 | Review and cleanup, Sun Nov 15 | The team set up an independent AI reviewer, chose which of its findings to fix, and decided what to archive before submission | Logged findings in `docs/audit-log.md`; applied the fixes the team chose; moved drafts to the `archive/before-cleanup` branch | ChatGPT (OpenAI Codex), Claude Code |
+| Pitch deck, Sun Nov 15 | The team set the story (humans migrate; to settle beyond Earth we must breathe, and breathing depends on oxygen pressure; a Moon Base adds gravity that no test covers), gave the member names, and AlanziM2 corrected the gravity slide: every test in the data ran in microgravity | Wrote the 7 slides and speaker notes in `docs/pitch/Flashpoint-pitch.pptx`, drew the three graphics (each marked AI-generated on the slide), took the screenshots of the live site, and built the PowerPoint file with its click animations | Claude Code (Claude Fable 5.2); python-pptx; Playwright |
 
 ## References (every library, image and dataset)
 
@@ -54,3 +55,4 @@ The original-work checkbox at submission confirms this list is complete. Add eac
 | Playwright for Python (Microsoft) | open source code, renders video frames (build time only) | https://playwright.dev/python/ | Apache 2.0 |
 | FFmpeg, via imageio-ffmpeg | open source code, encodes the videos (build time only) | https://ffmpeg.org/ , https://github.com/imageio/imageio-ffmpeg | FFmpeg: LGPL/GPL; imageio-ffmpeg: BSD 2-Clause |
 | pypdf | test-only library, verifies the printed brief's page count | https://pypi.org/project/pypdf/ | Installed verification tool; no browser/runtime dependency |
+| python-pptx | open source code, writes the pitch deck file (build time only) | https://python-pptx.readthedocs.io/ | MIT |

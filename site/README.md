@@ -127,7 +127,7 @@ hardware the tests ran on. Each card has NASA's objectives (word for word), a on
 a small pressure and oxygen map of where its tests ran, how many sit near the ISS and Moon Base air (the map's evidence
 rule), an outcome bar and what changed between its tests. A findings strip at the top counts the main gaps from the
 rows. Compare puts up to three side by side. The table is still there behind Cards / Table, and its test counts now come
-from the rows. Data: `data/investigations.json` (built by `scripts/build_investigations.py`, checked by
+from the rows. The cards are map-first: the nine investigations with rows share one scale, and a dashed ring on each map marks the Moon Base "near" zone, so the gap shows without reading. The fifteen without rows are compact tiles. The landing page shows the same nine maps as a strip ("Where NASA tested"). Data: `data/investigations.json` (built by `scripts/build_investigations.py`, checked by
 `scripts/check_investigations.py`). Proposal and what differs: `docs/investigation-summaries.md`.
 
 ## Files

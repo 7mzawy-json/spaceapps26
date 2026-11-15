@@ -72,6 +72,11 @@
       <article><span class="kind">Spacesuit oxygen</span><p id="findSuit">Loading NASA tests.</p></article>
     </div>
   </section>
+  <section class="inv-strip-sec" aria-labelledby="invStripTitle">
+    <div class="section-intro"><div><span class="eyebrow">WHERE NASA TESTED</span><h2 id="invStripTitle">Investigations with test rows.</h2></div><p>One small map per investigation, all on the same scale: pressure across, oxygen up. The dashed ring is the air planned for a Moon Base. Counted in your browser from NASA's test tables.</p></div>
+    <div class="inv-strip" id="invStrip" aria-label="Small maps of where each investigation tested"><p class="note">Loading NASA tests.</p></div>
+    <p class="inv-strip-act"><button class="btn ghost" type="button" data-open-cards>Open all 24 investigations</button></p>
+  </section>
   <div class="section-intro"><div><span class="eyebrow">EXPLORE FLASHPOINT</span><h2>Choose what you want to do.</h2></div><p>Compare the records, try a model, or learn the science.</p></div>
   <section class="cards" aria-label="Modules">
     <a class="card" href="#analysis" data-page="analysis">
@@ -245,7 +250,7 @@
           <label class="check"><input type="checkbox" id="invOnly"> Only investigations with test rows</label>
           <span class="note" id="invCount"></span>
         </div>
-        <p class="note inv-howto">Each small map uses the main map's axes: total pressure across (0 to 16 psi), oxygen up, the curve of sea-level oxygen, and the ISS and Moon Base points. Dots are tests: filled amber kept burning, teal ring went out or did not ignite, small grey not recorded. Grouped by the hardware the tests ran on, as the challenge lists it. Stage tags follow the challenge statement and are the team's call.</p>
+        <p class="note inv-howto">Every small map uses the main map's scale: total pressure across (0 to 16 psi), oxygen up, the curve of sea-level oxygen, and the ISS and Moon Base points. The dashed ring around the Moon Base is the "near" zone; an empty ring is a gap. Dots are tests: filled amber kept burning, teal ring went out or did not ignite, small grey not recorded. Tests with oxygen but no pressure sit on the "no psi" strip at the right edge. The coloured top edge is the fire-safety stage, which follows the challenge statement and is the team's call.</p>
         <div id="invCards"></div>
         <div class="inv-cmpbar" id="invCmpBar" hidden><span id="invCmpTxt"></span><button class="btn sm" id="invCmpGo" type="button" disabled>Compare side by side</button><button class="btn ghost sm" id="invCmpClear" type="button">Clear</button></div>
       </div>

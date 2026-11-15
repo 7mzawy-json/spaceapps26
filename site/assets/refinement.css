@@ -173,20 +173,13 @@ body[data-lab] .grid { grid-template-columns:minmax(0,1.5fr) minmax(0,1fr); }
 body[data-learn] .hero { padding-block:38px 16px; }
 body[data-learn] .hero h1 { font-size:38px; max-width:26ch; letter-spacing:-.04em; font-weight:500; }
 body[data-learn] .hero p.lede { font-size:14px; line-height:1.7; }
-body[data-learn] .paths { margin-top:22px; gap:12px; }
-body[data-learn] .path { padding:16px 20px; border-radius:12px; }
-body[data-learn] .path h2 { font-size:17px; font-weight:500; }.path p { font-size:12px; }
 body[data-learn] .how { display:none; }
 body[data-learn] .lesson { padding:26px; border-radius:12px; }
 body[data-learn] .lesson p,body[data-learn] .lesson li { font-size:13px; line-height:1.75; }
 body[data-learn] .lesson h3 { font-weight:500; font-size:23px; }
 body[data-learn] .track { display:none; }
-.lesson-nav { display:flex; align-items:center; gap:10px; margin-top:20px; padding:16px; border:1px solid var(--line); border-radius:10px; background:var(--surface); }
-.lesson-nav label { color:var(--muted); font:10px var(--mono); white-space:nowrap; }
-.lesson-nav select { flex:1; min-width:0; padding:10px; border:1px solid var(--line-strong); border-radius:6px; color:var(--ink); background:var(--well); font-size:12px; }
-.lesson-nav button { min-width:44px; }
 body[data-learn] .toc a.on { background:var(--brand-soft); color:var(--brand); }
-@media(max-width:540px) { body[data-learn] .hero h1 { font-size:30px; }body[data-learn] .paths { grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; }body[data-learn] .path { padding:12px 8px; text-align:center; }body[data-learn] .path h2 { font-size:12px; margin:0; }body[data-learn] .path .n,body[data-learn] .path p { display:none; }body[data-learn] .lesson { padding:20px 16px; }.lesson-nav { flex-wrap:wrap; padding:12px; }.lesson-nav label { width:100%; }.lesson-nav select { max-width:calc(100% - 108px); }body[data-learn] .hero { padding-top:24px; } }
+@media(max-width:540px) { body[data-learn] .hero h1 { font-size:30px; }body[data-learn] .lesson { padding:20px 16px; }body[data-learn] .hero { padding-top:24px; } }
 /* Analysis sweep, Sat Nov 14 evening (AI-assisted, Claude Code): readable small text, phone tables, disclosure markers. */
 #page-analysis th { font-size:11px; }
 #page-analysis .panel h3,#page-analysis .toolbar .lbl,#page-analysis .facet .lbl { font-size:11px; }

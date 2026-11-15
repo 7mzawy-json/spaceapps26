@@ -26,11 +26,15 @@
       });
       // A continuous round-to-stretched silhouette. The equation panel, not this shape, carries the quantitative comparison.
       ctx.save();ctx.beginPath();
-      for(var z=0;z<=96;z++){var ang=z/96*Math.PI*2,up=Math.max(0,Math.sin(ang)),bend=fan?26*up:0;var px=cx+R*Math.cos(ang)*(1-.35*k*up)+bend,py=cy-R*Math.sin(ang)*(1+1.65*k*up);z?ctx.lineTo(px,py):ctx.moveTo(px,py);}
-      ctx.closePath();var grad=ctx.createRadialGradient(cx,cy,5,cx,cy-15*k,90);grad.addColorStop(0,palette.dark?'#eea76618':'#ed8c3310');grad.addColorStop(.48,palette.dark?'#7b9ee82b':'#25569d18');grad.addColorStop(.75,'#4d9cfa85');grad.addColorStop(1,'#285fb120');ctx.fillStyle=grad;ctx.fill();ctx.strokeStyle=palette.dark?'#82bcff':'#2766b5';ctx.lineWidth=3;ctx.shadowColor='#398aff';ctx.shadowBlur=12;ctx.stroke();ctx.shadowBlur=0;
+      var flick=1+(paused?0:.035*k*Math.sin(t*9)+.02*k*Math.sin(t*23));
+      for(var z=0;z<=96;z++){var ang=z/96*Math.PI*2,up=Math.max(0,Math.sin(ang)),bend=fan?26*up:0;var px=cx+R*Math.cos(ang)*(1-.35*k*up)+bend,py=cy-R*Math.sin(ang)*(1+1.65*k*up*flick);z?ctx.lineTo(px,py):ctx.moveTo(px,py);}
+      ctx.closePath();var grad=ctx.createRadialGradient(cx,cy,5,cx,cy-15*k,90);grad.addColorStop(0,palette.dark?'#eea76618':'#ed8c3310');grad.addColorStop(.48,palette.dark?'#7b9ee82b':'#25569d18');grad.addColorStop(.75,'#4d9cfa85');grad.addColorStop(1,'#285fb120');ctx.fillStyle=grad;ctx.fill();
+      // Buoyancy lifts soot into a hot, glowing yellow tip; in still microgravity the flame stays a dim blue sphere.
+      if(k>.05||fan){var top=cy-R*(1+1.65*k*flick),warm=Math.max(k,fan?.35:0);ctx.save();ctx.clip();var lg=ctx.createLinearGradient(0,top,0,cy+R*.35);lg.addColorStop(0,'rgba(255,214,110,'+(.95*warm).toFixed(3)+')');lg.addColorStop(.45,'rgba(246,140,48,'+(.8*warm).toFixed(3)+')');lg.addColorStop(.8,'rgba(230,90,40,'+(.25*warm).toFixed(3)+')');lg.addColorStop(1,'rgba(230,90,40,0)');ctx.fillStyle=lg;ctx.fillRect(cx-R*2,top-4,R*4+40,cy+R-top+8);ctx.restore();}
+      ctx.globalAlpha=1-.55*k;ctx.strokeStyle=palette.dark?'#82bcff':'#2766b5';ctx.lineWidth=3;ctx.shadowColor='#398aff';ctx.shadowBlur=12;ctx.stroke();ctx.shadowBlur=0;ctx.globalAlpha=1;
       ctx.beginPath();ctx.fillStyle=palette.dark?'#ffcd91':'#b55c22';ctx.arc(cx,fy,5,0,Math.PI*2);ctx.fill();ctx.restore();
-      ctx.fillStyle=palette.ink;ctx.font='500 13px Arial';ctx.fillText(fan?'Ventilation fan on':g<.015?'Still gas in microgravity':'Buoyancy-driven flow',24,28);
-      ctx.fillStyle=palette.muted;ctx.font='12px Arial';ctx.fillText('Fuel source',cx-32,cy+92);ctx.fillText('Illustration; paths and flame size are not measured',24,H-13);
+      ctx.fillStyle=palette.ink;ctx.font='500 13px Geist, system-ui, sans-serif';ctx.fillText(fan?'Ventilation fan on':g<.015?'Still gas in microgravity':'Buoyancy-driven flow',24,28);
+      ctx.fillStyle=palette.muted;ctx.font='12px Geist, system-ui, sans-serif';ctx.fillText('Fuel source',cx-32,cy+92);ctx.fillText('Illustration; paths and flame size are not measured',24,H-13);
       root.dataset.g=String(g);root.dataset.fan=String(fan);root.dataset.paused=String(paused);
     }
     function resize(){var r=canvas.getBoundingClientRect();canvas.width=Math.max(1,Math.round(r.width*Math.min(devicePixelRatio,2)));canvas.height=Math.max(1,Math.round(r.height*Math.min(devicePixelRatio,2)));draw();}

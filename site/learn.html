@@ -36,15 +36,6 @@ button { font: inherit; }
 
 /* layout */
 .hero { padding: 1.5rem 0 .5rem; }
-.paths { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 28px; }
-.path { background: var(--surface); border: 1px solid var(--line); border-radius: var(--corner); padding: 20px 22px; text-decoration: none; color: var(--ink);
-  transition: transform var(--mid) var(--ease), box-shadow var(--mid); }
-.path:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
-.path .n { font: 500 var(--t-xs) var(--mono); color: var(--muted); }
-.path h2 { font-size: var(--t-xl); margin: 6px 0 6px; }
-.path p { color: var(--muted); font-size: var(--t-sm); margin: 0; }
-.how { margin-top: 18px; color: var(--muted); font-size: var(--t-sm); }
-.how b { color: var(--ink); }
 
 .layout { display: grid; grid-template-columns: 230px minmax(0, 1fr); gap: 36px; padding: 20px 0 80px; }
 .toc { position: sticky; top: calc(var(--bar-h) + 20px); align-self: start; font-size: var(--t-sm); }
@@ -163,11 +154,16 @@ dl.gl dt { font-weight: 600; } dl.gl dd { margin: 0; color: var(--muted); }
 
 @media (max-width: 980px) {
   .layout { grid-template-columns: minmax(0, 1fr); }
-  .toc { display: none; }
+  /* the contents list becomes a strip under the top bar: still the one way to move between lessons */
+  .toc { position: sticky; top: var(--bar-h); z-index: 5; display: flex; gap: 4px; overflow-x: auto; margin: 0 -1rem; padding: 8px 1rem;
+    background: var(--bg); border-bottom: 1px solid var(--line); scrollbar-width: none; }
+  .toc::-webkit-scrollbar { display: none; }
+  .toc h3, .toc .lab-progress { display: none; }
+  .toc a { flex: none; white-space: nowrap; }
+  body[data-learn] .layout .lesson { scroll-margin-top: calc(var(--bar-h) + 64px); }
   .cols { grid-template-columns: minmax(0, 1fr); }
 }
 @media (max-width: 720px) {
-  .paths { grid-template-columns: 1fr; }
   .lesson { padding: 20px 16px; }
   dl.gl { grid-template-columns: 1fr; gap: 2px 0; } dl.gl dd { margin-bottom: 10px; }
 }
@@ -198,15 +194,7 @@ dl.gl dt { font-weight: 600; } dl.gl dd { margin: 0; color: var(--muted); }
   <svg class="art" viewBox="0 0 230 150" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><circle cx="70" cy="85" r="40"/><path d="M170 20 C 195 60, 205 80, 198 100 C 190 125, 150 125, 142 100 C 135 80, 145 60, 170 20 Z"/></svg>
 </div></div>
 <main class="wrap" id="mainContent" tabindex="-1">
-  <section class="hero">
-    <div class="paths">
-      <a class="path" href="#track-science"><span class="n">TRACK 1 &middot; 6 LESSONS</span><h2>Flame science</h2><p>Fuel and oxygen, gravity, oxygen pressure, nitrogen, low pressure, and how flames go out.</p></a>
-      <a class="path" href="#track-site"><span class="n">TRACK 2 &middot; 5 GUIDES</span><h2>Using Flashpoint</h2><p>Read the map, understand the evidence rating, rank investigations, dig into the data, use the flame lab.</p></a>
-      <a class="path" href="#sheet"><span class="n">REFERENCE</span><h2>Formula sheet</h2><p>Every calculation the site does, in one table, with the file it lives in. Plus a glossary.</p></a>
-    </div>
-    <p class="how">Every lesson has the same parts: <b>The idea</b>, <b>The formula</b>, <b>In NASA's data</b> (counted live from the
-      <span id="nRows">1,276</span> test rows), <b>Why it matters</b>, a quick check, and a link into the site.</p>
-  </section>
+  <span id="nRows" hidden>1,276</span>
 
   <div class="layout">
     <aside class="toc" aria-label="Contents">

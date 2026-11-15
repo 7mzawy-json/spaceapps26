@@ -157,6 +157,7 @@ Each flame-science lesson opens with a narrated video. The videos are built outs
 (scripts, scenes, the recorded narration and the renderer; see `videos-design.md` there), and only the finished files
 are copied here. The narration was recorded once with ElevenLabs; do not regenerate it (credits). AI use is logged in
 `docs/ai-usage-log.md`; every video frame carries a small AI badge (NASA rule for AI-generated video).
+One lesson shows at a time; the contents list on the left is the only way between them (a strip under the bar on phones).
 The page uses the main site's top bar, header band, buttons, theme and footer through `assets/frame.css` (a copy of
 those rules from `site.css`, since the whole of `site.css` would clash with the lesson styles). Change both together.
 

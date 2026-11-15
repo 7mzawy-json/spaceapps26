@@ -110,6 +110,12 @@ If time runs short, drop Compare first, then the chips. The small maps and outco
     Base air and CFI has 4.
   - Tests whose tables give no pressure say "cannot be placed" instead of "no tests near", because nothing was checked.
   - The "Combustion basics" tag is called "Flame science", the name the ranking on the Analysis page already used.
-  - The landing-page strip of small maps (open question 3) was not built.
+  - The landing-page strip of small maps (open question 3) **was built** in a second, visual pass: "Where NASA tested",
+    nine small maps on one scale, with a title counted from the data.
+- **Visual pass (Sun Nov 15, late morning):** the cards are map-first, as the proposal's line "seen together, the
+  cards show the gap without reading anything" intends. The nine investigations with rows share one grid; each map draws
+  the Moon Base "near" zone as a dashed ring (teal when tests sit inside it, red when it is empty); one big number gives
+  the tests near the Moon Base air; the text moved into Details. The fifteen without rows are compact tiles. The
+  findings strip is four big-number tiles. Cards are coloured by stage on their top edge.
 - **Open for the team:** confirm the stage tags (question 1 above) and read the 24 summaries.
 

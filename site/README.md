@@ -162,7 +162,7 @@ Flame lab changes after a teammate's review (Sat Nov 14, later):
 
 `learn.html` teaches why flames behave differently off Earth and how to read the site. Every number it shows is counted in
 the browser from `../data/tests.web.json`, and the evidence formula is the site's own (`../public/offline/offline-answer.js`).
-Each flame-science lesson opens with a narrated video. The videos are built outside the site, in `alanzim/learn/videos/`
+Each flame-science lesson opens with a narrated video. The videos are built outside the site, in `tools/videos/`
 (scripts, scenes, the recorded narration and the renderer; see `videos-design.md` there), and only the finished files
 are copied here. The narration was recorded once with ElevenLabs; do not regenerate it (credits). AI use is logged in
 `docs/ai-usage-log.md`; every video frame carries a small AI badge (NASA rule for AI-generated video).
@@ -187,7 +187,7 @@ index.html          the landing page, guided Analysis, research tools and embedd
 sim.html            the flame lab; index.html loads it with ?embed (header hidden), and it also works on its own
 learn.html          the learners page: six interactive flame-science lessons and five site guides,
                     a formula sheet and a glossary; opened from the dashboard's Learn card and the bar
-videos/            the six lesson videos (MP4, captions, posters), made by alanzim/learn/videos/render.py
+videos/            the six lesson videos (MP4, captions, posters), made by tools/videos/render.py
 assets/tokens.css   every colour, size and radius, light and dark (shared by both pages)
 assets/site.css     styles for index.html
 assets/frame.css    the shared top bar, header band, buttons and footer, copied from site.css for learn.html

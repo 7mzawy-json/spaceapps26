@@ -1,11 +1,11 @@
 # Learners page videos: design
 
-Draft, Sat Nov 14 (evening). Owner: AlanziM2. The video sources live in `alanzim/learn/videos/` (not deployed); the
+Draft, Sat Nov 14 (evening). Owner: AlanziM2. The video sources live in `tools/videos/` (not deployed); the
 finished videos are written to `site/videos/` and play on the learners page, `site/learn.html` (moved there on Nov 14, night).
 
 ## Intent
 
-Each of the six Flame science lessons on the learners page (`alanzim/learn/index.html`) gets a short narrated video
+Each of the six Flame science lessons on the learners page (`site/learn.html`) gets a short narrated video
 that explains the lesson's idea before the learner plays with the interactive part. The videos teach; the interactive
 parts let the learner check what they were told.
 
@@ -57,7 +57,7 @@ Voice, chosen by the user: **neural AI voice** (over a teammate recording it). S
 ## How it works
 
 ```
-alanzim/learn/videos/
+tools/videos/
   scripts/1-1.json ... 1-6.json   narration split into sentences, each with the scene beat it drives
   scenes/1-1.html ... 1-6.html    the animation, one HTML page per video, driven by a timeline
   scenes/engine.js                shared timeline: tweens, easing, seek(t), watermark, caption bar
@@ -113,7 +113,7 @@ characters**, so one full redo still fits, but the aim is to record each video e
 - **One request per video** (six in total), using the text-to-speech "with timestamps" call. It returns the audio and the
   time of every character, so sentence timings and captions come from the same single recording. Model:
   `eleven_multilingual_v2`, output MP3 at 44.1 kHz, 128 kbps.
-- **Saved and committed:** `alanzim/learn/videos/narration/1-2.mp3` plus `1-2.timing.json` (the timestamps and a hash of
+- **Saved and committed:** `tools/videos/narration/1-2.mp3` plus `1-2.timing.json` (the timestamps and a hash of
   the script text). They are committed to git, so no teammate ever regenerates them.
 - **`tts.py` guards the credits:**
   - it does nothing without the flag `--spend`; without it, it only prints what it would send, the character count, and the

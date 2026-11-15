@@ -146,7 +146,7 @@ def main(argv=None, narration_dir=NARRATION, draft_dir=DRAFT, out_dir=OUT, check
     mp4 = out_dir / f"{a.id}.mp4"
     print(f"Rendering {a.id} ({'stand-in voice' if a.draft else timing.get('voice_name', 'narration')}), "
           f"{timing['duration'] + TAIL:.1f} s at {FPS} fps")
-    renderer(f"alanzim/learn/videos/scenes/{a.id}.html?timing=../{rel}", audio, mp4, timing["duration"] + TAIL,
+    renderer(f"tools/videos/scenes/{a.id}.html?timing=../{rel}", audio, mp4, timing["duration"] + TAIL,
              poster=(poster_t, out_dir / f"{a.id}.jpg"))
     (out_dir / f"{a.id}.vtt").write_text(vtt(timing), encoding="utf-8")
     print(f"Wrote {mp4.relative_to(ROOT).as_posix()} ({mp4.stat().st_size / 1e6:.1f} MB), {a.id}.vtt, {a.id}.jpg")

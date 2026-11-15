@@ -20,7 +20,7 @@ proposing anything. The build plan lives in `ROADMAP.md`. Follow it phase by pha
 
 Three people with equal responsibility and no team lead. Decisions are made by the whole team.
 Each lane owns its folders (see "Team and lanes" in `ROADMAP.md`).
-An agent edits only the files of the lane it is working for. Personal folders such as `alanzim/` are drafts, never deployed.
+An agent edits only the files of the lane it is working for. Personal folders are drafts and stay off `main`.
 
 ## Working conditions
 

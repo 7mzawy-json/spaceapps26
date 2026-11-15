@@ -68,7 +68,7 @@ Checks: `python scripts/check_data.py`, `python scripts/check_investigations.py`
 | `scripts/` | Data build and check scripts, the browser checks and the local preview server |
 | `lib/`, `public/offline/` | The evidence rating and the rule-based answers: the assistant's **fallback, not the main system** (TypeScript source and the browser build) |
 | `public/flames/` | The backup CSS flame for browsers without WebGL 2 |
-| `alanzim/learn/videos/` | How the six Learn videos were made: scripts, scenes, the recorded AI narration and the renderer |
+| `tools/videos/` | How the six Learn videos were made: scripts, scenes, the recorded AI narration and the renderer |
 | `docs/` | The AI usage log, data inventory, audit log and investigation-card notes |
 | `ROADMAP.md` | The plan we built from. Where it and the site disagree, the site is what we built |
 

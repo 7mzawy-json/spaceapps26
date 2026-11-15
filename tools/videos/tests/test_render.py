@@ -64,7 +64,7 @@ class Atomic(unittest.TestCase):
             with wave.open(str(wav), "wb") as w:
                 w.setnchannels(1); w.setsampwidth(2); w.setframerate(22050); w.writeframes(b"\0\0" * 2205)
             with self.assertRaises(Exception):
-                render.render("alanzim/learn/videos/tests/fixtures/breaks.html?timing=../../frames/test-short.timing.json", wav, out, seconds=0.5,
+                render.render("tools/videos/tests/fixtures/breaks.html?timing=../../frames/test-short.timing.json", wav, out, seconds=0.5,
                               poster=(0.0, Path(d) / "1-9.jpg"))
             self.assertEqual(out.read_bytes(), b"previous good video")
             self.assertEqual(sorted(p.name for p in Path(d).iterdir()), ["1-9.mp4", "s.wav"])
@@ -82,7 +82,7 @@ class ShortRender(unittest.TestCase):
             with wave.open(str(wav), "wb") as w:
                 w.setnchannels(1); w.setsampwidth(2); w.setframerate(22050); w.writeframes(b"\0\0" * 22050 * 2)
             out = Path(d) / "short.mp4"
-            render.render("alanzim/learn/videos/tests/fixtures/short.html?timing=../../frames/test-short.timing.json",
+            render.render("tools/videos/tests/fixtures/short.html?timing=../../frames/test-short.timing.json",
                           wav, out, seconds=2.0)
             n, secs = imageio_ffmpeg.count_frames_and_secs(str(out))
             info = subprocess.run([imageio_ffmpeg.get_ffmpeg_exe(), "-hide_banner", "-i", str(out)],

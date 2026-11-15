@@ -35,7 +35,7 @@ class Scene:
         cls.browser = cls.pw.chromium.launch()
         cls.page = cls.browser.new_page(viewport={"width": 1920, "height": 1080})
         timing = synthetic_timing(cls.ID, cls.STARTS)
-        cls.page.goto(f"{base}/alanzim/learn/videos/scenes/{cls.ID}.html?timing={timing}")
+        cls.page.goto(f"{base}/tools/videos/scenes/{cls.ID}.html?timing={timing}")
         cls.duration = cls.page.evaluate("ready.then(r => r.duration)")
 
     @classmethod

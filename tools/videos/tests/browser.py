@@ -4,7 +4,7 @@ import http.server
 import threading
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[4]
+ROOT = Path(__file__).resolve().parents[3]
 
 
 class _Quiet(http.server.SimpleHTTPRequestHandler):

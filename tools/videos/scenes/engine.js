@@ -157,7 +157,7 @@
   E.scene = function (id, build, opts) {
     window.ready = loadTiming(id).then(function (timing) {
       E.timing = timing;
-      if (opts && opts.rows) return fetch('../../../../data/tests.web.json').then(function (r) { return r.json(); }).then(function (rows) { E.rows = rows; });
+      if (opts && opts.rows) return fetch('../../../data/tests.web.json').then(function (r) { return r.json(); }).then(function (rows) { E.rows = rows; });
     }).then(function () {
       return Promise.all([document.fonts.load('400 40px Geist'), document.fonts.load('600 40px Geist'), document.fonts.load('500 40px "Geist Mono"')]);
     }).then(function () { return document.fonts.ready; }).then(function () {

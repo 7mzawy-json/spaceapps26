@@ -2,7 +2,7 @@
 # data/tests.meta.json, data/investigations.json and docs/ai-usage-log.md (linked from the footer). Everything else in docs/ stays private,
 # including notes added later, so a new doc is never published by accident.
 # Plans, the video build folder, the full source data and the build scripts stay in the repo only.
-/alanzim
+/tools
 /scripts
 /lib
 /docs/*

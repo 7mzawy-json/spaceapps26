@@ -23,7 +23,7 @@ import wave
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-ROOT = HERE.parents[2]
+ROOT = HERE.parents[1]
 SCRIPTS = HERE / "scripts"
 NARRATION = HERE / "narration"
 DRAFT = HERE / "narration-draft"

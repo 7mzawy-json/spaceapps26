@@ -17,10 +17,7 @@ labelled: the assistant's answers, the AI badge on the lesson videos, and the in
 
 ## Where the idea came from (team to write, in its own words)
 
-The SI rules say AI must not be used to come up with how to solve the challenge. The team writes here how the
-Flashpoint concept (the pressure and oxygen map with the evidence gaps) was chosen and by whom.
-
-> (to be written by the team)
+The idea was chosen after deciding on the flame in free fall challenge. We looked at the data and thought "What utility can this data provide to experts and learners?" So we came up with the idea of Flashpoint. Flashpoint is meant to help experts make better informed decisions related to flammability in microgravity environments and what air mixture is required on a moon base for example, it also helps to onboard learners on how flame behaves in conditions outside of Earth.   
 
 ## Log
 

@@ -5,7 +5,7 @@ message which finding you fixed (for example "Fixes A-012"). The auditor re-chec
 
 ## Summary
 
-Last run: 15/11/2026, 12:50:40 Asia/Kuwait, at commit 9a6e55c. Open: 7 (0 critical, 2 high). Fixed since last run: 0.
+Last run: 15/11/2026, 13:31:57 Asia/Kuwait, at commit f1f552f. Open: 4 (0 critical, 0 high). Fixed since last run: 3.
 
 ## Findings
 
@@ -277,3 +277,11 @@ First run. No earlier audit log existed, so there were no findings to close. Fin
 - The main dataset is already compressed: 526,036 decoded bytes versus 17,325 measured transfer bytes, including timing overhead. Blind JSON minification is lower priority than measured poster, rendering and duplicate-load costs. No lossy image/video conversion is recommended under the requirement to preserve functionality.
 - All seven check_data.py checks and all check_offline_native.mjs checks passed. Eight check_investigations.py checks passed; optional raw-catalogue checks skipped because the local cache was absent.
 - Earlier full browser suites were not rerun because their navigation predates the current UI. No new full accessibility, security, cross-browser, physical-phone or generated-answer audit is claimed. No additional verified functional failure was found in these targeted resilience checks.
+
+## Fact-check fix verification
+
+- Verified A-011 through A-013 against f1f552f. No new audit findings. A-014 through A-017 are unchanged and remain open for later consideration, as requested.
+- A-011: live catalogue source identifies Saffire-I and III as Cygnus spacecraft. In live Chromium, selecting the Cygnus platform filter returned exactly Saffire-I, II and III with 2, 9 and 2 included tests.
+- A-012: live Learn now says there is no plotted test in this collection, explicitly noting missing pressures and studies outside it. The prior nobody-has-tested wording is absent.
+- A-013: the two cited BASS and suppressant-jet references now use page 31 in api/chat.js and lib/offline-answer.ts. The deployed browser fallback also contains page 31 for both facts. This verifies the identified corrections, not every other citation or generated response.
+- Targeted source and live-browser checks only. Browser used the same environment certificate-ignore setting as earlier runs. No application files or optimization entries were changed by the auditor.

@@ -1,5 +1,5 @@
-/* Flashpoint site styles. Built from temp/design-master (look, navigation, Map, SI Assist) and
-   temp/dashboard-draft (Resources test-data view). Colours come only from tokens.css. */
+/* Flashpoint site styles. Built from temp/design-master (archived) (look, navigation, Map, SI Assist) and
+   temp/dashboard-draft (archived) (Resources test-data view). Colours come only from tokens.css. */
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { min-height: 100dvh; overflow-x: clip; }
 body { font-family: var(--sans); font-size: var(--t-md); color: var(--ink); background: var(--bg); line-height: 1.55; -webkit-font-smoothing: antialiased; }

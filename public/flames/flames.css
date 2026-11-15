@@ -1,5 +1,5 @@
 /*
-  Backup flame in pure CSS for when the WebGL flame simulation (temp/flame-sim/) cannot run: no WebGL 2,
+  Backup flame in pure CSS for when the WebGL flame simulation (temp/flame-sim/ (archived)) cannot run: no WebGL 2,
   a shader that fails to compile, or a lost graphics context. It follows the simulation's rules:
 
   - Gravity: space (0 g), moon (0.17 g), mars (0.38 g), earth (1 g). Only gravity changes the shape:

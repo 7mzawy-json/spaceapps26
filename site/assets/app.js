@@ -425,7 +425,7 @@
   });
 
   /* ---------- Resources: the 24 PSI combustion records ---------- */
-  // Accession, name and platform from the PSI catalogue (docs/challenge/resources.md).
+  // Accession, name and platform from the PSI catalogue (docs/challenge/resources.md (archived)).
   // Test counts are rows in data/tests.web.json. Fuel only where we have checked it; '' means not checked yet.
   var CAT = [
     ['PSI-10', 'ACME Flame Design', 'ISS', 'gas', 327], ['PSI-20', 'ACME BRE', 'ISS', 'gas', 0],

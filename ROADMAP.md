@@ -13,9 +13,9 @@
 > "Design rules" sections without checking with the team. `docs/mockup/` and `data/tests.sample.json` are deleted.
 
 Draft 4 of 2026-11-14, before kickoff. All three NASA guides are now read: the Resources tab
-(`docs/challenge/resources.md`), the Project Submission Guide (`docs/challenge/submission-and-awards.md`) and the
-Judging and Awards Guide (`docs/challenge/judging.md`). Background: `docs/challenge/flame-in-freefall.md` and
-`docs/challenge/research-notes.md`. Read all five before starting any phase.
+(`docs/challenge/resources.md` (archived)), the Project Submission Guide (`docs/challenge/submission-and-awards.md` (archived)) and the
+Judging and Awards Guide (`docs/challenge/judging.md` (archived)). Background: `docs/challenge/flame-in-freefall.md` and
+`docs/challenge/research-notes.md` (archived). Read all five before starting any phase.
 
 **Live URL:** https://flashpoint-space.vercel.app
 
@@ -27,7 +27,7 @@ There is no team lead. The three members share responsibility, and decisions are
    one name so every folder has someone who answers for it.
 2. **Chat as a main feature?** Decided Sun Nov 15: **yes, AI-powered.** The assistant runs on an AI API, with the
    rule-based engine as a fallback only. Chat is off the cut list (see "If we fall behind").
-3. **Tabs (Ask, Simulate, Compare, Explore)?** Proposal in `alanzim/tabs-dashboard-idea.md`. If yes, the page
+3. **Tabs (Ask, Simulate, Compare, Explore)?** Proposal in `alanzim/tabs-dashboard-idea.md` (archived). If yes, the page
    structure in Phase 4 and the Design rules change.
 4. **Where the idea came from.** The SI rules say AI must not be used to come up with how to solve the challenge.
    Write the team's own account of how the Flashpoint idea was chosen in `docs/ai-usage-log.md`.
@@ -258,7 +258,7 @@ Status on Sat 08:30. Anything still open moves to the first ten minutes of kicko
    `Research Area == "Combustion Science"`, write `data/investigations.json`.
 2. Print a table of accession, acronym and title.
 
-**Done when:** the file has 24 records (the count seen on Nov 14, see `docs/challenge/resources.md`) and
+**Done when:** the file has 24 records (the count seen on Nov 14, see `docs/challenge/resources.md` (archived)) and
 includes BASS, BASS-II, SAFFIRE-I to III, SAME, SAME-R, FLEX, FLEX-2, CFI, ACME BRE and ACME CFI-G.
 If the endpoint fails, stop and report. Do not scrape HTML.
 
@@ -364,7 +364,7 @@ fallback answer that is labelled as one.
 the demo and fill in the project page.
 
 ### Phase 8: pitch and submission (12:00 to 15:00) [strong model]
-Rules: `docs/challenge/submission-and-awards.md`. Exceeding a demo limit removes us from Global Judging.
+Rules: `docs/challenge/submission-and-awards.md` (archived). Exceeding a demo limit removes us from Global Judging.
 1. Submission demo: **a video of 30 seconds or less, or at most 7 slides** including title and intro. English
    (or English subtitles). Story: start at ISS (well lit), drag to the Moon Base (dimmer), keep going along
    the curve into the dark, end on the suggested experiment. Slides must name the team, every member and the challenge.
@@ -376,7 +376,7 @@ Rules: `docs/challenge/submission-and-awards.md`. Exceeding a demo limit removes
    image and dataset).
 6. **Submit by 15:00.** The global form stays open until Sun 23:59, but our Local Event's schedule puts
    submission at 15:30 and judging at 16:00, so 15:30 is the deadline we work to. The form will be slow.
-   Before pressing submit, check the eligibility list in `docs/challenge/judging.md`.
+   Before pressing submit, check the eligibility list in `docs/challenge/judging.md` (archived).
 
 ## If we fall behind
 

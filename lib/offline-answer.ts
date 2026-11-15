@@ -23,7 +23,7 @@ export const SEA_LEVEL_O2_PSI = 3.07;
 export const DEFAULT_PRESSURE_PSI = 14.7;
 // How many nearby tests an answer describes.
 export const ANSWER_TESTS = 5;
-// Gravity values of the flame simulation's buttons (temp/flame-sim/), in Earth gravities.
+// Gravity values of the flame simulation's buttons (temp/flame-sim/ (archived)), in Earth gravities.
 export const GRAVITY_G = { "0g": 0, moon: 0.166, mars: 0.38, "1g": 1 } as const;
 // Assume the SI chat is down after this long with no reply.
 export const SI_TIMEOUT_MS = 12000;
@@ -33,7 +33,7 @@ const CHALLENGE = "NASA Space Apps 2026 challenge statement, Flame in Freefall";
 const GLENN = "NASA Glenn Research Center, Combustion Science page";
 
 // Fixed NASA findings the offline mode may quote. Text paraphrases the cited page; keep them in sync with
-// docs/challenge/resources.md.
+// docs/challenge/resources.md (archived).
 export const FACTS = {
   lowerLimitInMicrogravity: {
     text: "In microgravity with gentle airflow, some materials burn at lower oxygen levels than they do on Earth. The worst case is airflow near 10 cm/s, which is typical of spacecraft ventilation.",
@@ -152,7 +152,7 @@ export function parseQuestion(text: string): Query {
 export type FlameState = "burning" | "goes-out" | "no-ignition" | "uncertain";
 
 // What the flame should show for this answer: the NASA test to load and the gravity to set. Works with the
-// WebGL simulation (temp/flame-sim/: pick `test`, press the gravity button `g`) and with the CSS backup
+// WebGL simulation (temp/flame-sim/ (archived): pick `test`, press the gravity button `g`) and with the CSS backup
 // (public/flames/flame-fallback.js: flame.set({ row: test, g, state })). Illustration, not a simulation.
 export interface FlameHint {
   g: number;

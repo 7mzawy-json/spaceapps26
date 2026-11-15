@@ -22,7 +22,7 @@ const API = 'https://generativelanguage.googleapis.com/v1beta/models/';
 const MAX_QUESTION = 500, MAX_CONTEXT = 16000, PER_MINUTE = 12;
 
 // Background the model may use for general questions. Each note carries its own source: the challenge statement or a
-// NASA page from the challenge's Resources tab (see docs/challenge/). Nothing here is a number from our test data.
+// NASA page from the challenge's Resources tab (see docs/challenge/ (archived)). Nothing here is a number from our test data.
 const SRC = {
   challenge: { label: 'Challenge statement, Flame in Freefall', url: 'https://www.spaceappschallenge.org/2026/challenges/flame-in-freefall/' },
   guide: (pages) => ({ label: 'NASA, A Researcher\'s Guide to Combustion Science (2015), p. ' + pages, url: 'https://www.nasa.gov/missions/station/a-researchers-guide-to-combustion-science/' }),

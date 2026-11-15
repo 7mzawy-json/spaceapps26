@@ -1,6 +1,6 @@
 /*
   CSS backup flame: builds the markup for flames.css and sets it from a NASA test row, using the same rules
-  as the WebGL simulation in temp/flame-sim/index.html (flameParams and lit). Plain script, no build step.
+  as the WebGL simulation in temp/flame-sim/index.html (archived) (flameParams and lit). Plain script, no build step.
   Written with an AI coding assistant (Claude Code); see docs/ai-usage-log.md.
 
   const flame = FlameFallback.mount(document.getElementById('box'));   // box gets a square flame

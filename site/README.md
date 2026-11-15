@@ -21,7 +21,7 @@ The flame lab now opens with a four-step demonstration: read one NASA record, ad
 
 For local review use `python scripts/preview.py` from the repo root. The standard-library server supports the byte ranges required for reliable video seeking. Open `http://127.0.0.1:8766/site/`.
 
-Validation: 99 flame-lab checks, 141 learning/media checks and 50 application checks passed in installed Chrome, plus the existing offline-engine checks. Detailed scope and limitations are in `docs/flame-lab-refinement.md` and `docs/learning-refinement.md`. Earlier project notes follow.
+Validation: 99 flame-lab checks, 141 learning/media checks and 50 application checks passed in installed Chrome, plus the existing offline-engine checks. Detailed scope and limitations are in `docs/flame-lab-refinement.md` (archived) and `docs/learning-refinement.md` (archived). Earlier project notes follow.
 
 The website itself: plain HTML, CSS and JavaScript, no build step. Everything runs in the visitor's browser, including
 the flame simulation (WebGL 2, with a CSS backup flame). Open to change by the team like everything else in the repo.
@@ -101,9 +101,9 @@ It is a small model: it can still word something loosely, which is why every ans
 
 | Part | Source | What changed when it moved here |
 |---|---|---|
-| Look, dashboard, bar, light and dark mode, Map page, SI Assist page | `temp/design-master/` | Nothing in the pages. Two style fixes (below). |
-| Resources page (investigations, test data, graph builder, relationships, tests table) | `temp/dashboard-draft/` | Its colours now come from the design master tokens, so it works in dark mode. The script is unchanged. |
-| Sim page | `alanzim/flame-lab/` | Now `sim.html`, in a frame on the Sim page. Fonts, colours and panels follow the site; the simulation code is unchanged. |
+| Look, dashboard, bar, light and dark mode, Map page, SI Assist page | `temp/design-master/` (archived) | Nothing in the pages. Two style fixes (below). |
+| Resources page (investigations, test data, graph builder, relationships, tests table) | `temp/dashboard-draft/` (archived) | Its colours now come from the design master tokens, so it works in dark mode. The script is unchanged. |
+| Sim page | `alanzim/flame-lab/` (archived) | Now `sim.html`, in a frame on the Sim page. Fonts, colours and panels follow the site; the simulation code is unchanged. |
 
 The three source folders are left as they were.
 

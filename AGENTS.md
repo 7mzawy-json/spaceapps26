@@ -40,5 +40,5 @@ An agent edits only the files of the lane it is working for. Personal folders su
 - Commit after every working step with a plain message, so any step can be rolled back.
 - If a step fails twice, stop and report what you tried. Do not improvise a different design.
 - Never commit secrets. Keys go in `.env.local`, which is gitignored. `.env.example` lists the names with no values.
-- AI-generated code and data say so in text and metadata (submission rule, see `docs/challenge/submission-and-awards.md`).
+- AI-generated code and data say so in text and metadata (submission rule, see `docs/challenge/submission-and-awards.md` (archived)).
 - Every phase adds a line to `docs/ai-usage-log.md`, and every new library, image or dataset goes in its References list.

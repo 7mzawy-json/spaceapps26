@@ -31,7 +31,7 @@ is copied from any channel (no characters, birds, logos or frames).
 
 - A number in a video that does not match the lesson or NASA's data.
 - An illustration presented as a measurement. Physics pictures carry the same "illustration" wording the lesson uses.
-- Missing the AI watermark (submission rule, `docs/challenge/submission-and-awards.md`).
+- Missing the AI watermark (submission rule, `docs/challenge/submission-and-awards.md` (archived)).
 
 ## Constraints
 

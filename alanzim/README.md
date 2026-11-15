@@ -1,7 +1,8 @@
 # alanzim
 
-Working folder for AlanziM2. Drafts, notes and experiments that are not yet part of the
-site live here, so they stay out of the lane folders (`app/`, `components/`, `scripts/`,
-`data/`, `lib/`, `docs/`) until they are ready to move.
+Working folder for AlanziM2. For the submission it holds only `learn/`: how the six Learn videos were made (scripts,
+scenes, the recorded AI narration, the renderer and its tests; see `learn/videos-design.md`). The finished videos are
+copied into `site/videos/`.
 
-Nothing in this folder is deployed.
+The other drafts and notes that lived here are on the `archive/before-cleanup` branch. Nothing in this folder is
+deployed.

@@ -1,8 +1,7 @@
 # Only the site and the files it reads go online: index.html, site/ (except its README), public/, data/tests.web.json,
 # data/tests.meta.json, data/investigations.json and docs/ai-usage-log.md (linked from the footer). Everything else in docs/ stays private,
 # including notes added later, so a new doc is never published by accident.
-# Drafts, plans, personal folders, the full source data and the build scripts stay in the repo only.
-/temp
+# Plans, the video build folder, the full source data and the build scripts stay in the repo only.
 /alanzim
 /scripts
 /lib

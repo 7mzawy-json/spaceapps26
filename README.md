@@ -13,8 +13,8 @@ been tested.
 ## What it does
 
 - **Analysis:** a map of pressure against oxygen with every placeable NASA test and the habitats (ISS, Moon Base,
-  spacesuit). For the point you pick: evidence rated separately for gas flames, fuel droplets and solid materials, the
-  nearest tests, the investigations ranked for that point, and a printable one-page evidence brief. Research tools add
+  spacesuit). For the point you pick: evidence rated separately for gas flames, fuel droplets and solid materials, a
+  nearby-test estimate of how fires there ended, the nearest tests, the investigations ranked for that point, and a printable one-page evidence brief. Research tools add
   the 24 combustion investigations as cards, all 1,276 test rows, filters, graphs and a CSV download (every row keeps
   its NASA source file and line).
 - **Flame lab:** one NASA reference record beside an illustrative fluid model. Change gravity and ventilation, inspect
@@ -36,6 +36,13 @@ a PSI accession, a source file and a line. Missing values stay empty and are nev
   loads. Add `--against-nasa` to download the tables again and compare every row.
 - `scripts/build_investigations.py` and `scripts/check_investigations.py` build and check the investigation cards
   (`data/investigations.json`); the AI-written summaries are marked as such in the file.
+- **Predictive modeling.** The challenge asks for data that supports predictive modeling of flammability. Every row
+  carries the model inputs (oxygen, pressure, fuel, diluent gases, gravity), an outcome label in NASA's own wording and
+  its source, and the Analysis page downloads any selection as CSV. The site's own prediction is the **nearby-test
+  estimate**: for the chosen air and each fuel type, how many nearby tests went out by themselves and how many kept
+  burning, with the count shown so its weight is clear. It is counted, not fitted, on purpose. Outcome labels differ
+  between experiments, airflow is recorded for only 13 of 1,276 tests, and no solid-material test has a pressure, so a
+  fitted model would mostly learn which experiment a test came from. Those gaps are what the next experiments must fill.
 - Sources and known gaps: [docs/data-inventory.md](docs/data-inventory.md). Fact checks and fixes:
   [docs/audit-log.md](docs/audit-log.md).
 

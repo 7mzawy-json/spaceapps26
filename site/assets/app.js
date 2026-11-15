@@ -152,8 +152,28 @@
       if (diluted) text += ' ' + plain + ' of them ran in oxygen and nitrogen, as cabin air is. The other ' + diluted + ' had carbon dioxide or helium added, which NASA used to study suppression.';
       if (k[0] === 'solid' && !s.withP) text = 'None of the ' + s.n + ' solid-material tests can be placed: NASA\'s tables give them no pressure. Oxygen is recorded for ' + s.withO + ' of them, from ' +
         s.lo.toFixed(1) + ' to ' + s.hi.toFixed(1) + '%' + (o > s.hi ? ', and this point is above all of those.' : '.');
-      return { kind: k[0], label: k[1], rating: ev.rating, n: ev.nearCount, plain: plain, diluted: diluted, text: text };
+      return { kind: k[0], label: k[1], rating: ev.rating, n: ev.nearCount, plain: plain, diluted: diluted, text: text, est: estimateText(near, diluted) };
     });
+  }
+  // The nearby-test estimate: what happened in the tests near this air, counted, not fitted. Each nearby test is one
+  // observation, so the share that went out by itself is a nearest-neighbour estimate for this air. Its size shows its
+  // weight. ponytail: no fitted model; NASA's outcome labels differ by experiment and airflow is recorded for 13 tests,
+  // so a fitted model would mostly learn which experiment a test came from.
+  var EST_MIN = 5;   // fewer tests with a recorded outcome than this: too few to call it an estimate
+  function estimateText(near, diluted) {
+    if (!near.length) return '';
+    var out = 0, burned = 0, noIgn = 0, unrec = 0;
+    near.forEach(function (r) {
+      if (r.ignited === false) noIgn++; else if (r.outcome === 'self_extinguished') out++; else if (r.outcome === 'burned') burned++; else unrec++;
+    });
+    var known = out + burned, tail = [];
+    if (noIgn) tail.push(noIgn + ' did not ignite');
+    if (unrec) tail.push(unrec + (unrec === 1 ? ' has' : ' have') + ' no recorded outcome');
+    tail = tail.length ? ' Of the rest, ' + tail.join(' and ') + '.' : '';
+    if (!known) return 'Nearby-test estimate: none of these tests has a recorded burn outcome, so there is no estimate here.' + tail.replace(' Of the rest,', '');
+    if (known < EST_MIN) return 'Nearby-test estimate: only ' + nTests(known) + ' here ' + (known === 1 ? 'has' : 'have') + ' a recorded burn outcome, too few for an estimate.' + tail;
+    return 'Nearby-test estimate: ' + out + ' of the ' + known + ' tests with a recorded burn outcome went out by themselves (' + Math.round(100 * out / known) + '%) and ' +
+      (burned ? burned : 'none') + ' kept burning.' + tail + (diluted ? ' This includes the tests with carbon dioxide or helium added.' : '');
   }
   // Rank the investigations for a point: most tests near it first, then the closest test. No pressure in the table: cannot be placed.
   function rankAt(p, o) {
@@ -195,7 +215,7 @@
       var box = $('homeCover'); box.textContent = '';
       lastCover.forEach(function (c) {
         var row = document.createElement('div'); row.className = 'cov';
-        row.innerHTML = '<b>' + c.label + '</b><span class="rate ' + c.rating + '">' + (c.kind === 'solid' && !solidSummary().withP ? 'Not placeable' : RATE[c.rating]) + '</span><p>' + esc(c.text) + '</p>';
+        row.innerHTML = '<b>' + c.label + '</b><span class="rate ' + c.rating + '">' + (c.kind === 'solid' && !solidSummary().withP ? 'Not placeable' : RATE[c.rating]) + '</span><p>' + esc(c.text) + '</p>' + (c.est ? '<p class="est">' + esc(c.est) + '</p>' : '');
         box.appendChild(row);
       });
       $('homeRateNote').textContent = 'A nearby row has ' + nearText() + '. Counts include only chamber oxygen; inverse flames are left out.';
@@ -335,7 +355,7 @@
       point: { o2_pct: +o.toFixed(1), pressure_psi: +p.toFixed(1), oxygen_partial_pressure_psi: +(o / 100 * p).toFixed(2), times_sea_level: +(o / 100 * p / SEA_PPO2).toFixed(2),
         habitat: [["ISS cabin air", 21, 14.7], ["Moon Base or pressurized rover air", 30, 10.2], ["Spacesuit air", 100, 4.3]].filter(function (h) { return Math.abs(h[1] - o) < 0.6 && Math.abs(h[2] - p) < 0.15; }).map(function (h) { return h[0]; })[0] || null },
       near_rule: 'A test counts as near when sqrt((oxygen difference / ' + OFF.O2_SCALE + ')^2 + (pressure difference / ' + OFF.P_SCALE + ')^2) <= ' + OFF.NEAR_DISTANCE + '. Inverse flames (oxygen from the burner) are left out.',
-      evidence_by_fuel: coverAt(p, o).map(function (c) { return { fuel: c.label, rating: RATE[c.rating], tests_near: c.n, note: c.text }; }),
+      evidence_by_fuel: coverAt(p, o).map(function (c) { return { fuel: c.label, rating: RATE[c.rating], tests_near: c.n, note: c.text, nearby_estimate: c.est || 'no tests nearby, so no estimate' }; }),
       nearest_tests: ev.nearest.map(function (n) { var r = n.row; return { test_id: String(r.test_id), investigation: r.investigation, accession: r.accession, fuel: (r.fuel || '').replace(/\s+/g, ' ').trim(),
         fuel_type: r.fuel_phase === 'liquid' ? 'fuel droplet' : r.fuel_phase, oxygen_pct: r.o2_pct, pressure_psi: r.pressure_psi, other_gases: gasKind(r) === 'Nitrogen only' ? 'oxygen and nitrogen, like cabin air' : gasKind(r), outcome: outcomeText(r), counts_as_near: n.distance <= OFF.NEAR_DISTANCE }; }),
       investigations_ranked: rank.placed.map(function (r) { return { name: r.name, accession: r.acc, what_it_is_for: r.role, tests_near: r.near, tests_total: r.total }; }),

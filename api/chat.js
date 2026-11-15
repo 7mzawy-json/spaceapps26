@@ -68,6 +68,7 @@ Rules:
 6. Every test ran in microgravity. Say so when the question is about an atmosphere or about gravity. Do not add it to an answer that declines, or to a general answer about history or how flames behave.
 7. A question that names a habitat (the ISS, a Moon Base, a rover, a spacesuit) or gives oxygen and pressure is a question about the atmosphere at CONTEXT.point, and CONTEXT always describes that atmosphere, so it can always be answered. CONTEXT.point.habitat names the habitat when the point is one. For such a question, lead with CONTEXT.evidence_by_fuel: how many gas-flame tests and how many fuel-droplet tests sit near it, copied exactly from tests_near, and whether solid materials can be placed. Then, if it helps, name one or two tests from CONTEXT.nearest_tests by test_id and investigation, with what burned and how it ended. List in "cites" exactly the test ids you named, and no others.
 8. CONTEXT.point also gives the oxygen partial pressure and how many times sea level it is (sea-level air is about 3.07 psi of oxygen). Use them when asked about oxygen pressure or breathing.
+8a. Each entry of CONTEXT.evidence_by_fuel has "nearby_estimate": how the nearby tests of that fuel ended, counted from NASA's records. When asked whether a fire would go out, keep burning, or for a prediction, give it per fuel, copied exactly, and say it is a count of nearby tests, not a fitted prediction. Rule 4 still applies: it is not a safety verdict.
 9. When the question is general (history, why flames behave as they do, what comes next, what the dataset holds overall), answer it from NOTES and the CONTEXT totals and do not recite the nearby test counts unless they help. Add a labelled inference when it gives the visitor real insight.
 10. Always answer in English, whatever language the question is in. Write 2 to 5 short sentences in plain English. No lists, no headings, no markdown. Do not use dashes as punctuation.
 11. "move": if the visitor names a habitat or gives an atmosphere, in any language, and CONTEXT.point is not already that atmosphere, set "move" to it and still answer about it as well as you can: ISS 21 and 14.7, Moon Base or rover 30 and 10.2, spacesuit 100 and 4.3, or the visitor's own numbers. Oxygen must be 1 to 100, pressure up to 150 psi. Otherwise leave "move" out.
@@ -124,7 +125,8 @@ const LEAK = /\bCONTEXT\b|\bNOTES\b|system prompt|systemInstruction|these rules|
 // The live test showed the model can repeat a rule word for word without any of those words. Any run of 7 words copied
 // from the rules drops the answer. The sentences the rules tell the model to say are taken out first.
 const SAY = ['the tests show what was tested, not whether an atmosphere is safe', 'every test ran in microgravity',
-  "answer questions about fire in space and nasa's fire tests", 'cannot help with that'];
+  "answer questions about fire in space and nasa's fire tests", 'cannot help with that',
+  'a count of nearby tests, not a fitted prediction', 'it is not a safety verdict'];
 const words = (t) => t.toLowerCase().replace(/[^a-z0-9%'.]+/g, ' ').trim().split(' ');
 let rulesText = SYSTEM.slice(SYSTEM.indexOf('Rules:')).toLowerCase();
 SAY.forEach((p) => { rulesText = rulesText.split(p).join(' | '); });
@@ -143,7 +145,7 @@ function disagrees(answer, context, ctxText, question) {
   for (const n of numbersIn(text)) if (!allowed.has(n)) return 'a number that is not in the evidence: ' + n;
   // A count stated for gas flames or fuel droplets must be that fuel's own count (or a figure from that fuel's note).
   const fuels = context.evidence_by_fuel || [];
-  const own = (re) => { const f = fuels.filter((e) => re.test(String(e.fuel)))[0]; return f ? new Set([String(f.tests_near), ...numbersIn(f.note)]) : null; };
+  const own = (re) => { const f = fuels.filter((e) => re.test(String(e.fuel)))[0]; return f ? new Set([String(f.tests_near), ...numbersIn(f.note), ...numbersIn(f.nearby_estimate)]) : null; };
   const gas = own(/gas/i), drop = own(/droplet/i), solid = own(/solid/i);
   if (solid && context.totals) solid.add(String(context.totals.solid_material_tests));
   const claim = /\b(\d+|no|zero)\s+(?:nearby\s+|near\s+)?(gas[\s-]flames?|fuel[\s-]droplets?|droplets?|solid[\s-]materials?)\s+tests?\b/gi;

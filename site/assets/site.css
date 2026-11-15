@@ -410,6 +410,7 @@ th.sort[aria-sort="descending"]::after { content: " \25BC"; color: var(--accent)
 .cov:last-child { border-bottom: 0; padding-bottom: 0; }
 .cov b { font-weight: 600; }
 .cov p { grid-column: 1 / -1; font-size: var(--t-sm); color: var(--muted); }
+.cov p.est { color: var(--ink); }
 .acts { display: flex; gap: .5rem; flex-wrap: wrap; }
 #rankTable td:first-child { font-family: var(--mono); white-space: nowrap; }
 #rankTable tr.unplaced td { color: var(--muted); }

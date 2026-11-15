@@ -1,7 +1,8 @@
 # Proposal: summarize the investigations as cards with a small map each
 
-Status: proposal, not built. Written Sun Nov 15 morning with Claude Code (AI-assisted, see `docs/ai-usage-log.md`).
-Open to change by the team like everything else.
+Status: **built** on Sun Nov 15 morning (Analysis, Research tools, Investigations, Cards). Written and built with Claude Code
+(AI-assisted, see `docs/ai-usage-log.md`). Open to change by the team like everything else. What was built and what
+differs from this proposal is listed at the end, under "As built".
 
 ## The problem
 
@@ -91,3 +92,24 @@ If time runs short, drop Compare first, then the chips. The small maps and outco
 1. Confirm the fire-safety tags, especially for the ACME experiments and FLEX-2.
 2. Cards as the default view, or keep the table first?
 3. Use the strip of small maps on the landing page?
+
+## As built (Sun Nov 15)
+
+- **Data:** `scripts/fetch_psi.py` reads NASA's catalogue (all 24 combustion records); `scripts/build_investigations.py`
+  writes `data/investigations.json`. NASA's objectives are copied word for word; `summary`, `measured` and `earth` are
+  AI-written from NASA's text and the file says so (`generated_by`, `human_checked: false`). **A person on the team still
+  needs to read all 24 summaries** and then set `human_checked` to true in the build script's output.
+- **Check:** `scripts/check_investigations.py` (11 checks, all pass), including that every number in the AI-written
+  text appears in NASA's own text for that investigation.
+- **Cards** (`site/assets/investigations.js`, `investigations.css`): everything listed above, plus a findings strip at the
+  top counted from the rows. Cards are the default; the old table is behind Cards / Table, and its test counts are now
+  recounted from the rows instead of typed in.
+- **Differences from the proposal:**
+  - "Near the Moon Base" uses the site's existing evidence rule (within 10 points of oxygen or 2 psi, chamber oxygen
+    only), not the 8 to 12.5 psi box, so the cards and the map agree. With that rule FLEX has 64 tests near the Moon
+    Base air and CFI has 4.
+  - Tests whose tables give no pressure say "cannot be placed" instead of "no tests near", because nothing was checked.
+  - The "Combustion basics" tag is called "Flame science", the name the ranking on the Analysis page already used.
+  - The landing-page strip of small maps (open question 3) was not built.
+- **Open for the team:** confirm the stage tags (question 1 above) and read the 24 summaries.
+

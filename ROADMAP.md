@@ -6,7 +6,9 @@
 > **The assistant is AI first.** The team is adding an AI API as the main system for the assistant. The rule-based
 > engine is the **FALLBACK, NOT THE MAIN SYSTEM**. See "The assistant: AI first, rules as fallback" below.
 > **No feature freeze (decided Sun Nov 15).** The only hard stop is project submission at **15:30**. Proposal for
-> summarizing the investigations visually: `docs/investigation-summaries.md`.
+> summarizing the investigations visually: `docs/investigation-summaries.md`, **built Sun Nov 15 morning** (investigation cards,
+> `data/investigations.json` for all 24 records, `scripts/check_investigations.py`). This covers Phase 1 (catalogue snapshot),
+> Phase 3 (AI enrichment, now one file with `generated_by`; a person still has to read the 24 summaries) and Phase 4 step 6.
 > Where this file and the site disagree, the site wins; do not build from the "Fixed decisions", "File layout" or
 > "Design rules" sections without checking with the team. `docs/mockup/` and `data/tests.sample.json` are deleted.
 

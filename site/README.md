@@ -120,6 +120,16 @@ Each flame-science lesson opens with a narrated video. The videos are built outs
 are copied here. The narration was recorded once with ElevenLabs; do not regenerate it (credits). AI use is logged in
 `docs/ai-usage-log.md`; every video frame carries a small AI badge (NASA rule for AI-generated video).
 
+## Investigation cards (Sun Nov 15, morning)
+
+Analysis, Research tools, Investigations now opens on **cards**, one per PSI combustion record (24), grouped by the
+hardware the tests ran on. Each card has NASA's objectives (word for word), a one-line summary written with AI from them,
+a small pressure and oxygen map of where its tests ran, how many sit near the ISS and Moon Base air (the map's evidence
+rule), an outcome bar and what changed between its tests. A findings strip at the top counts the main gaps from the
+rows. Compare puts up to three side by side. The table is still there behind Cards / Table, and its test counts now come
+from the rows. Data: `data/investigations.json` (built by `scripts/build_investigations.py`, checked by
+`scripts/check_investigations.py`). Proposal and what differs: `docs/investigation-summaries.md`.
+
 ## Files
 
 ```

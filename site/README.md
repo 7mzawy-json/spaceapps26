@@ -11,7 +11,7 @@ What changed on the site because of it:
 - Lesson 1.5 no longer suggests that lower pressure feeds a flame more oxygen: the gas is thinner by the same factor that diffusion is faster. Lesson 1.2 shows NASA's SAFFIRE-II burn lengths at both gravity levels.
 - The landing page states four findings counted from the rows and maps the challenge's three objectives to the part of the site that answers each.
 
-The assistant still answers from fixed rules. The challenge asks for an SI-powered dashboard, so connecting a model is the largest open item.
+The assistant is AI first (decided Sun Nov 15): the page calls the SI assistant at `/api/chat`, and the rule-based engine is the **fallback, not the main system**. Until the team's AI endpoint is deployed, every answer comes from the fallback and is labelled as a fallback answer.
 
 ## Earlier on Sat Nov 14, evening
 
@@ -158,8 +158,8 @@ Deploy the repo root as static files. The root `index.html` forwards visitors to
 - **Any other static host:** upload `index.html`, `site/`, `public/`, `data/tests.web.json`, `data/tests.meta.json` and
   `docs/ai-usage-log.md`, keeping the folders as they are.
  The SI chat expects an endpoint at
-`/api/chat`; until one exists, every question is answered by the offline rule-based mode, and the browser console shows
-a failed request to `/api/chat` (expected).
+`/api/chat` (the SI assistant, main system). Until it exists, the rule-based fallback answers every question, each answer
+is labelled as a fallback answer, and the browser console shows a failed request to `/api/chat` (expected).
 
 ## Checked (Sat Nov 14, evening, scripted in the Claude desktop browser, Chromium)
 

@@ -120,6 +120,20 @@ const SMALL = new Set(['1', '2', '3', '4']);   // "two tests", "three parts": co
 // An inference must carry its label ("My inference:" or "My guess:"). An answer that quotes its own instructions is dropped.
 const LABEL = /\bmy (?:inference|guess)\b/i;
 const LEAK = /\bCONTEXT\b|\bNOTES\b|system prompt|systemInstruction|these rules|my instructions|GEMINI|api[ _-]?key/;
+// The live test showed the model can repeat a rule word for word without any of those words. Any run of 7 words copied
+// from the rules drops the answer. The sentences the rules tell the model to say are taken out first.
+const SAY = ['the tests show what was tested, not whether an atmosphere is safe', 'every test ran in microgravity',
+  "answer questions about fire in space and nasa's fire tests", 'cannot help with that'];
+const words = (t) => t.toLowerCase().replace(/[^a-z0-9%'.]+/g, ' ').trim().split(' ');
+let rulesText = SYSTEM.slice(SYSTEM.indexOf('Rules:')).toLowerCase();
+SAY.forEach((p) => { rulesText = rulesText.split(p).join(' | '); });
+const RULE_RUNS = new Set();
+rulesText.split('|').forEach((part) => { const w = words(part); for (let i = 0; i + 7 <= w.length; i++) RULE_RUNS.add(w.slice(i, i + 7).join(' ')); });
+function quotesRules(answer) {
+  const w = words(answer);
+  for (let i = 0; i + 7 <= w.length; i++) if (RULE_RUNS.has(w.slice(i, i + 7).join(' '))) return true;
+  return false;
+}
 // Returns null when the answer agrees with the evidence, or a short reason when it does not.
 function disagrees(answer, context, ctxText, question) {
   let text = answer;
@@ -195,7 +209,7 @@ module.exports = async (req, res) => {
     const answer = typeof out.answer === 'string' ? toDigits(out.answer.trim().slice(0, 1500)) : '';
     if (!answer) { last = 502; continue; }
     if (disagrees(answer, context, ctxText, question)) { last = 502; continue; }   // never show numbers that fail the check
-    if (LEAK.test(answer)) { last = 502; continue; }                               // never show an answer that talks about its own instructions
+    if (LEAK.test(answer) || quotesRules(answer)) { last = 502; continue; }                             // never show an answer that talks about its own instructions
     // The model may reason beyond the evidence, but only with a label. If it says it inferred and wrote no label, add one here.
     const inferred = out.inferred === true || LABEL.test(answer);
     const shown = inferred && !LABEL.test(answer) ? answer + ' Part of this answer is the assistant\'s own inference, not a NASA record.' : answer;

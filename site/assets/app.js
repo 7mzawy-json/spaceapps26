@@ -337,7 +337,7 @@
       near_rule: 'A test counts as near when sqrt((oxygen difference / ' + OFF.O2_SCALE + ')^2 + (pressure difference / ' + OFF.P_SCALE + ')^2) <= ' + OFF.NEAR_DISTANCE + '. Inverse flames (oxygen from the burner) are left out.',
       evidence_by_fuel: coverAt(p, o).map(function (c) { return { fuel: c.label, rating: RATE[c.rating], tests_near: c.n, note: c.text }; }),
       nearest_tests: ev.nearest.map(function (n) { var r = n.row; return { test_id: String(r.test_id), investigation: r.investigation, accession: r.accession, fuel: (r.fuel || '').replace(/\s+/g, ' ').trim(),
-        fuel_type: r.fuel_phase === 'liquid' ? 'fuel droplet' : r.fuel_phase, oxygen_pct: r.o2_pct, pressure_psi: r.pressure_psi, other_gases: gasKind(r), outcome: outcomeText(r), counts_as_near: n.distance <= OFF.NEAR_DISTANCE }; }),
+        fuel_type: r.fuel_phase === 'liquid' ? 'fuel droplet' : r.fuel_phase, oxygen_pct: r.o2_pct, pressure_psi: r.pressure_psi, other_gases: gasKind(r) === 'Nitrogen only' ? 'oxygen and nitrogen, like cabin air' : gasKind(r), outcome: outcomeText(r), counts_as_near: n.distance <= OFF.NEAR_DISTANCE }; }),
       investigations_ranked: rank.placed.map(function (r) { return { name: r.name, accession: r.acc, what_it_is_for: r.role, tests_near: r.near, tests_total: r.total }; }),
       investigations_that_cannot_be_placed: rank.unplaced.map(function (r) { return { name: r.name, accession: r.acc, what_it_is_for: r.role, tests_total: r.total, reason: 'no pressure in the NASA table' }; }),
       totals: { test_rows: ROWS.length, solid_material_tests: s.n, solid_material_tests_with_pressure: s.withP, highest_oxygen_in_a_solid_test_pct: s.hi, gravity_of_every_test: 'microgravity' }

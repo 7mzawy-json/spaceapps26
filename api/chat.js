@@ -14,18 +14,24 @@ const MODELS = ['gemini-3.5-flash-lite', 'gemini-3.1-flash-lite', 'gemini-flash-
 const API = 'https://generativelanguage.googleapis.com/v1beta/models/';
 const MAX_QUESTION = 500, MAX_CONTEXT = 16000, PER_MINUTE = 12;
 
-// Background the model may use for general questions. Each line is from the challenge statement or a NASA page in the
-// challenge's Resources tab (see docs/challenge/). Nothing here is a number from our test data.
+// Background the model may use for general questions. Each line carries its own source: the challenge statement or a
+// NASA page from the challenge's Resources tab (see docs/challenge/). Nothing here is a number from our test data.
 const NOTES = `
-Habitats (challenge statement): the ISS uses about 21% oxygen at 14.7 psi. A Moon Base and pressurized rovers are expected at 30% oxygen or more and 10.2 psi or less. A spacesuit uses 100% oxygen at 4.3 psi. Sea-level air gives an oxygen partial pressure of about 3.07 psi.
-Microgravity (challenge statement): with no buoyancy, hot gas does not rise. A candle flame becomes a blue sphere that gets its oxygen by diffusion.
-NASA's fire safety work has three parts (challenge statement): prevention (materials and ignition sources), detection, and suppression.
-Investigations (challenge statement): BASS, BASS-II and Saffire-I, -II, -III burned solid materials such as fabrics and plastics. SAME and SAME-R measured smoke for fire detection. FLEX studied suppression by diluting the chamber gas with carbon dioxide and helium, using fuel droplets. ACME CFI-G reached the highest oxygen, up to 85%, flowing from the burner into fuel gas (an inside-out flame), which is not a cabin atmosphere.
-Partial gravity (challenge statement): PSI holds no Moon or Mars gravity combustion data yet. It is expected from LUCI and FM2. Microgravity and normal-gravity results can bound what happens in between.
-NASA, A Researcher's Guide to Combustion Science (2015): in the low airflow of microgravity some materials are flammable at lower oxygen than in normal gravity (p. 18, 30). The flammability boundary has a minimum near 10 cm/s, typical of spacecraft ventilation, which runs from 0 to 30 cm/s (p. 20, 30). BASS results indicate NASA's ground flammability test, NASA-STD-6001 Test 1, is not conservative for microgravity (p. 30). A local jet of suppressant can pull in air and keep a flame alive (p. 30). FLEX found the flammability limit is lower in reduced gravity, so Earth standards for inert-gas suppressants give less margin (p. 12). Smoke particles differ in size in microgravity, which matters for detectors (p. 26, 34).
-Upcoming NASA experiments, not in PSI yet (NASA Glenn): FM2 burns materials at lunar gravity. SoFIE tests whether the ground flammability test is conservative in low gravity. FLARE estimates microgravity flammability limits from ground tests.
-History (NASA): Apollo 1, 1967, a fire in a cabin of 100% oxygen during a launch pad test. Apollo 13, 1970, an oxygen tank explosion. Mir, 1997, a fire from a solid-fuel oxygen generator.
-Earth uses (challenge statement and NASA Spinoff): fine water mist extinguishers, smoke detection that tells combustion particles from dust, firefighter air tanks and protective clothing.
+[Source: challenge statement] The ISS uses about 21% oxygen at 14.7 psi. A Moon Base and pressurized rovers are expected at 30% oxygen or more and 10.2 psi or less. A spacesuit uses 100% oxygen at 4.3 psi.
+[Source: challenge statement] With no buoyancy in microgravity, hot gas does not rise. A candle flame becomes a blue sphere that gets its oxygen by diffusion.
+[Source: challenge statement] NASA's spacecraft fire safety work has three parts: prevention (materials and ignition sources), detection, and suppression.
+[Source: challenge statement] BASS, BASS-II and Saffire-I, -II, -III burned solid materials such as fabrics and plastics. SAME and SAME-R measured smoke for fire detection. FLEX studied suppression by diluting the chamber gas with carbon dioxide and helium, using fuel droplets.
+[Source: challenge statement] ACME CFI-G reached the highest oxygen, up to 85%, flowing from the burner into fuel gas (an inside-out flame). That is not a cabin atmosphere.
+[Source: challenge statement] PSI holds no Moon or Mars gravity combustion data yet. It is expected from the LUCI and FM2 experiments. Microgravity and normal-gravity results can bound what happens in between.
+[Source: challenge statement] Earth uses of this research include fine water mist extinguishers, better smoke detection, and firefighter protective clothing and air tanks.
+[Source: NASA Researcher's Guide to Combustion Science, 2015, p. 18 and 30] In the low airflow of microgravity, some materials are flammable at lower oxygen than in normal gravity.
+[Source: NASA Researcher's Guide to Combustion Science, 2015, p. 20 and 30] The flammability boundary has a minimum near 10 cm/s of airflow, which is typical of spacecraft ventilation. Spacecraft ventilation runs from 0 to 30 cm/s.
+[Source: NASA Researcher's Guide to Combustion Science, 2015, p. 30] BASS results indicate that NASA's ground flammability test, NASA-STD-6001 Test 1, is not conservative for microgravity.
+[Source: NASA Researcher's Guide to Combustion Science, 2015, p. 30] A local jet of suppressant can pull in air and keep a flame alive.
+[Source: NASA Researcher's Guide to Combustion Science, 2015, p. 12] FLEX found the flammability limit is lower in reduced gravity, so Earth standards for inert-gas suppressants give less margin.
+[Source: NASA Researcher's Guide to Combustion Science, 2015, p. 26 and 34] Smoke particles differ in size in microgravity, which matters for smoke detectors.
+[Source: NASA Glenn Research Center] Upcoming experiments, not in PSI yet: FM2 burns materials at lunar gravity. SoFIE tests whether the ground flammability test is conservative in low gravity. FLARE estimates microgravity flammability limits from ground tests.
+[Source: NASA history pages] Apollo 1, 1967: a fire in a cabin of 100% oxygen during a launch pad test. Apollo 13, 1970: an oxygen tank explosion. Mir, 1997: a fire from a solid-fuel oxygen generator.
 `.trim();
 
 const SYSTEM = `You are the Flashpoint assistant on a website about NASA's microgravity fire tests, built for the NASA Space Apps challenge "Flame in Freefall". Visitors are students, researchers and engineers.
@@ -34,7 +40,7 @@ You are given CONTEXT: the oxygen and pressure the visitor is looking at, and wh
 
 Rules:
 1. Every number about tests must come from CONTEXT. Never estimate, round differently, or invent a test, a count or an outcome.
-2. For general questions you may also use NOTES. Name the source in the answer, for example "(NASA Researcher's Guide, p. 30)". If neither CONTEXT nor NOTES covers the question, say that NASA's data here does not cover it. Do not use outside knowledge for facts.
+2. For general questions you may also use NOTES. Each note starts with its own source tag. When you use a note, name that note's own source in the answer, exactly as tagged, and never give a note a different source. If neither CONTEXT nor NOTES covers the question, say that NASA's data here does not cover it. Do not use outside knowledge for facts.
 3. Coverage is not safety. Never say an atmosphere is safe or unsafe. Say what was tested near it and what was not.
 4. Always keep the fuel types apart. Gas flames and fuel droplets are not cabin materials. If solid materials cannot be placed, say so plainly when it matters to the question.
 5. Every test ran in microgravity. Say so if the visitor asks about the Moon, Mars or Earth gravity.

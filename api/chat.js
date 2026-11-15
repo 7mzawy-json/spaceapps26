@@ -120,11 +120,12 @@ function disagrees(answer, context, ctxText, question) {
   // A count stated for gas flames or fuel droplets must be that fuel's own count (or a figure from that fuel's note).
   const fuels = context.evidence_by_fuel || [];
   const own = (re) => { const f = fuels.filter((e) => re.test(String(e.fuel)))[0]; return f ? new Set([String(f.tests_near), ...numbersIn(f.note)]) : null; };
-  const gas = own(/gas/i), drop = own(/droplet/i);
-  const claim = /\b(\d+|no|zero)\s+(?:nearby\s+|near\s+)?(gas[\s-]flames?|fuel[\s-]droplets?|droplets?)\s+tests?\b/gi;
+  const gas = own(/gas/i), drop = own(/droplet/i), solid = own(/solid/i);
+  if (solid && context.totals) solid.add(String(context.totals.solid_material_tests));
+  const claim = /\b(\d+|no|zero)\s+(?:nearby\s+|near\s+)?(gas[\s-]flames?|fuel[\s-]droplets?|droplets?|solid[\s-]materials?)\s+tests?\b/gi;
   let m;
   while ((m = claim.exec(text))) {
-    const n = /^\d+$/.test(m[1]) ? String(parseFloat(m[1])) : '0', set = /gas/i.test(m[2]) ? gas : drop;
+    const n = /^\d+$/.test(m[1]) ? String(parseFloat(m[1])) : '0', set = /gas/i.test(m[2]) ? gas : /solid/i.test(m[2]) ? solid : drop;
     if (set && !set.has(n)) return 'a wrong count for ' + m[2] + ': ' + n;
   }
   return null;

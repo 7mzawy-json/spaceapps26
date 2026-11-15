@@ -331,7 +331,8 @@
     var ev = OFF.evidenceAt(ROWS, { o2_pct: o, pressure_psi: p }, { k: 6 }), rank = rankAt(p, o), s = solidSummary();
     siRows = ev.nearest.map(function (n) { return n.row; });
     return {
-      point: { o2_pct: +o.toFixed(1), pressure_psi: +p.toFixed(1), oxygen_partial_pressure_psi: +(o / 100 * p).toFixed(2), times_sea_level: +(o / 100 * p / SEA_PPO2).toFixed(2) },
+      point: { o2_pct: +o.toFixed(1), pressure_psi: +p.toFixed(1), oxygen_partial_pressure_psi: +(o / 100 * p).toFixed(2), times_sea_level: +(o / 100 * p / SEA_PPO2).toFixed(2),
+        habitat: [["ISS cabin air", 21, 14.7], ["Moon Base or pressurized rover air", 30, 10.2], ["Spacesuit air", 100, 4.3]].filter(function (h) { return Math.abs(h[1] - o) < 0.6 && Math.abs(h[2] - p) < 0.15; }).map(function (h) { return h[0]; })[0] || null },
       near_rule: 'A test counts as near when sqrt((oxygen difference / ' + OFF.O2_SCALE + ')^2 + (pressure difference / ' + OFF.P_SCALE + ')^2) <= ' + OFF.NEAR_DISTANCE + '. Inverse flames (oxygen from the burner) are left out.',
       evidence_by_fuel: coverAt(p, o).map(function (c) { return { fuel: c.label, rating: RATE[c.rating], tests_near: c.n, note: c.text }; }),
       nearest_tests: ev.nearest.map(function (n) { var r = n.row; return { test_id: String(r.test_id), investigation: r.investigation, accession: r.accession, fuel: (r.fuel || '').replace(/\s+/g, ' ').trim(),

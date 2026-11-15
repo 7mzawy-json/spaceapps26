@@ -83,10 +83,12 @@
   }
   function segSet(seg, attr, val) { seg.querySelectorAll('button').forEach(function (x) { x.setAttribute('aria-pressed', x.getAttribute(attr) === String(val)); }); }
 
-  /* ---------- NASA test rows (data/tests.web.json) and the offline answer engine (public/offline) ---------- */
+  /* ---------- NASA test rows (data/tests.web.json) and the assistant: SI (AI) first, rule-based fallback (public/offline) ---------- */
   var ROWS = null;
   var OFF = window.FlashpointOffline || null;
-  var CHAT_ENDPOINT = null;   // Explicit local rule-based mode; do not request a nonexistent endpoint.
+  // The SI assistant (AI API) is the main system. askWithFallback calls it first; the rule-based engine answers only
+  // if it fails or takes longer than 8 seconds. The rule-based engine is the FALLBACK, NOT THE MAIN SYSTEM.
+  var CHAT_ENDPOINT = '/api/chat';
   function loadRows(done) {
     var urls = ['../data/tests.web.json'];
     (function next(i) {
@@ -328,7 +330,7 @@
     }
     (CHAT_ENDPOINT ? OFF.askWithFallback(text, ROWS, { endpoint: CHAT_ENDPOINT, timeoutMs: 8000 }) : Promise.resolve(OFF.answerOffline(text, ROWS))).then(function (ans) {
       typing.remove();
-      if (ans.mode === 'si') { var d = ans.data || {}; addMsg('bot', String(d.answer || d.text || JSON.stringify(d)), r.did); return; }
+      if (ans.mode === 'si') { var d = ans.data || {}; addMsg('bot', String(d.answer || d.text || JSON.stringify(d)), r.did, 'Answered by the Flashpoint SI assistant (AI-generated). Check the cited NASA records.'); return; }
       var did = r.did;
       // If the point did not move yet, move it to the point the answer looked at (within the map's range).
       if (!did && ans.probe) {
@@ -336,14 +338,14 @@
         did = 'Moved to the point in the answer (' + no + '% oxygen, ' + np + ' psi)';
         movePoint(no, np, did);
       }
-      // The panel's header already says answers are offline, so the engine's own opening line about it is left out here.
-      var paras = ans.paragraphs.filter(function (t, i) { return !(i === 0 && /^Offline answer/i.test(t)); });
+      // Fallback answer. Its label below says so, so the engine's own opening line about it is left out here.
+      var paras = ans.paragraphs.filter(function (t, i) { return !(i === 0 && /^(Offline|Fallback) answer/i.test(t)); });
       // The engine counts every fuel together. Say what burned in those tests, so "well covered" is not read as "cabin materials were tested".
       if (ans.probe) paras.push('By what burned: ' + coverAt(ans.probe.pressure_psi, ans.probe.o2_pct).map(function (c) {
         return c.label.toLowerCase() + ', ' + RATE[c.rating].toLowerCase() + (c.kind === 'solid' ? ' (NASA\'s solid-material tests record no pressure, so none can be placed)' : c.n ? ' (' + nTests(c.n) + ')' : '');
       }).join('; ') + '.');
       var body = (r.did ? r.reply + '\n\n' : '') + paras.join('\n\n');
-      var msg = addMsg('bot', body, did, 'Rule-based answer. Coverage is not a safety rating.');
+      var msg = addMsg('bot', body, did, 'Fallback answer (rule-based, not the main system): the SI assistant was unavailable. Coverage is not a safety rating.');
       var sources = document.createElement('div'); sources.className = 'answer-sources';
       (ans.citations || []).filter(function(c) { return c.url; }).forEach(function(c) {
         var a = document.createElement('a'); a.href = c.url; a.target = '_blank'; a.rel = 'noopener'; a.textContent = c.label; sources.appendChild(a);
@@ -352,7 +354,7 @@
   }
   function openChat() { if (chat.hidden) { chatFrom = document.activeElement; chat.hidden = false; } $('ask').focus(); }
   function closeChat() { chat.hidden = true; if (chatFrom && chatFrom.focus) chatFrom.focus(); }
-  addMsg('bot', 'Hi. Ask about a cabin atmosphere (oxygen, pressure, fuel), or tell me where to move the point on the map. The SI assistant is not connected yet, so I answer from NASA\'s test data with fixed rules.');
+  addMsg('bot', 'Hi. Ask about a cabin atmosphere (oxygen, pressure, fuel), or tell me where to move the point on the map. I am the Flashpoint SI assistant, and I cite NASA\'s records. If the AI cannot be reached, a rule-based fallback answers instead and says so.');
   $('compose').addEventListener('submit', function (e) { e.preventDefault(); send($('ask').value); $('ask').value = ''; });
   $('starters').querySelectorAll('.chip').forEach(function (c) { c.addEventListener('click', function () { send(c.textContent); }); });
   document.querySelectorAll('[data-ask]').forEach(function (b) { b.addEventListener('click', function () { if (chat.hidden) openChat(); else closeChat(); }); });

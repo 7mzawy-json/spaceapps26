@@ -1,4 +1,4 @@
-// Rule-based answers for when the SI chat is unavailable (API down, cloud disconnected, out of credit).
+// FALLBACK, NOT THE MAIN SYSTEM. Rule-based answers for when the SI assistant is unavailable (API down, slow, out of credit).
 // No network and no AI at runtime: it reads conditions out of the question with fixed patterns, finds the
 // nearest NASA tests with lib/evidence.ts, and fills fixed sentence templates. Every number it states comes
 // from data/tests.web.json or from a NASA document named in FACTS.
@@ -254,7 +254,7 @@ function flameFor(q: Query, ev: Evidence | null, near: TestRow[]): FlameHint {
 }
 
 const HELP = [
-  "This offline mode answers from NASA's test data with fixed rules while the SI assistant is unavailable.",
+  "This rule-based fallback answers from NASA's test data with fixed rules while the SI assistant is unavailable. It is not the main system.",
   "Ask about a cabin atmosphere with an oxygen level and a pressure, a fuel type, or a gravity level. For example: \"How does fabric burn at 30% oxygen and 10.2 psi on the Moon?\", \"What happens at 34% oxygen and 8 psi?\", or \"How do you put out a fire on the ISS?\"",
 ];
 
@@ -263,7 +263,7 @@ export function answerOffline(question: string, rows: TestRow[], reason?: string
   const assumptions: string[] = [];
   const citations = new Map<string, Citation>();
   const cite = (label: string, url?: string) => citations.set(label, { label, url });
-  const paragraphs: string[] = ["Offline answer: the SI assistant is unavailable, so this comes from fixed rules applied to NASA's test data."];
+  const paragraphs: string[] = ["Fallback answer: the SI assistant is unavailable, so this rule-based fallback answers from NASA's test data."];
 
   // Work out the point to look at.
   let o2 = q.o2_pct;

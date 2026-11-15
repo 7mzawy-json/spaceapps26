@@ -1,8 +1,10 @@
 # ROADMAP: Flashpoint
 
-> **Read this first (Sat Nov 14, afternoon).** This is the plan written before the hackathon, and the build went a
+> **Read this first (updated Sun Nov 15, morning).** This is the plan written before the hackathon, and the build went a
 > different way. The site is plain HTML, CSS and JavaScript in `site/` (no Next.js, no three.js view, no scroll story),
-> with two pages (Analysis and Sim) and one assistant panel. `README.md` and `site/README.md` describe what exists.
+> with three sections (Analysis, Flame lab, Learn) and one assistant panel. `README.md` and `site/README.md` describe what exists.
+> **The assistant is AI first.** The team is adding an AI API as the main system for the assistant. The rule-based
+> engine is the **FALLBACK, NOT THE MAIN SYSTEM**. See "The assistant: AI first, rules as fallback" below.
 > Where this file and the site disagree, the site wins; do not build from the "Fixed decisions", "File layout" or
 > "Design rules" sections without checking with the team. `docs/mockup/` and `data/tests.sample.json` are deleted.
 
@@ -19,8 +21,8 @@ There is no team lead. The three members share responsibility, and decisions are
 
 1. **Lane owners.** Put a name in each row of "Team and lanes". A person may work across lanes, but each lane needs
    one name so every folder has someone who answers for it.
-2. **Chat as a main feature?** Proposal in `alanzim/chat-first-design.md`. If yes, Phase 6 moves earlier and chat
-   leaves the top of the cut list.
+2. **Chat as a main feature?** Decided Sun Nov 15: **yes, AI-powered.** The assistant runs on an AI API, with the
+   rule-based engine as a fallback only. Chat is off the cut list (see "If we fall behind").
 3. **Tabs (Ask, Simulate, Compare, Explore)?** Proposal in `alanzim/tabs-dashboard-idea.md`. If yes, the page
    structure in Phase 4 and the Design rules change.
 4. **Where the idea came from.** The SI rules say AI must not be used to come up with how to solve the challenge.
@@ -28,6 +30,32 @@ There is no team lead. The three members share responsibility, and decisions are
 5. **Demo format:** 30-second video or up to 7 slides. Ask the Local Lead how the 16:00 local pitch works.
 
 Record each answer in this file and remove the item.
+
+## The assistant: AI first, rules as fallback (decided Sun Nov 15)
+
+The challenge asks for an **SI-powered** dashboard. The assistant is therefore powered by an AI API, and that is
+the main system. The rule-based engine is a safety net.
+
+| | Main system | Fallback |
+|---|---|---|
+| What | The SI assistant: an AI model behind the `/api/chat` endpoint | Rule-based answers from `lib/offline-answer.ts` (browser build `public/offline/offline-answer.js`) |
+| When it answers | Every question, by default | **Only** when the AI API is down, slower than 8 seconds, out of credit, or not deployed |
+| What it may use | NASA's test rows and the PSI catalogue it is given; it cites accessions like [PSI-25] and says when the data does not cover the question | Fixed rules over `data/tests.web.json` |
+| How it is labelled on the site | As the SI assistant, AI-generated, with its sources | As a **fallback answer**, never as the assistant itself |
+
+**The rule-based engine is the FALLBACK, NOT THE MAIN SYSTEM.** Nothing on the site, in the demo or in the
+submission text may present it as the assistant. It exists so the site still answers if the API fails during judging.
+
+- The page always calls `/api/chat` first (`CHAT_ENDPOINT` in `site/assets/app.js`) and falls back automatically
+  through `askWithFallback` in `lib/offline-answer.ts`.
+- The contract the page already uses: `POST /api/chat` with JSON `{"question": "..."}`; reply with JSON
+  `{"answer": "..."}` and status 200. Any other status, a network error or more than 8 seconds sends the question to
+  the fallback.
+- The API key lives only in the server's environment (Vercel environment variables, `.env.local` for local work).
+  Never in the browser and never in git.
+- On the endpoint: cap the answer length, cap requests per visitor, and reject oversized input. The URL is public and
+  the key costs money.
+- AI labelling rule: answers from the model are AI-generated and the site says so next to each answer.
 
 ## What we are building
 
@@ -56,7 +84,8 @@ astronauts are about to live.
 3. **Evidence brief.** One page for the probe point: what is known, what is not, the nearest tests, and
    an experiment that would close the gap using hardware that already exists (CIR/ACME, MDCA, MSG duct).
    Precomputed for the four presets, generated live for any other point. Export through the browser's print.
-4. **Ask Flashpoint.** A small chat box grounded in the catalogue, citing PSI accessions. Side feature.
+4. **Ask Flashpoint.** The SI assistant: an AI model grounded in the catalogue and the test rows, citing PSI
+   accessions. A main feature. The rule-based engine is the fallback, not the main system.
 
 ## Fixed decisions (do not reopen)
 
@@ -70,7 +99,7 @@ astronauts are about to live.
 | Storage | JSON files in the repo. No database, no vector store. |
 | Evidence rating | A plain distance function in TypeScript with named constants. No AI call. Explainable. |
 | AI at build time | Claude extracts structured fields and writes summaries and preset briefs once. Human-checked. |
-| AI at runtime | Custom-point briefs and chat only. The map must work fully with the API switched off. |
+| AI at runtime | The SI assistant (AI API at `/api/chat`) is the main system for questions. The rule-based engine is a **fallback, not the main system**: it answers only when the API is unavailable. Everything else on the site works with the API switched off. (Updated Sun Nov 15.) |
 | Honesty | Every number on screen traces to a PSI accession. Missing values are `null`, never guessed. The predictor and flame visual carry an "illustrative" label. |
 | Secrets | `ANTHROPIC_API_KEY` lives in `.env.local` and in Vercel env vars. Never in git. |
 
@@ -80,7 +109,7 @@ astronauts are about to live.
 app/page.tsx                      the map + probe panel (home)
 app/investigations/[id]/page.tsx  one investigation
 app/api/brief/route.ts            evidence brief for a custom point
-app/api/chat/route.ts             chat endpoint
+/api/chat                         the SI assistant endpoint (AI API, main system); the rule-based engine is only its fallback
 components/                       AtmosphereMap, AtmosphereVolume (3D), ProbePanel, FireLifeStrip, FlameCanvas, Brief, Chat
 lib/evidence.ts                   nearest tests, rating, pillar picks + self-check
 lib/predict.ts                    applies data/model.json
@@ -293,15 +322,17 @@ gravity control changes the plotted flames, and the self-check passes.
 **Done when:** the Moon Base preset shows a visibly different flame from ISS, its brief opens instantly
 with citations, and a custom point produces a brief in under 15 seconds.
 
-### Phase 6: Ask Flashpoint (20:30 to 21:30)
-1. `app/api/chat/route.ts`: system prompt holds `enriched.json` and the rule "answer only from this
-   catalogue, cite accessions like [PSI-25], say when the catalogue does not cover the question."
-2. On both API routes: cap output length, cap requests per visitor, reject oversized input. The URL is
-   public and the key costs money.
-3. `Chat` component, collapsed by default, with three starter questions.
+### Phase 6: Ask Flashpoint, the SI assistant (moved to Sun Nov 15, before the 12:00 freeze)
+1. `/api/chat`: the AI API is the **main system**. Its system prompt holds the catalogue and the test rows it needs,
+   and the rule "answer only from these records, cite accessions like [PSI-25], say when they do not cover the question."
+2. Cap output length, cap requests per visitor, reject oversized input. The URL is public and the key costs money.
+3. The assistant panel shows each model answer as AI-generated, with its sources.
+4. The rule-based engine stays wired in as the **fallback, not the main system**: the page uses it only when the API
+   fails or takes longer than 8 seconds, and labels those answers as fallback answers.
 
-**Done when:** "What do we know about fabric flammability at 30% oxygen?" returns a cited answer, and
-an off-topic question is declined.
+**Done when:** on the deployed site, "What do we know about fabric flammability at 30% oxygen?" returns a cited
+answer from the model, an off-topic question is declined, and with the API switched off the same question still gets a
+fallback answer that is labelled as one.
 
 **Stop at 22:00.** Commit, push, sleep.
 
@@ -344,14 +375,15 @@ Rules: `docs/challenge/submission-and-awards.md`. Exceeding a demo limit removes
 
 ## If we fall behind
 
-Cut in this order, top first. Never cut the map and probe panel.
+Cut in this order, top first. Never cut the map and probe panel, and never cut the AI assistant: if its API is not
+live by the freeze, say so in the submission and let the labelled fallback answer. Never present the fallback as the
+main system.
 
-1. Chat.
-2. Live briefs for custom points (keep the four precomputed ones).
-3. 3D view.
-4. Scroll story (keep the hero and the instrument).
-5. Fitted predictor (flame visual runs off the evidence rating, clearly labelled).
-6. Investigation detail pages (link straight to PSI).
+1. Live briefs for custom points (keep the four precomputed ones).
+2. 3D view.
+3. Scroll story (keep the hero and the instrument).
+4. Fitted predictor (flame visual runs off the evidence rating, clearly labelled).
+5. Investigation detail pages (link straight to PSI).
 
 Checkpoints: map live with real data by Sat 17:30. If it is not, skip the predictor in Phase 5.
 Anything unfinished at Sun 12:00 is cut, not finished.

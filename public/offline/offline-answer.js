@@ -271,7 +271,7 @@ var FlashpointOffline = (() => {
     return { g, gravity, test, state, caption: caption(`${name}, the closest NASA test: it ${describeOutcome(test)}.`) };
   }
   var HELP = [
-    "This offline mode answers from NASA's test data with fixed rules while the SI assistant is unavailable.",
+    "This rule-based fallback answers from NASA's test data with fixed rules while the SI assistant is unavailable. It is not the main system.",
     'Ask about a cabin atmosphere with an oxygen level and a pressure, a fuel type, or a gravity level. For example: "How does fabric burn at 30% oxygen and 10.2 psi on the Moon?", "What happens at 34% oxygen and 8 psi?", or "How do you put out a fire on the ISS?"'
   ];
   function answerOffline(question, rows, reason) {
@@ -280,7 +280,7 @@ var FlashpointOffline = (() => {
     const assumptions = [];
     const citations = /* @__PURE__ */ new Map();
     const cite = (label, url) => citations.set(label, { label, url });
-    const paragraphs = ["Offline answer: the SI assistant is unavailable, so this comes from fixed rules applied to NASA's test data."];
+    const paragraphs = ["Fallback answer: the SI assistant is unavailable, so this rule-based fallback answers from NASA's test data."];
     let o2 = q.o2_pct;
     let p = q.pressure_psi;
     if (q.preset) {

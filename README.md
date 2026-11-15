@@ -48,7 +48,7 @@ then http://127.0.0.1:8766/site/ . Details, and what has been checked, are in [s
 | `site/` | The website: plain HTML, CSS and JavaScript, no build step |
 | `data/` | `tests.json` (every row with its raw cells), `tests.web.json` (the slim file the site reads), `tests.meta.json` |
 | `scripts/build_tests.py` | Downloads NASA's per-test tables and builds the data files |
-| `lib/`, `public/offline/` | The evidence rating and the offline answers (TypeScript source and the browser build) |
+| `lib/`, `public/offline/` | The evidence rating and the rule-based answers, which are the assistant's **fallback, not the main system** (TypeScript source and the browser build) |
 | `public/flames/` | The backup CSS flame for browsers without WebGL 2 |
 | `docs/` | Challenge notes, the data inventory, and the AI usage log |
 | `temp/`, `alanzim/` | Earlier drafts, kept for reference. Not deployed (see `.vercelignore`) |

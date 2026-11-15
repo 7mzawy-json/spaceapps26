@@ -15,3 +15,5 @@
 /.env.example
 /Codex
 /.qa
+/docs/agents
+/docs/audit-log.md
